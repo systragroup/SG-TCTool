@@ -134,7 +134,8 @@ class Counter:
                     if self.intersect_tripline(tripline['start'], tripline['end'], point_A, point_B):
                         frame = data[i][0]
                         cls = data[i][3]
-                        direction = self.directions[idx]
+                        if len(self.triplines) == 1 : direction = self.directions[0] if self.CP(tripline['start'], tripline['end'], point_A, point_B) > 0 else self.directions[1]
+                        else : direction = self.directions[idx]
                         # Store the tripline index
                         data_manager.CROSSED[track_id].append((frame, cls, direction, idx))
                         break 

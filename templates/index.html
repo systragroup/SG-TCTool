@@ -66,7 +66,7 @@
         <div class="container-fluid">
             <!-- App Title -->
             <a class="navbar-brand" href="/">Systra Traffic Counting App</a>
-            <!-- Toggler for mobile view -->
+            <!-- Toggler -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -203,10 +203,14 @@
         
 
         <!-- Result and Download Links -->
-        <div id="result" class="mt-4">
-        </div>
+        <div class="card mb-4">
+            <div class="card-header">Results</div>
+            <div class="card-body">
+                <p id="result" class="text-muted"> Waiting for input submission</p>
 
-        <div id="downloadLinks" class="mt-4">
+                <div id="downloadLinks" class="mt-4">
+                </div>
+                
         </div>
     </div>
 
@@ -470,6 +474,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === "Processing started") {
+                            document.getElementById('result').innerText = 'Processing started...';
                             // Start polling for progress updates
                             const progressInterval = setInterval(() => {
                                 fetch(`/progress?session_id=${session_id}`)
@@ -491,36 +496,56 @@
                                         progressBarAnnotation.style.width = progressData.Annotation + '%';
                                         progressBarAnnotation.innerText = 'Annotation: ' + progressData.Annotation + '%';
                                     }
-                                    if (progressData.YOLO === 100 && progressData.Counting === 100 && progressData.Excel === 100 && (progressData.Annotation === 100 || progressData.Annotation === 0)) {
-                                        // Fetch and display the results
-                                        fetch(`/results?session_id=${session_id}`)
-                                        .then(response => response.json())
-                                        .then(resultData => {
-                                            clearInterval(progressInterval);
-                                            // Display results
-                                            if (resultData.status === "Processing complete") {
-                                                document.getElementById('result').innerText = resultData.status;
-                                                let linksHTML = `<a href="/results/${session_id}/report.xlsx" class="btn btn-success m-2">Download Report</a>`;
-                                                if (resultData.annotated_video_url) {
-                                                    linksHTML += `<a href="/results/${session_id}/annotated_video.mp4" class="btn btn-success m-2">Download Annotated Video</a>`;
-                                                }
-                                                document.getElementById('downloadLinks').innerHTML = linksHTML;
-                                            } else {
-                                                document.getElementById('result').innerText = resultData.error || 'An error occurred';
-                                            }
-                                        });
-                                    } else if (progressData.YOLO === -1 || progressData.Counting === -1 || progressData.Excel === -1 || progressData.Annotation === -1) {
+                                    // Check if processing is complete
+                                    const isComplete = (progressData.YOLO === 100 && 
+                                                    progressData.Counting === 100 && 
+                                                    progressData.Excel === 100 && 
+                                                    (progressData.Annotation === 100 || !document.getElementById('exportVideo').checked));
+
+                                    if (isComplete) {
+                                        clearInterval(progressInterval);
+                                        document.getElementById('result').innerText = 'Processing complete';
+                                        
+                                        // Generate download links
+                                        const downloadLinks = [];
+                                        downloadLinks.push(`<a href="/download/${session_id}/report.xlsx" class="btn btn-success m-2">Download Report</a>`);
+                                        
+                                        // Add video download link if video export was enabled
+                                        if (document.getElementById('exportVideo').checked) {
+                                            downloadLinks.push(`<a href="/download/${session_id}/annotated_video.mp4" class="btn btn-success m-2">Download Annotated Video</a>`);
+                                        }
+                                        
+                                        document.getElementById('downloadLinks').innerHTML = downloadLinks.join('');
+                                    }
+                                    // Check for errors
+                                    else if (progressData.YOLO === -1 || 
+                                            progressData.Counting === -1 || 
+                                            progressData.Excel === -1 || 
+                                            progressData.Annotation === -1) {
                                         clearInterval(progressInterval);
                                         document.getElementById('result').innerText = 'An error occurred during processing.';
+                                        // Try to fetch specific error message
+                                        fetch(`/results?session_id=${session_id}`)
+                                            .then(response => response.json())
+                                            .then(resultData => {
+                                                if (resultData.error) {
+                                                    document.getElementById('result').innerText = `Error: ${resultData.error}`;
+                                                }
+                                            });
                                     }
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                    clearInterval(progressInterval);
+                                    document.getElementById('result').innerText = 'An unexpected error occurred.';
                                 });
                             }, 500); // Poll every half second
                         } else {
-                            document.getElementById('result').innerText = data.error || 'An error occurred';
+                            document.getElementById('result').innerText = data.error || 'An unexpected error occurred';
                         }
                     });
                 } else {
-                    document.getElementById('result').innerText = data.error || 'An error occurred';
+                    document.getElementById('result').innerText = data.error || 'An unexpected error occurred';
                 }
             })
             .catch(error => {
