@@ -183,10 +183,10 @@ def start_processing(session_id):
     return jsonify({"status": "Processing started", "session_id": session_id})
 
 def log_session(session_id, data):
-    SESSION_LOG_FILE = os.path.join(RESULTS_FOLDER, 'session_log.json')
+    PPROCESS_LOG_FILE = os.path.join(RESULTS_FOLDER, 'process_session_log.json')
     # Load existing log data
-    if os.path.exists(SESSION_LOG_FILE):
-        with open(SESSION_LOG_FILE, 'r') as f:
+    if os.path.exists(PPROCESS_LOG_FILE):
+        with open(PPROCESS_LOG_FILE, 'r') as f:
             session_log = json.load(f)
     else:
         session_log = {}
@@ -195,7 +195,7 @@ def log_session(session_id, data):
     session_log[session_id] = data
 
     # Write the updated log back to the file
-    with open(SESSION_LOG_FILE, 'w') as f:
+    with open(PPROCESS_LOG_FILE, 'w') as f:
         json.dump(session_log, f, indent=4)
 
 @app.route('/process_initial', methods=['POST'])
@@ -248,38 +248,109 @@ def download_file(session_id, filename):
     directory = session_dir
     return send_from_directory(directory, filename, as_attachment=True)
 
+import uuid
+
 @app.route('/compile', methods=['GET', 'POST'])
 def compile_reports():
     if request.method == 'POST':
-        # Handle the form submission
+        # Generate a unique session ID for this compile session
+        session_id = str(uuid.uuid4())
+        
+        # Retrieve form data
         compile_option = request.form.get('compileOption')
         output_filename = request.form.get('outputFilename')
-        if not output_filename.endswith('.xlsx'):
+        
+        # Set default output filename if not provided
+        if not output_filename.strip():
+            output_filename = 'compiled_report.xlsx'
+        elif not output_filename.endswith('.xlsx'):
             output_filename += '.xlsx'
         
         output_path = os.path.join(RESULTS_FOLDER, output_filename)
-
-        if compile_option == 'folder':
-            folder_path = request.form.get('folderPath')
-            compiler = xlsxCompiler(folder_path=folder_path)
+        
+        # Initialize compile session data
+        compile_data = {
+            'session_id': session_id,
+            'compile_option': compile_option,
+            'output_filename': output_filename,
+            'timestamp': datetime.utcnow().isoformat() + 'Z',  # ISO 8601 format in UTC
+            'status': 'initiated',
+            'input_paths': [],
+            'error_message': None
+        }
+        
+        try:
+            if compile_option == 'folder':
+                folder_path = request.form.get('folderPath')
+                if not folder_path or not os.path.isdir(folder_path):
+                    raise ValueError("Invalid folder path provided.")
+                compile_data['input_paths'].append(folder_path)
+                compiler = xlsxCompiler(folder_path=folder_path)
+            elif compile_option == 'files':
+                # Handle file uploads
+                files = request.files.getlist('filePaths')
+                if not files:
+                    raise ValueError("No files selected for compilation.")
+                file_paths = []
+                for file in files:
+                    filename = secure_filename(file.filename)
+                    file_path = os.path.join(UPLOAD_FOLDER, filename)
+                    file.save(file_path)
+                    file_paths.append(file_path)
+                compile_data['input_paths'].extend(file_paths)
+                compiler = xlsxCompiler(file_paths=file_paths)
+            else:
+                raise ValueError("Invalid compile option selected.")
+            
+            # Perform compilation
             compiler.compile(output_path=output_path)
-        elif compile_option == 'files':
-            # Handle file uploads (we'll adjust this in Step 3)
-            files = request.files.getlist('filePaths')
-            file_paths = []
-            for file in files:
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(UPLOAD_FOLDER, filename)
-                file.save(file_path)
-                file_paths.append(file_path)
-            compiler = xlsxCompiler(file_paths=file_paths)
-            compiler.compile(output_path=output_path)
-        else:
-            return "Invalid compile option", 400
-
-        return send_from_directory(RESULTS_FOLDER, output_filename, as_attachment=True)
-
+            compile_data['status'] = 'success'
+            
+            # Log the successful compile session
+            log_compile_session(session_id, compile_data)
+            
+            # Send the compiled file as a download
+            return send_from_directory(RESULTS_FOLDER, output_filename, as_attachment=True)
+        
+        except Exception as e:
+            # Update compile_data with error details
+            compile_data['status'] = 'error'
+            compile_data['error_message'] = str(e)
+            
+            # Log the failed compile session
+            log_compile_session(session_id, compile_data)
+            
+            # Return error response
+            return jsonify({'status': 'error', 'message': str(e)}), 500
+    
     return render_template('compile.html')
+
+import json
+from datetime import datetime
+
+def log_compile_session(session_id, data):
+    """
+    Logs compile session details to compile_session_log.json.
+    
+    Args:
+        session_id (str): Unique identifier for the compile session.
+        data (dict): Dictionary containing compile session details.
+    """
+    COMPILE_LOG_FILE = os.path.join(RESULTS_FOLDER, 'compile_session_log.json')
+    
+    # Load existing log data
+    if os.path.exists(COMPILE_LOG_FILE):
+        with open(COMPILE_LOG_FILE, 'r') as f:
+            compile_log = json.load(f)
+    else:
+        compile_log = {}
+    
+    # Add the new compile session data
+    compile_log[session_id] = data
+    
+    # Write the updated log back to the file
+    with open(COMPILE_LOG_FILE, 'w') as f:
+        json.dump(compile_log, f, indent=4, default=str)
 
 if __name__ == '__main__':
     app.run(debug=True)
