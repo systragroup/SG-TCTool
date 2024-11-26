@@ -34,7 +34,7 @@
     <!-- Compiler Form -->
     <div class="container mt-4">
         <h1>Compiler</h1>
-        <form action="/compile" method="POST" enctype="multipart/form-data">
+        <form id="inputForm" enctype="multipart/form-data">
             <!-- Compile Option -->
             <div class="mb-3">
                 <label for="compileOption" class="form-label">Compile Option</label>
@@ -59,10 +59,14 @@
             <!-- Output Filename -->
             <div class="mb-3">
                 <label for="outputFilename" class="form-label">Output Filename</label>
-                <input type="text" class="form-control" id="outputFilename" name="outputFilename" placeholder="compiled_report.xlsx" required>
+                <input type="text" class="form-control" id="outputFilename" name="outputFilename" placeholder="compiled_report.xlsx">
             </div>
 
             <button type="submit" class="btn btn-primary">Compile</button>
+            <!-- Add Download Button -->
+            <a id="downloadButton" href="#" class="btn btn-success ms-2" style="display: none;" download>
+                Download Compiled Report
+            </a>
         </form>
     </div>
 
@@ -71,6 +75,11 @@
     <!-- Toggle between Folder and File input fields -->
     <script>
         document.getElementById('compileOption').addEventListener('change', function() {
+            // Set default output filename if not provided
+            const outputFilenameInput = document.getElementById('outputFilename');
+            if (!outputFilenameInput.value.trim()) {
+                outputFilenameInput.value = 'compiled_report.xlsx';
+            }
             if (this.value === 'folder') {
                 document.getElementById('folderInput').style.display = 'block';
                 document.getElementById('fileInput').style.display = 'none';
@@ -78,6 +87,34 @@
                 document.getElementById('folderInput').style.display = 'none';
                 document.getElementById('fileInput').style.display = 'block';
             }
+        });
+
+        // Handle form submission
+        document.getElementById('inputForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const downloadButton = document.getElementById('downloadButton');
+
+            fetch('/compile', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Set the download link
+                    downloadButton.href = data.download_url;
+                    downloadButton.style.display = 'inline-block';
+                } else {
+                    throw new Error(data.message || 'Compilation failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while compiling the report.');
+            });
         });
     </script>
 </body>

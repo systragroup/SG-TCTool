@@ -11,12 +11,19 @@ from datetime import datetime
 import os
 
 app = Flask(__name__)
-app.secret_key = "something"
-app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024  # 1000 MB
 
 UPLOAD_FOLDER = os.path.join(app.root_path, 'uploads')
 MODEL_FOLDER = os.path.join(app.root_path, 'models')
 RESULTS_FOLDER = os.path.join(app.root_path, 'results')
+
+app.secret_key = "something"
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024  # 1000 MB
+
+# Check directories
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(MODEL_FOLDER, exist_ok=True)
+os.makedirs(RESULTS_FOLDER, exist_ok=True)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [Line %(lineno)d] - %(message)s')
@@ -29,10 +36,7 @@ data_manager = DataManager()
 app.progress = {}
 app.results = {}
 
-# Create directories
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(MODEL_FOLDER, exist_ok=True)
-os.makedirs(RESULTS_FOLDER, exist_ok=True)
+
 
 @app.route('/')
 def index():
@@ -238,10 +242,11 @@ def get_results():
     else:
         return jsonify({'error': 'Results not available yet'}), 202
 
-@app.route('/results/<session_id>/<filename>')
+@app.route('/download/<session_id>/<filename>')
 def download_file(session_id, filename):
     session_dir = os.path.join(RESULTS_FOLDER, session_id)
-    return send_from_directory(session_dir, filename, as_attachment=True)
+    directory = session_dir
+    return send_from_directory(directory, filename, as_attachment=True)
 
 @app.route('/compile', methods=['GET', 'POST'])
 def compile_reports():
