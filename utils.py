@@ -13,6 +13,27 @@ import numpy as np
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+DESC_WIDTH = 25
+
+CLASS_COLORS = {
+    0: (70, 130, 180),   # Car - Steel Blue
+    1: (60, 179, 113),   # Van - Medium Sea Green
+    2: (218, 165, 32),   # Bus - Goldenrod
+    3: (138, 43, 226),   # Motorcycle - Blue Violet
+    4: (255, 140, 0),    # Lorry - Dark Orange
+    5: (128, 128, 128)   # Other - Gray
+}
+
+# Assign colors to each tripline
+TRIPLINE_COLORS = {
+    0: (255, 0, 0),    # Red  
+    1: (0, 255, 0),    # Green
+    2: (0, 0, 255),    # Blue
+    3: (255, 255, 0),  # Yellow
+    4: (255, 0, 255),  # Magenta
+    5: (0, 255, 255),  # Cyan
+}
+
 class DataManager:
     def __init__(self):
         self.names = None
@@ -28,7 +49,7 @@ class DataManager:
 
         self.START, self.END = None, None
 
-        self.CROSSED = {}
+        self.CROSSED =  defaultdict(lambda: [])
         self.TRACK_DATA = defaultdict(lambda: [])
         self.TRACK_INFO = []
 
@@ -46,17 +67,11 @@ class DataManager:
     def set_tripline(self):
         self.tripline = (self.START, self.END)
 
-    def get_directions(self, form_data):
-        directions = []
-        i = 1
-        while True:
-            direction = form_data.get(f'direction{i}')
-            if not direction:
-                break
-            directions.append(direction)
-            i += 1
-        print("data_manager.directions : ", directions)
-        return directions
+    def set_directions(self, direction_data):
+        self.directions = [dir for dir in direction_data.values()]
+
+    def set_start_datetime(self, start_date, start_time):
+        self.start_datetime = datetime.datetime.strptime(f"{start_date} {start_time}:00", r"%Y-%m-%d %H:%M:%S")
 
     def set_video_params(self, video_path):
         self.video_path = video_path
@@ -110,25 +125,21 @@ class Counter:
     def count(self, data_manager):
         obj_count = 0
         total_objs = len(data_manager.TRACK_DATA)
-        console_progress = tqdm(total=total_objs, desc="Counting crossings", unit="tracks")
-        
-        #For each tracked object, check if it has crossed each of the triplines
-        for track_id, data in data_manager.TRACK_DATA.items(): #TRACK DATA[track_id] = [(frame_nb, box, confidence, clss)]   !!! > box = [x, y, w, h]
-                for idx, tripline in enumerate(self.triplines):
-                    for i in range(1, len(data)):
-                        point_A, point_B = {'x' : data[i-1][1][0], 'y' : data[i-1][1][1]}, {'x' : data[i][1][0], 'y' : data[i][1][1]}
-                        if self.intersect_tripline(tripline['start'], tripline['end'], point_A, point_B):
-                            if len(self.triplines) == 1:
-                                direction = self.directions[0] if self.CP(tripline[0], tripline[1], data[0][1], data[-1][1]) >= 0 else self.directions[1]
-                            else:
-                                direction = self.directions[idx]
-                            data_manager.CROSSED[track_id] = [(data[i][0], data[i][3], direction)]
-                            break
-                console_progress.update(1)
-                obj_count += 1 
-                if self.progress_callback:
-                    progress_percentage = int((obj_count / total_objs) * 100)
-                    self.progress_callback(progress_percentage)
+        console_progress = tqdm(total=total_objs, desc=f'{"Counting crossings":<{DESC_WIDTH}}', unit="tracks")
+        for track_id, data in data_manager.TRACK_DATA.items():
+            for idx, tripline in enumerate(self.triplines):
+                for i in range(1, len(data)):
+                    point_A = {'x': data[i - 1][1][0], 'y': data[i - 1][1][1]}
+                    point_B = {'x': data[i][1][0], 'y': data[i][1][1]}
+                    if self.intersect_tripline(tripline['start'], tripline['end'], point_A, point_B):
+                        frame = data[i][0]
+                        cls = data[i][3]
+                        direction = self.directions[idx]
+                        # Store the tripline index
+                        data_manager.CROSSED[track_id].append((frame, cls, direction, idx))
+                        break  # Stop checking after the first crossing
+            console_progress.update(1)
+            obj_count += 1 
         console_progress.close()
 
     def CP(self, START, END, A, B): #Cross Product (Positive means B is on left side of S-E, negative B is on the right and 0 is S-E and A-B colinear)
@@ -182,7 +193,7 @@ class Tracker:
         self.cap = cv2.VideoCapture(self.video_path)
         self.frame_count = data_manager.frame_count
 
-        self.console_progress = tqdm(total=self.frame_count, desc="YOLO is working", unit="frames")
+        self.console_progress = tqdm(total=self.frame_count, desc=f'{'YOLO is working':<{DESC_WIDTH}}', unit="frames")
         # Run inference and tracking
         total_frames = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
         current_frame = 0
@@ -216,27 +227,27 @@ class xlsxWriter:
     def __prepare_data(self, data_manager):
         self.write_data = []
 
-        for obj_id, (frame, cls, direction) in data_manager.CROSSED.items():
-            timestamp = frame / data_manager.fps
-            crossing_time = data_manager.start_datetime + datetime.timedelta(seconds=timestamp)
-            date = crossing_time.date()
-            first_day_of_week = date - datetime.timedelta(days=date.weekday())
-            actual_week_day = crossing_time.strftime("%A")
-            time_of_crossing = crossing_time.time()
-            interval_15_min = f"{crossing_time.hour}:{(crossing_time.minute // 15) * 15:02d}"
-            interval_hr = f"{crossing_time.hour}:00"
-            self.write_data.append([data_manager.site_location, date, first_day_of_week, actual_week_day, time_of_crossing, interval_15_min, interval_hr, direction, data_manager.names[cls]])
+        for obj_id, crossings in data_manager.CROSSED.items():
+            for (frame, cls, direction, _) in crossings : 
+                timestamp = frame / data_manager.fps
+                crossing_time = data_manager.start_datetime + datetime.timedelta(seconds=timestamp)
+                date = crossing_time.date()
+                first_day_of_week = date - datetime.timedelta(days=date.weekday())
+                actual_week_day = crossing_time.strftime("%A")
+                time_of_crossing = crossing_time.time()
+                interval_15_min = f"{crossing_time.hour}:{(crossing_time.minute // 15) * 15:02d}"
+                interval_hr = f"{crossing_time.hour}:00"
+                self.write_data.append([data_manager.site_location, date, first_day_of_week, actual_week_day, time_of_crossing, interval_15_min, interval_hr, direction, data_manager.names[cls]])
 
     def write_to_excel(self, export_path_excel, data_manager, progress_var = None):
         self.progress = progress_var  # Works with gradio tqdm progress bar
-        self.console_progress = tqdm(total=len(data_manager.CROSSED), desc="Writing xlsx report", unit="objects")
         self.__prepare_data(data_manager)
-
         # Write the headers
         self.sheet.append(["Site", "Date", "First day of the Week", "Actual Week Day of crossing", "Time of crossing", "15 Min Interval of Crossing", "Hr interval of Crossing", "Direction", "Class"])
 
         # Write the data
         length, prog_count = len(self.write_data), 0
+        self.console_progress = tqdm(total=length, desc=f'{'Writing xlsx report':<{DESC_WIDTH}}', unit="rows")
         for row in self.write_data:
             self.sheet.append(row)
             self.console_progress.update(1)
@@ -259,7 +270,6 @@ class xlsxWriter:
 
         # Save the workbook
         self.workbook.save(export_path_excel)
-        print("--> Results written at : ", export_path_excel)
 
         self.console_progress.close()
         return export_path_excel
@@ -326,6 +336,10 @@ class Annotator:
         self.width, self.height = self.data_manager.width, self.data_manager.height
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
 
+    def draw_trajectory(self, points, traj_color, traj_thickness=2):
+        cv2.polylines(self.frame, [points], isClosed=False, color=traj_color, thickness=traj_thickness)
+        cv2.circle(self.frame, (points[-1][0], points[-1][1]), 5, traj_color, -1)
+    
     def draw_box_on_frame(self, id : int, color : tuple[int,int,int], bbox : tuple[int,int,int,int], score : float, class_name : str):
         label = f"{class_name} - {id}: {score:0.2f}" # bbox label
         lbl_margin = 3 #label margin
@@ -348,7 +362,7 @@ class Annotator:
 
     def write_annotated_video(self, export_path_mp4):
         self.frame_count = self.data_manager.frame_count
-        self.console_progress = tqdm(total=self.frame_count, desc="Writing annotated video", unit="frames")
+        self.console_progress = tqdm(total=self.frame_count, desc=f'{'Writing annotated video':<{DESC_WIDTH}}', unit="frames")
         
         COLORS = {
             0: (70, 130, 180),   # Car - Steel Blue
@@ -371,7 +385,6 @@ class Annotator:
         self.export_path = new_export_path_mp4
         
         self.frame_nb = 0
-        counted = {}
 
         # Open video to process
         self.open_video()
@@ -382,62 +395,75 @@ class Annotator:
             self.data_manager.fps,
             (self.width, self.height))
 
+        # Build a dictionary of counted objects with tripline index
+        counted = {}
+
+
         while self.cap.isOpened():
             success, self.frame = self.cap.read()
-            if success :
-                # Draw the tracking lines and bounding boxes
-                for track_id, track_length_at_frame in self.data_manager.TRACK_INFO[self.frame_nb]:
-                    # First, see if objects has crossed
-                    if track_id in self.data_manager.CROSSED.keys() and self.data_manager.CROSSED[track_id][0] == self.frame_nb:
-                            counted[track_id] = self.data_manager.CROSSED[track_id][1]
+            if success:
+                for track_id, track_length_at_frame in self.data_manager.TRACK_INFO[self.frame_nb]: # Get each object present on current frame
+                    # Check if object crosses a tripline 
+                    if track_id in self.data_manager.CROSSED.keys() :
+                        tripline_indexes = [crossing[3] for crossing in self.data_manager.CROSSED[track_id]]
+                        if self.data_manager.CROSSED[track_id][-1][0] == self.frame_nb:
+                            # Store the tripline index for the object if it is it's last crossing
+                            counted[track_id] = self.data_manager.CROSSED[track_id][-1][1] 
+                    
+                    # In all cases, get the class of the object
+                    cls = self.data_manager.TRACK_DATA[track_id][track_length_at_frame-1][3] 
+                    # Get corresponding class color for bounding box
+                    class_color = CLASS_COLORS.get(cls, (255, 255, 255))  # Dflt 2 white
 
-                    cls = self.data_manager.TRACK_DATA[track_id][track_length_at_frame-1][3]
-                    # Assign color based on class, default to green if counted
-                    if track_id in counted.keys():
-                        color = (0, 255, 0)  # Green for counted
-                    else:
-                        color = COLORS.get(cls, (255, 255, 255))  # Default to white
+                    # Draw trajectories
+                    points = np.array([[self.data_manager.TRACK_DATA[track_id][i][1][0], self.data_manager.TRACK_DATA[track_id][i][1][1]]
+                                           for i in range(track_length_at_frame)]).astype(np.int32) 
+                    if len(points) > 11: # Smoothen trajectories
+                        kernel = np.ones(5) / 5.0  # Simple moving average kernel
+                        points[5:-5, 0] = np.convolve(points[:, 0], kernel, mode='same')[5:-5]
+                        points[5:-5, 1] = np.convolve(points[:, 1], kernel, mode='same')[5:-5]
 
-                    # Draw object track
-                    points = np.array([[self.data_manager.TRACK_DATA[track_id][i][1][0], self.data_manager.TRACK_DATA[track_id][i][1][1]] for i in range(track_length_at_frame)]).astype(np.int32)
-                    cv2.polylines(self.frame, [points], isClosed=False, color=color, thickness=2)
-                    cv2.circle(self.frame, (points[-1][0], points[-1][1]), 5, color, -1)
+                        if tripline_indexes : #Meaning it will cross a tripline
+                            for cnt, trip_idx in enumerate(tripline_indexes):
+                                trajectory_color = TRIPLINE_COLORS.get(trip_idx%len(TRIPLINE_COLORS))
+                                # offset points for each tripline
+                                offset_points = points + [2*cnt, 2*cnt]
+                                self.draw_trajectory(offset_points, trajectory_color)
 
-                    # Draw box and label
-                    if track_id in counted.keys(): color = (0, 255, 0)
-                    self.draw_box_on_frame(track_id,
-                            color,
-                            self.data_manager.TRACK_DATA[track_id][track_length_at_frame-1][1],
-                            self.data_manager.TRACK_DATA[track_id][track_length_at_frame-1][2],
-                            self.data_manager.names[cls])
+                        else:
+                            trajectory_color = (200, 200, 200)  # Gray for uncounted tracks
+                            self.draw_trajectory(points, trajectory_color)
 
+                    # Draw bounding box with class color
+                    self.draw_box_on_frame(
+                        track_id,
+                        class_color,
+                        self.data_manager.TRACK_DATA[track_id][track_length_at_frame-1][1],
+                        self.data_manager.TRACK_DATA[track_id][track_length_at_frame-1][2],
+                        self.data_manager.names[cls]
+                    )
 
-                # Draw the tripline on the frame
-                cv2.line(self.frame, self.START, self.END, (0, 255, 0), 2)
+                # Draw all triplines with their assigned colors
+                for idx, tripline in enumerate(self.data_manager.triplines):
+                    color = TRIPLINE_COLORS[idx%len(TRIPLINE_COLORS)]
+                    cv2.line(
+                        self.frame,
+                        (int(tripline['start']['x']), int(tripline['start']['y'])),
+                        (int(tripline['end']['x']), int(tripline['end']['y'])),
+                        color=color,
+                        thickness=2
+                    )
+                    # Optionally, label the tripline
+                    cv2.putText(
+                        self.frame,
+                        f"{idx+1}",
+                        (int(tripline['start']['x']), int(tripline['start']['y']) - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        1,
+                        color,
+                        thickness=2
+                    )
 
-                # Write the count of objects on each frame
-                count_text_1 = f"{len(counted)}/{len(self.data_manager.CROSSED)} objects have crossed the line :"
-                cv2.putText(self.frame, count_text_1, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
-                # Add and display text lines for each of the detected classes
-                class_lines = defaultdict(int)
-                for obj in counted:
-                    class_lines[int(self.data_manager.CROSSED[obj][1])] += 1
-
-                line_y = 70
-                for clss, count in class_lines.items():
-                    class_text = f"{self.data_manager.names[int(clss)]}: {count}"
-                    cv2.putText(self.frame, class_text, (10, line_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                    line_y += 30
-
-                # Add the model name in the bottom right corner
-                model_name_text = f"Model: {os.path.basename(self.data_manager.selected_model)}"
-                (model_text_w, model_text_h), _ = cv2.getTextSize(model_name_text, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, thickness=2)
-                model_text_x = self.width - model_text_w - 10 #10 px from right edge
-                model_text_y = self.height - model_text_h - 5
-                cv2.putText(self.frame, model_name_text, (model_text_x, model_text_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
-                
                 # Write frame to video
                 self.video_writer.write(self.frame)
                 

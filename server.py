@@ -145,19 +145,20 @@ def start_processing(session_id):
     form_data = session.get('form_data')
     data_manager = DataManager()
     data_manager.video_path = session.get('video_path')
-    data_manager.selected_model = session.get('model_path')
     data_manager.set_video_params(data_manager.video_path)
+    data_manager.selected_model = session.get('model_path')
     data_manager.set_names(data_manager.selected_model)
     
     # Set triplines from drawing stage
     tripline_data = request.get_json().get('triplines')
     data_manager.triplines = tripline_data
+    data_manager.set_directions(request.get_json().get('directions'))
     
     # Set remaining parameters from stored form data
     data_manager.site_location = form_data['site_location']
     data_manager.inference_tracker = form_data['inference_tracker']
     data_manager.do_video_export = form_data['export_video']
-    data_manager.directions = data_manager.get_directions(form_data)
+    data_manager.set_start_datetime(form_data['start_date'], form_data['start_time'])
     
     # Define paths
     session_dir = os.path.join(RESULTS_FOLDER, session_id)

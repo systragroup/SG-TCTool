@@ -243,23 +243,24 @@
             let isDrawing = false;
             currentTripline = {};
 
-            canvas.addEventListener('mousedown', (e) => {
+            function getScaledCoordinates(e) {
                 const rect = canvas.getBoundingClientRect();
-                currentTripline.start = {
-                    x: e.clientX - rect.left,
-                    y: e.clientY - rect.top
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                return {
+                    x: (e.clientX - rect.left) * scaleX,
+                    y: (e.clientY - rect.top) * scaleY
                 };
+            }
+
+            canvas.addEventListener('mousedown', (e) => {
+                currentTripline.start = getScaledCoordinates(e);
                 isDrawing = true;
             });
 
             canvas.addEventListener('mousemove', (e) => {
                 if (!isDrawing) return;
-
-                const rect = canvas.getBoundingClientRect();
-                currentTripline.end = {
-                    x: e.clientX - rect.left,
-                    y: e.clientY - rect.top
-                };
+                currentTripline.end = getScaledCoordinates(e);
 
                 // Redraw frame and all triplines
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -278,15 +279,34 @@
                 if (currentTripline.start && currentTripline.end) {
                     triplines.push({ ...currentTripline });
                     currentTripline = {};
-                    updateTriplineCounter(); // Update counter after adding a tripline
+                    updateTriplineCounter();
                 }
             });
 
-            document.getElementById('resetTriplinesBtn').addEventListener('click', () => {
-                triplines = [];
+            window.addEventListener('resize', () => {
+                // Redraw frame and all triplines on window resize
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0);
-                updateTriplineCounter(); // Reset counter after clearing triplines
+                triplines.forEach(line => {
+                    drawLine(ctx, line.start, line.end);
+                });
+            });
+
+            document.getElementById('resetTriplinesBtn').addEventListener('click', () => {
+                // Clear the triplines array
+                triplines = [];
+                currentTripline = {};
+
+                // Update the tripline counter
+                updateTriplineCounter();
+
+                // Clear the canvas and redraw the original image
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+
+                // Hide the directions card and reset button
+                document.getElementById('directionsCard').style.display = 'none';
+                document.getElementById('resetTriplinesBtn').style.display = 'none';
             });
         }
 
@@ -328,6 +348,8 @@
             }
         }
 
+        
+
         function addDirectionInput(form, id, label) {
             const div = document.createElement('div');
             div.className = 'mb-3';
@@ -361,13 +383,13 @@
                 const directionValue1 = document.getElementById(`direction1`).value;
                 const directionValue2 = document.getElementById(`direction2`).value;
                 directions = {
-                    0: directionValue1,
-                    1: directionValue2
+                    1: directionValue1,
+                    2: directionValue2
                 };
             } else if (triplines.length >= 2) {
                 triplines.forEach((tripline, index) => {
                     const directionValue = document.getElementById(`direction${index + 1}`).value;
-                    directions[index] = directionValue;
+                    directions[index + 1] = directionValue;
                 });
             }
 
@@ -419,7 +441,7 @@
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ 'triplines': triplines })
+                        body: JSON.stringify({ 'triplines': triplines , 'directions': directions })
                     })
                     .then(response => response.json())
                     .then(data => {
