@@ -1,0 +1,29 @@
+--> To create venv according to requirements.txt (1st time only). Will be created in cwd, make sure it is where you want it:
+
+python -m venv venv
+pip install -r requirements.txt
+
+
+
+------
+--> To launch the venv on a computer where ExecutionPolicy is Restricted (eg. Systra monitored):
+
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process    
+venv\Scripts\activate
+
+If he wanted to and he wanted to. HDndJbda Dhamadu [2]: 
+    HJSnsnblkans
+
+ kk lcsa lkc lkcGDsaoma  x
+ Nxksn computerHhd
+
+ ksk    requirements RemoteSigned
+
+ dnsan Res tsts vx; 
+ Nxksndnd
+ dnsan
+
+bJnx x Lsma #89304 Sosmcs 
+lsdmd 
+
+the love 
