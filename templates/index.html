@@ -72,7 +72,7 @@
             </button>
             <!-- Navigation Links and Buttons -->
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto"> <!-- Align items to the right -->
+                <ul class="navbar-nav ms-auto d-flex flex-column align-items-end">
                     <li class="nav-item">
                         <a class="nav-link-active" href="/">Home</a>
                     </li>
@@ -508,11 +508,11 @@
                                         
                                         // Generate download links
                                         const downloadLinks = [];
-                                        downloadLinks.push(`<a href="/download/${session_id}/report.xlsx" class="btn btn-success m-2">Download Report</a>`);
+                                        downloadLinks.push(`<a href="${data.paths.report_path}" class="btn btn-success m-2">Download Report</a>`);
                                         
                                         // Add video download link if video export was enabled
                                         if (document.getElementById('exportVideo').checked) {
-                                            downloadLinks.push(`<a href="/download/${session_id}/annotated_video.mp4" class="btn btn-success m-2">Download Annotated Video</a>`);
+                                            downloadLinks.push(`<a href="${data.paths.annotated_video_path}" class="btn btn-success m-2">Download Annotated Video</a>`);
                                         }
                                         
                                         document.getElementById('downloadLinks').innerHTML = downloadLinks.join('');

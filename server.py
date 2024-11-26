@@ -63,8 +63,8 @@ def process_video_task(data_manager, session_id, paths):
     with app.app_context():
         try:
             start_time = datetime.now()
-            session_dir = paths[0]
-            report_path = paths[1]
+            session_dir = paths['session_dir']
+            report_path = paths['report_path']
             for step in ['YOLO', 'Counting', 'Excel', 'Annotation']:
                 update_progress(session_id, step, 0)
 
@@ -90,7 +90,7 @@ def process_video_task(data_manager, session_id, paths):
             # Perform annotation if export_video is True
             if data_manager.do_video_export:
                 update_progress(session_id, 'Annotation', 0)
-                annotated_video_path = paths[2]
+                annotated_video_path = paths['annotated_video_path']
                 annotator = Annotator(data_manager, progress_callback=lambda p: update_progress(session_id, 'Annotation', p))
                 annotator.write_annotated_video(annotated_video_path)
                 update_progress(session_id, 'Annotation', 100)
@@ -168,19 +168,21 @@ def start_processing(session_id):
     
     # Define paths
     session_dir = os.path.join(RESULTS_FOLDER, session_id)
-    report_path = os.path.join(session_dir, 'report.xlsx')
-    annotated_video_path = os.path.join(session_dir, 'annotated_video.mp4') if data_manager.do_video_export else None
+    report_path = os.path.join(session_dir, 'report_'+ data_manager.site_location +'.xlsx')
+    annotated_video_path = os.path.join(session_dir, 'annotated_'+ data_manager.site_location +'_video.mp4') if data_manager.do_video_export else None
     os.makedirs(session_dir, exist_ok=True)
-    paths = [session_dir, report_path]
+    paths = {'session_dir' : session_dir, 'report_path' : report_path}
     if annotated_video_path:
-        paths.append(annotated_video_path)
+        paths['annotated_video_path'] = annotated_video_path
     
     # Start processing thread
     processing_thread = threading.Thread(target=process_video_task, 
                                       args=(data_manager, session_id, paths))
     processing_thread.start()
     
-    return jsonify({"status": "Processing started", "session_id": session_id})
+    response_paths = {key: os.path.relpath(value, app.root_path) for key, value in paths.items()}
+    print(f"Paths: {paths}, Response paths: {response_paths}")
+    return jsonify({"status": "Processing started", "session_id": session_id, "paths": response_paths})
 
 def log_session(session_id, data):
     PPROCESS_LOG_FILE = os.path.join(RESULTS_FOLDER, 'process_session_log.json')
