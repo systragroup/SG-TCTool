@@ -255,17 +255,22 @@ def compile_reports():
         output_path = os.path.join(RESULTS_FOLDER, output_filename)
 
         if compile_option == 'folder':
-            # Handle folder compilation
             folder_path = request.form.get('folderPath')
-            compiler = xlsxCompiler()
-            compiler.compile_folder(folder_path, output_path)
+            compiler = xlsxCompiler(folder_path=folder_path)
+            compiler.compile(output_path=output_path)
         elif compile_option == 'files':
-            # Handle specific files compilation
-            file_paths = request.form.getlist('filePaths')
-            compiler = xlsxCompiler()
-            compiler.compile_files(file_paths, output_path)
+            # Handle file uploads (we'll adjust this in Step 3)
+            files = request.files.getlist('filePaths')
+            file_paths = []
+            for file in files:
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(UPLOAD_FOLDER, filename)
+                file.save(file_path)
+                file_paths.append(file_path)
+            compiler = xlsxCompiler(file_paths=file_paths)
+            compiler.compile(output_path=output_path)
         else:
-            return jsonify({'error': 'Invalid compile option'}), 400
+            return "Invalid compile option", 400
 
         return send_from_directory(RESULTS_FOLDER, output_filename, as_attachment=True)
 

@@ -237,13 +237,13 @@ class xlsxWriter:
                 time_of_crossing = crossing_time.time()
                 interval_15_min = f"{crossing_time.hour}:{(crossing_time.minute // 15) * 15:02d}"
                 interval_hr = f"{crossing_time.hour}:00"
-                self.write_data.append([data_manager.site_location, date, first_day_of_week, actual_week_day, time_of_crossing, interval_15_min, interval_hr, direction, data_manager.names[cls]])
+                self.write_data.append([data_manager.site_location, date, first_day_of_week, actual_week_day, time_of_crossing, interval_15_min, interval_hr, direction, data_manager.names[cls], obj_id])
 
     def write_to_excel(self, export_path_excel, data_manager, progress_var = None):
         self.progress = progress_var  # Works with gradio tqdm progress bar
         self.__prepare_data(data_manager)
         # Write the headers
-        self.sheet.append(["Site", "Date", "First day of the Week", "Actual Week Day of crossing", "Time of crossing", "15 Min Interval of Crossing", "Hr interval of Crossing", "Direction", "Class"])
+        self.sheet.append(["Site", "Date", "First day of Week", "Week day ", "Time of crossing", "15 Min Interval", "Hour Interval", "Direction", "Class", "ID"])
 
         # Write the data
         length, prog_count = len(self.write_data), 0
@@ -278,7 +278,8 @@ class xlsxCompiler:
     def __init__(self, folder_path=None, file_paths=None):
         self.folder_path = folder_path
         self.file_paths = file_paths if file_paths else []
-        self.compiled_data = {}
+        self.object_data = {} 
+        self.compiled_data = {} 
 
     def read_files(self):
         if self.folder_path:
@@ -294,17 +295,45 @@ class xlsxCompiler:
         for sheet_name in xls.sheet_names:
             df = pd.read_excel(xls, sheet_name=sheet_name)
             for _, row in df.iterrows():
+                obj_id = row['ID']
                 site_location = row['Site']
-                date = row['Date'].strftime('%x')
+                date = row['Date']
                 vehicle_type = row['Class']
                 direction = row['Direction']
-                interval_15_min = row['15 Min Interval of Crossing']
-                interval_hr = row['Hr interval of Crossing']
+                time = row['Time of crossing']
+                interval_15_min = row['15 Min Interval']
+                interval_hr = row['Hour Interval']
 
-                key = (site_location, date, vehicle_type, direction, interval_15_min, interval_hr)
-                if key not in self.compiled_data:
-                    self.compiled_data[key] = 0
-                self.compiled_data[key] += 1
+                if obj_id not in self.object_data:
+                    self.object_data[obj_id] = {
+                        'Site': site_location,
+                        'Date': date,
+                        'Vehicle Type': vehicle_type,
+                        'Directions': set(),
+                        'Time of last Crossing': time,
+                        '15 Min Interval': interval_15_min,
+                        'Hour Interval': interval_hr
+                    }
+                self.object_data[obj_id]['Directions'].add(direction)
+                self.object_data[obj_id]['Time of Crossing'] = time
+                self.object_data[obj_id]['15 Min Interval'] = interval_15_min
+                self.object_data[obj_id]['Hour Interval'] = interval_hr
+
+    def precompile(self):
+        # Process object_data to concatenate directions
+        for obj_id, data in self.object_data.items():
+            site_location = data['Site']
+            date = data['Date'].strftime('%Y-%m-%d')
+            vehicle_type = data['Vehicle Type']
+            directions = " - ".join(sorted(data['Directions']))
+            interval_15_min = data['15 Min Interval']
+            interval_hr = data['Hour Interval']
+            time = data['Time of last Crossing']
+
+            key = (site_location, date, vehicle_type, directions, interval_15_min, interval_hr)
+            if key not in self.compiled_data:
+                self.compiled_data[key] = 0
+            self.compiled_data[key] += 1
 
     def write_compiled_data(self, output_path):
         workbook = Workbook()
@@ -320,6 +349,7 @@ class xlsxCompiler:
 
     def compile(self, output_path):
         self.read_files()
+        self.precompile()
         self.write_compiled_data(output_path)
 
 class Annotator:
