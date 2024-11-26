@@ -16,22 +16,22 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 DESC_WIDTH = 25
 
 CLASS_COLORS = {
-    0: (70, 130, 180),   # Car - Steel Blue
-    1: (60, 179, 113),   # Van - Medium Sea Green
-    2: (218, 165, 32),   # Bus - Goldenrod
-    3: (138, 43, 226),   # Motorcycle - Blue Violet
-    4: (255, 140, 0),    # Lorry - Dark Orange
+    0: (180, 130, 70),   # Car - Steel Blue
+    1: (113, 179, 60),   # Van - Medium Sea Green
+    2: (32, 165, 218),   # Bus - Goldenrod
+    3: (226, 43, 138),   # Motorcycle - Blue Violet
+    4: (0, 140, 255),    # Lorry - Dark Orange
     5: (128, 128, 128)   # Other - Gray
 }
 
 # Assign colors to each tripline
 TRIPLINE_COLORS = {
-    0: (255, 0, 0),    # Red  
+    0: (0, 0, 255),    # Red  
     1: (0, 255, 0),    # Green
-    2: (0, 0, 255),    # Blue
-    3: (255, 255, 0),  # Yellow
+    2: (255, 0, 0),    # Blue
+    3: (0, 255, 255),  # Yellow
     4: (255, 0, 255),  # Magenta
-    5: (0, 255, 255),  # Cyan
+    5: (255, 255, 0),  # Cyan
 }
 
 class DataManager:
@@ -137,7 +137,7 @@ class Counter:
                         direction = self.directions[idx]
                         # Store the tripline index
                         data_manager.CROSSED[track_id].append((frame, cls, direction, idx))
-                        break  # Stop checking after the first crossing
+                        break 
             console_progress.update(1)
             obj_count += 1 
         console_progress.close()
@@ -177,16 +177,16 @@ class Tracker:
         classes = results[0].boxes.cls
         confidences = results[0].boxes.conf
 
-        tracked = []
+        track_inf = []
         if track_ids is not None:
             track_ids = results[0].boxes.id.int().cpu().tolist() 
             for box, track_id, clss, confidence in zip(boxes, track_ids, classes, confidences):
-                track = data_manager.TRACK_DATA[track_id]
+                track_dat = data_manager.TRACK_DATA[track_id] #track_data is indexed by track_id : for a given object, see which frames it's been tracked on, where it is and what it is
                 clss = int(clss)
-                track.append((int(self.current_frame_nb), box, confidence, clss))
-                tracked.append((track_id, len(track)))
+                track_dat.append((int(self.current_frame_nb), box, confidence, clss))
+                track_inf.append((track_id, len(track_dat)))
 
-        data_manager.TRACK_INFO.append(tracked) #TRACK_INFO is indexed by frame : for a given frame, see which objects are where, and how long they've been tracked
+        data_manager.TRACK_INFO.append(track_inf) #TRACK_INFO is indexed by frame : for a given frame, see which objects are where, and how long they've been tracked
 
     def process_video(self, data_manager): 
         # Open video to process
@@ -363,15 +363,6 @@ class Annotator:
     def write_annotated_video(self, export_path_mp4):
         self.frame_count = self.data_manager.frame_count
         self.console_progress = tqdm(total=self.frame_count, desc=f'{'Writing annotated video':<{DESC_WIDTH}}', unit="frames")
-        
-        COLORS = {
-            0: (70, 130, 180),   # Car - Steel Blue
-            1: (60, 179, 113),   # Van - Medium Sea Green
-            2: (218, 165, 32),   # Bus - Goldenrod
-            3: (138, 43, 226),   # Motorcycle - Blue Violet
-            4: (255, 140, 0),    # Lorry - Dark Orange
-            5: (128, 128, 128)   # Other - Gray
-        }
 
         # Check if same file exists and enumerate names if it does
         base, extension = os.path.splitext(export_path_mp4)
@@ -404,11 +395,12 @@ class Annotator:
             if success:
                 for track_id, track_length_at_frame in self.data_manager.TRACK_INFO[self.frame_nb]: # Get each object present on current frame
                     # Check if object crosses a tripline 
+                    tripline_indexes = []
                     if track_id in self.data_manager.CROSSED.keys() :
                         tripline_indexes = [crossing[3] for crossing in self.data_manager.CROSSED[track_id]]
                         if self.data_manager.CROSSED[track_id][-1][0] == self.frame_nb:
                             # Store the tripline index for the object if it is it's last crossing
-                            counted[track_id] = self.data_manager.CROSSED[track_id][-1][1] 
+                            counted[track_id] = self.data_manager.CROSSED[track_id][-1][3] 
                     
                     # In all cases, get the class of the object
                     cls = self.data_manager.TRACK_DATA[track_id][track_length_at_frame-1][3] 
@@ -423,15 +415,15 @@ class Annotator:
                         points[5:-5, 0] = np.convolve(points[:, 0], kernel, mode='same')[5:-5]
                         points[5:-5, 1] = np.convolve(points[:, 1], kernel, mode='same')[5:-5]
 
-                        if tripline_indexes : #Meaning it will cross a tripline
+                        if tripline_indexes != []: #Meaning it will/has cross(ed) a tripline
                             for cnt, trip_idx in enumerate(tripline_indexes):
                                 trajectory_color = TRIPLINE_COLORS.get(trip_idx%len(TRIPLINE_COLORS))
                                 # offset points for each tripline
-                                offset_points = points + [2*cnt, 2*cnt]
+                                offset_points = points + [3*cnt, 3*cnt]
                                 self.draw_trajectory(offset_points, trajectory_color)
 
                         else:
-                            trajectory_color = (200, 200, 200)  # Gray for uncounted tracks
+                            trajectory_color = (128, 128, 128)  # Gray for uncounted tracks (or forgotten tracks)
                             self.draw_trajectory(points, trajectory_color)
 
                     # Draw bounding box with class color

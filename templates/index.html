@@ -467,7 +467,7 @@
                                         progressBarAnnotation.style.width = progressData.Annotation + '%';
                                         progressBarAnnotation.innerText = 'Annotation: ' + progressData.Annotation + '%';
                                     }
-                                    if (progressData.YOLO === 100 && progressData.Counting === 100 && progressData.Excel === 100 && (progressData.Annotation === 100 || progressData.Annotation === null)) {
+                                    if (progressData.YOLO === 100 && progressData.Counting === 100 && progressData.Excel === 100 && (progressData.Annotation === 100 || progressData.Annotation === 0)) {
                                         // Fetch and display the results
                                         fetch(`/results?session_id=${session_id}`)
                                         .then(response => response.json())

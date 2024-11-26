@@ -61,6 +61,8 @@ def process_video_task(data_manager, session_id, paths):
             start_time = datetime.now()
             session_dir = paths[0]
             report_path = paths[1]
+            for step in ['YOLO', 'Counting', 'Excel', 'Annotation']:
+                update_progress(session_id, step, 0)
 
             # Initialize Tracker and Counter for multiple triplines
             tracker = Tracker(data_manager, progress_callback=lambda p: update_progress(session_id, 'YOLO', p))
