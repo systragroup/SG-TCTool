@@ -338,6 +338,3 @@ def log_compile_session(session_id, data):
     # Write the updated log back to the file
     with open(COMPILE_LOG_FILE, 'w') as f:
         json.dump(compile_log, f, indent=4, default=str)
-
-if __name__ == '__main__':
-    app.run(debug=True)
