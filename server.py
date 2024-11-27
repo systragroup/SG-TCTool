@@ -6,37 +6,39 @@ import threading
 from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for, session
 from werkzeug.utils import secure_filename
 from utils import DataManager, Counter, Tracker, xlsxWriter, xlsxCompiler, Annotator
-from datetime import datetime
-
+import datetime
+import json
 import os
 
 app = Flask(__name__)
 
-UPLOAD_FOLDER = os.path.join(app.root_path, 'uploads')
-MODEL_FOLDER = os.path.join(app.root_path, 'models')
-RESULTS_FOLDER = os.path.join(app.root_path, 'results')
+app.config['UPLOADS_FOLDER'] = 'uploads'
+app.config['MODELS_FOLDER'] = 'models'
+app.config['RESULTS_FOLDER'] = 'results'
+app.config['LOGS_FOLDER'] = os.path.join(app.config['RESULTS_FOLDER'], 'logs')
 
-app.secret_key = "something"
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+os.makedirs(os.path.join(app.root_path, app.config['UPLOADS_FOLDER']), exist_ok=True)
+os.makedirs(os.path.join(app.root_path, os.path.join(app.config['UPLOADS_FOLDER'], 'compiler')), exist_ok=True)
+os.makedirs(os.path.join(app.root_path, app.config['MODELS_FOLDER']), exist_ok=True)
+os.makedirs(os.path.join(app.root_path, app.config['RESULTS_FOLDER']), exist_ok=True)
+os.makedirs(os.path.join(app.root_path, os.path.join(app.config['RESULTS_FOLDER'], 'compiler')), exist_ok=True)
+os.makedirs(os.path.join(app.root_path, app.config['LOGS_FOLDER']), exist_ok=True)
+
+app.secret_key = "TrafficCounting"
+
 app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024  # 1000 MB
 
-# Check directories
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(MODEL_FOLDER, exist_ok=True)
-os.makedirs(RESULTS_FOLDER, exist_ok=True)
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [Line %(lineno)d] - %(message)s')
-
 logger = logging.getLogger(__name__)
 
 data_manager = DataManager()
 
-# Dictionaries to store progress and results per session
 app.progress = {}
 app.results = {}
-
-
 
 @app.route('/')
 def index():
@@ -49,7 +51,7 @@ def extract_first_frame(video_path):
     if success:
         base_filename = secure_filename(os.path.basename(video_path))
         frame_filename = f"{os.path.splitext(base_filename)[0]}_first_frame.jpg"
-        frame_path = os.path.join(UPLOAD_FOLDER, frame_filename)
+        frame_path = os.path.join(os.path.join(app.root_path, app.config['UPLOADS_FOLDER']), frame_filename)
         cv2.imwrite(frame_path, frame)
         return frame_filename  # Return only the filename
     return None
@@ -62,7 +64,7 @@ def update_progress(session_id, step, percentage):
 def process_video_task(data_manager, session_id, paths):
     with app.app_context():
         try:
-            start_time = datetime.now()
+            start_time = datetime.datetime.now()
             session_dir = paths['session_dir']
             report_path = paths['report_path']
             for step in ['YOLO', 'Counting', 'Excel', 'Annotation']:
@@ -95,7 +97,7 @@ def process_video_task(data_manager, session_id, paths):
                 annotator.write_annotated_video(annotated_video_path)
                 update_progress(session_id, 'Annotation', 100)
 
-            end_time = datetime.now()
+            end_time = datetime.datetime.now()
 
         except Exception as e:
             update_progress(session_id, 'YOLO', -1)
@@ -127,7 +129,7 @@ def process_video():
     
     if video_file and model_file:
         video_filename = secure_filename(video_file.filename)
-        video_path = os.path.join(UPLOAD_FOLDER, video_filename)
+        video_path = os.path.join(os.path.join(app.root_path, app.config['UPLOADS_FOLDER']), video_filename)
         video_file.save(video_path)
         
         # Extract first frame
@@ -136,7 +138,7 @@ def process_video():
         session['first_frame_path'] = frame_path
         
         model_filename = secure_filename(model_file.filename)
-        model_path = os.path.join(MODEL_FOLDER, model_filename)
+        model_path = os.path.join(os.path.join(app.root_path, app.config['MODELS_FOLDER']), model_filename)
         model_file.save(model_path)
         session['model_path'] = model_path
         
@@ -167,7 +169,7 @@ def start_processing(session_id):
     data_manager.set_start_datetime(form_data['start_date'], form_data['start_time'])
     
     # Define paths
-    session_dir = os.path.join(RESULTS_FOLDER, session_id)
+    session_dir = os.path.join(os.path.join(app.root_path, app.config['RESULTS_FOLDER']), session_id)
     report_path = os.path.join(session_dir, 'report_'+ data_manager.site_location +'.xlsx')
     annotated_video_path = os.path.join(session_dir, 'annotated_'+ data_manager.site_location +'_video.mp4') if data_manager.do_video_export else None
     os.makedirs(session_dir, exist_ok=True)
@@ -175,20 +177,19 @@ def start_processing(session_id):
     if annotated_video_path:
         paths['annotated_video_path'] = annotated_video_path
     
+    response_paths = {key : os.path.basename(path) for key, path in paths.items()}
     # Start processing thread
     processing_thread = threading.Thread(target=process_video_task, 
                                       args=(data_manager, session_id, paths))
     processing_thread.start()
     
-    response_paths = {key: os.path.relpath(value, app.root_path) for key, value in paths.items()}
-    print(f"Paths: {paths}, Response paths: {response_paths}")
     return jsonify({"status": "Processing started", "session_id": session_id, "paths": response_paths})
 
 def log_session(session_id, data):
-    PPROCESS_LOG_FILE = os.path.join(RESULTS_FOLDER, 'process_session_log.json')
+    PROCESS_LOG_FILE = os.path.join(os.path.join(app.root_path, app.config['LOGS_FOLDER']), 'process_session_log.json')
     # Load existing log data
-    if os.path.exists(PPROCESS_LOG_FILE):
-        with open(PPROCESS_LOG_FILE, 'r') as f:
+    if os.path.exists(PROCESS_LOG_FILE):
+        with open(PROCESS_LOG_FILE, 'r') as f:
             session_log = json.load(f)
     else:
         session_log = {}
@@ -197,7 +198,7 @@ def log_session(session_id, data):
     session_log[session_id] = data
 
     # Write the updated log back to the file
-    with open(PPROCESS_LOG_FILE, 'w') as f:
+    with open(PROCESS_LOG_FILE, 'w') as f:
         json.dump(session_log, f, indent=4)
 
 @app.route('/process_initial', methods=['POST'])
@@ -205,7 +206,7 @@ def process_initial():
     video_file = request.files.get('videoFile')
     if (video_file):
         video_filename = secure_filename(video_file.filename)
-        video_path = os.path.join(UPLOAD_FOLDER, video_filename)
+        video_path = os.path.join(os.path.join(app.root_path, app.config['UPLOADS_FOLDER']), video_filename)
         video_file.save(video_path)
 
         # Extract first frame
@@ -225,8 +226,7 @@ def process_initial():
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
-    logging.info(f"Serving file {filename} from {UPLOAD_FOLDER}")
-    return send_from_directory(UPLOAD_FOLDER, filename)
+    return send_from_directory(app.config['UPLOADS_FOLDER'], filename)
 
 @app.route('/progress')
 def progress_update():
@@ -246,8 +246,7 @@ def get_results():
 
 @app.route('/download/<session_id>/<filename>')
 def download_file(session_id, filename):
-    session_dir = os.path.join(RESULTS_FOLDER, session_id)
-    directory = session_dir
+    directory = os.path.join(os.path.join(app.root_path, app.config['RESULTS_FOLDER']), session_id)
     return send_from_directory(directory, filename, as_attachment=True)
 
 import uuid
@@ -259,7 +258,7 @@ def compile_reports():
         session_id = str(uuid.uuid4())
         
         # Retrieve form data
-        compile_option = request.form.get('compileOption')
+        files = request.files.getlist('filePaths')
         output_filename = request.form.get('outputFilename')
         
         # Set default output filename if not provided
@@ -268,41 +267,30 @@ def compile_reports():
         elif not output_filename.endswith('.xlsx'):
             output_filename += '.xlsx'
         
-        output_path = os.path.join(RESULTS_FOLDER, output_filename)
+        output_path = os.path.join(os.path.join(app.root_path, os.path.join(app.config['RESULTS_FOLDER'], 'compiler')), output_filename)
         
         # Initialize compile session data
         compile_data = {
             'session_id': session_id,
-            'compile_option': compile_option,
             'output_filename': output_filename,
-            'timestamp': datetime.utcnow().isoformat() + 'Z',  # ISO 8601 format in UTC
+            'timestamp': datetime.datetime.now(datetime.UTC),  # ISO 8601 format in UTC
             'status': 'initiated',
             'input_paths': [],
             'error_message': None
         }
         
         try:
-            if compile_option == 'folder':
-                folder_path = request.form.get('folderPath')
-                if not folder_path or not os.path.isdir(folder_path):
-                    raise ValueError("Invalid folder path provided.")
-                compile_data['input_paths'].append(folder_path)
-                compiler = xlsxCompiler(folder_path=folder_path)
-            elif compile_option == 'files':
-                # Handle file uploads
-                files = request.files.getlist('filePaths')
-                if not files:
-                    raise ValueError("No files selected for compilation.")
-                file_paths = []
-                for file in files:
-                    filename = secure_filename(file.filename)
-                    file_path = os.path.join(UPLOAD_FOLDER, filename)
-                    file.save(file_path)
-                    file_paths.append(file_path)
-                compile_data['input_paths'].extend(file_paths)
-                compiler = xlsxCompiler(file_paths=file_paths)
-            else:
-                raise ValueError("Invalid compile option selected.")
+            if not files:
+                raise ValueError("No files selected for compilation.")
+            file_paths = []
+            for file in files:
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(os.path.join(app.root_path, os.path.join(app.config['UPLOADS_FOLDER'], 'compiler')), filename)
+                file.save(file_path)
+                file_paths.append(file_path)
+            compile_data['input_paths'].extend(file_paths)
+            compiler = xlsxCompiler(file_paths=file_paths)
+        
             
             # Perform compilation
             compiler.compile(output_path=output_path)
@@ -312,7 +300,7 @@ def compile_reports():
             log_compile_session(session_id, compile_data)
             
             # Send the compiled file as a download
-            return send_from_directory(RESULTS_FOLDER, output_filename, as_attachment=True)
+            return send_from_directory(os.path.join(app.root_path,os.path.join(app.config['RESULTS_FOLDER'], 'compiler')), output_filename, as_attachment=True)
         
         except Exception as e:
             # Update compile_data with error details
@@ -327,9 +315,6 @@ def compile_reports():
     
     return render_template('compile.html')
 
-import json
-from datetime import datetime
-
 def log_compile_session(session_id, data):
     """
     Logs compile session details to compile_session_log.json.
@@ -338,7 +323,7 @@ def log_compile_session(session_id, data):
         session_id (str): Unique identifier for the compile session.
         data (dict): Dictionary containing compile session details.
     """
-    COMPILE_LOG_FILE = os.path.join(RESULTS_FOLDER, 'compile_session_log.json')
+    COMPILE_LOG_FILE = os.path.join(os.path.join(app.root_path, app.config['LOGS_FOLDER']), 'compile_session_log.json')
     
     # Load existing log data
     if os.path.exists(COMPILE_LOG_FILE):

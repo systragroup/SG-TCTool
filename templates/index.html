@@ -474,7 +474,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === "Processing started") {
-                            document.getElementById('result').innerText = 'Processing started...';
+                            document.getElementById('result').innerText = `Please wait, processing... \n Your session ID is : ${session_id}`;
                             // Start polling for progress updates
                             const progressInterval = setInterval(() => {
                                 fetch(`/progress?session_id=${session_id}`)
@@ -504,15 +504,15 @@
 
                                     if (isComplete) {
                                         clearInterval(progressInterval);
-                                        document.getElementById('result').innerText = 'Processing complete';
+                                        document.getElementById('result').innerText = `Processing complete \n Your session ID is : ${session_id}`;
                                         
                                         // Generate download links
                                         const downloadLinks = [];
-                                        downloadLinks.push(`<a href="${data.paths.report_path}" class="btn btn-success m-2">Download Report</a>`);
+                                        downloadLinks.push(`<a href="/download/${session_id}/${data.paths.report_path}" class="btn btn-success m-2">Download Report</a>`);
                                         
                                         // Add video download link if video export was enabled
                                         if (document.getElementById('exportVideo').checked) {
-                                            downloadLinks.push(`<a href="${data.paths.annotated_video_path}" class="btn btn-success m-2">Download Annotated Video</a>`);
+                                            downloadLinks.push(`<a href="/download/${session_id}/${data.paths.annotated_video_path}" class="btn btn-success m-2">Download Annotated Video</a>`);
                                         }
                                         
                                         document.getElementById('downloadLinks').innerHTML = downloadLinks.join('');
