@@ -14,5 +14,21 @@
         "model_path": "c:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\traffic_camera_us_v11n2.onnx",
         "session_id": "c8126a5c-7296-4ab1-a393-80c960ebc3c7",
         "video_path": "c:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\good-cut-shortest.mp4"
+    },
+    "d6c8c251-f77f-4067-8283-967d94f79033": {
+        "frame_filename": "good-cut-shortest_first_frame.jpg",
+        "video_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\good-cut-shortest.mp4",
+        "session_id": "d6c8c251-f77f-4067-8283-967d94f79033",
+        "form_data": {
+            "site_location": "flask",
+            "inference_tracker": "bytetrack.yaml",
+            "export_video": true,
+            "start_date": "2024-11-27",
+            "start_time": "23:51",
+            "triplines": "[{\"start\":{\"x\":534.2793791574279,\"y\":846.5223807181505},\"end\":{\"x\":1121.7738359201774,\"y\":867.7717658632564}},{\"start\":{\"x\":674.7671840354767,\"y\":712.6512543039843},\"end\":{\"x\":1113.259423503326,\"y\":685.0270536153469}},{\"start\":{\"x\":1168.6031042128602,\"y\":725.4008853910477},\"end\":{\"x\":1556.0088691796007,\"y\":659.52779144122}},{\"start\":{\"x\":1181.3747228381374,\"y\":878.3964584358092},\"end\":{\"x\":1794.412416851441,\"y\":787.0241023118544}}]",
+            "directions": "{\"1\":\"N1\",\"2\":\"N2\",\"3\":\"S1\",\"4\":\"S2\"}"
+        },
+        "first_frame_path": "good-cut-shortest_first_frame.jpg",
+        "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\traffic_camera_us_v11n2.onnx"
     }
 }
