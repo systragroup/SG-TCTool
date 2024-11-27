@@ -194,7 +194,7 @@ class Tracker:
         self.cap = cv2.VideoCapture(self.video_path)
         self.frame_count = data_manager.frame_count
 
-        self.console_progress = tqdm(total=self.frame_count, desc=f'{'YOLO is working':<{DESC_WIDTH}}', unit="frames")
+        self.console_progress = tqdm(total=self.frame_count, desc=f"{'YOLO is working':<{DESC_WIDTH}}", unit="frames")
         # Run inference and tracking
         total_frames = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
         current_frame = 0
@@ -248,7 +248,7 @@ class xlsxWriter:
 
         # Write the data
         length, prog_count = len(self.write_data), 0
-        self.console_progress = tqdm(total=length, desc=f'{'Writing xlsx report':<{DESC_WIDTH}}', unit="rows")
+        self.console_progress = tqdm(total=length, desc=f'{"Writing xlsx report":<{DESC_WIDTH}}', unit="rows")
         for row in self.write_data:
             self.sheet.append(row)
             self.console_progress.update(1)
@@ -393,7 +393,7 @@ class Annotator:
 
     def write_annotated_video(self, export_path_mp4):
         self.frame_count = self.data_manager.frame_count
-        self.console_progress = tqdm(total=self.frame_count, desc=f'{'Writing annotated video':<{DESC_WIDTH}}', unit="frames")
+        self.console_progress = tqdm(total=self.frame_count, desc=f'{"Writing annotated video":<{DESC_WIDTH}}', unit="frames")
 
         # Check if same file exists and enumerate names if it does
         base, extension = os.path.splitext(export_path_mp4)
