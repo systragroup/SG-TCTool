@@ -16,22 +16,22 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 DESC_WIDTH = 25
 
 CLASS_COLORS = {
-    0: (180, 130, 70),   # Car - Steel Blue
-    1: (113, 179, 60),   # Van - Medium Sea Green
-    2: (32, 165, 218),   # Bus - Goldenrod
-    3: (226, 43, 138),   # Motorcycle - Blue Violet
-    4: (0, 140, 255),    # Lorry - Dark Orange
-    5: (128, 128, 128)   # Other - Gray
+    0: (134, 110, 135),  # Car -        #876eea
+    1: (140, 215, 243),  # Van -        #f3d78c
+    2: (116, 236, 197),  # Bus -        #c5ec74
+    3: (40, 183, 216),   # Motorcycle - #28b7d8
+    4: (57, 151, 238),   # Lorry -      #ee9739
+    5: (186, 186, 186)   # Other -      #bababa
 }
 
 # Assign colors to each tripline
 TRIPLINE_COLORS = {
-    0: (0, 0, 255),    # Red  
-    1: (0, 255, 0),    # Green
-    2: (255, 0, 0),    # Blue
-    3: (0, 255, 255),  # Yellow
-    4: (255, 0, 255),  # Magenta
-    5: (255, 255, 0),  # Cyan
+    0: (7, 25, 206),     # #ce1907
+    1: (51, 217, 165),   # #a5d933
+    2: (206, 25, 7),     # #0482c8
+    3: (59, 219, 59),    # #ffdb3b
+    4: (215, 146, 255),  # #ff92d7
+    5: (199, 222, 125),  # #7ddec7
 }
 
 class DataManager:
@@ -394,6 +394,7 @@ class Annotator:
     def write_annotated_video(self, export_path_mp4):
         self.frame_count = self.data_manager.frame_count
         self.console_progress = tqdm(total=self.frame_count, desc=f'{"Writing annotated video":<{DESC_WIDTH}}', unit="frames")
+        model_name_text = f"Model: {os.path.basename(self.data_manager.selected_model)}"
 
         # Check if same file exists and enumerate names if it does
         base, extension = os.path.splitext(export_path_mp4)
@@ -430,9 +431,8 @@ class Annotator:
                     if track_id in self.data_manager.CROSSED.keys() :
                         tripline_indexes = [crossing[3] for crossing in self.data_manager.CROSSED[track_id]]
                         if self.data_manager.CROSSED[track_id][-1][0] == self.frame_nb:
-                            # Store the tripline index for the object if it is it's last crossing
-                            counted[track_id] = self.data_manager.CROSSED[track_id][-1][3] 
-                    
+                            # Store the clss for the object if it is it's last crossing (for class_lines)
+                            counted[track_id] = self.data_manager.CROSSED[track_id][-1][1] 
                     # In all cases, get the class of the object
                     cls = self.data_manager.TRACK_DATA[track_id][track_length_at_frame-1][3] 
                     # Get corresponding class color for bounding box
@@ -486,6 +486,28 @@ class Annotator:
                         color,
                         thickness=2
                     )
+
+                # Write the count of objects on each frame
+                count_text_1 = f"{len(counted)}/{len(self.data_manager.CROSSED)} objects have crossed the line :"
+                cv2.putText(self.frame, count_text_1, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+                # Add and display text lines for each of the detected classes
+                class_lines = defaultdict(int)
+                for cls in counted.values(): # counted = {track_id : cls} for each object that has crossed it's last tripline at current frame
+                    class_lines[int(cls)] += 1
+
+                line_y = 70
+                for clss, count in class_lines.items():
+                    class_text = f"{self.data_manager.names[int(clss)]}: {count}"
+                    cv2.putText(self.frame, class_text, (10, line_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                    line_y += 30
+
+                # Add the model name in the bottom right corner
+                (model_text_w, model_text_h), _ = cv2.getTextSize(model_name_text, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, thickness=2)
+                model_text_x = self.width - model_text_w - 10 #10 px from right edge
+                model_text_y = self.height - model_text_h - 5
+                cv2.putText(self.frame, model_name_text, (model_text_x, model_text_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
 
                 # Write frame to video
                 self.video_writer.write(self.frame)
