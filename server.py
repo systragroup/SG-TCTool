@@ -15,7 +15,7 @@ app = Flask(__name__)
 app.config['UPLOADS_FOLDER'] = 'uploads'
 app.config['MODELS_FOLDER'] = 'models'
 app.config['RESULTS_FOLDER'] = 'results'
-app.config['LOGS_FOLDER'] = os.path.join(app.config['RESULTS_FOLDER'], 'logs')
+app.config['LOGS_FOLDER'] = 'logs'
 
 
 os.makedirs(os.path.join(app.root_path, app.config['UPLOADS_FOLDER']), exist_ok=True)

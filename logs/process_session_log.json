@@ -1,0 +1,18 @@
+{
+    "c8126a5c-7296-4ab1-a393-80c960ebc3c7": {
+        "first_frame_path": "good-cut-shortest_first_frame.jpg",
+        "form_data": {
+            "site_location": "test",
+            "inference_tracker": "bytetrack.yaml",
+            "export_video": false,
+            "start_date": "2024-11-27",
+            "start_time": "10:36",
+            "triplines": "[{\"start\":{\"x\":358.20895975608204,\"y\":839.1784026031644},\"end\":{\"x\":1739.3035045934207,\"y\":704.2032233032907}}]",
+            "directions": "{\"1\":\"North\",\"2\":\"South\"}"
+        },
+        "frame_filename": "good-cut-shortest_first_frame.jpg",
+        "model_path": "c:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\traffic_camera_us_v11n2.onnx",
+        "session_id": "c8126a5c-7296-4ab1-a393-80c960ebc3c7",
+        "video_path": "c:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\good-cut-shortest.mp4"
+    }
+}
