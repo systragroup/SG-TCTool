@@ -372,7 +372,7 @@ class Annotator:
         cv2.circle(self.frame, (points[-1][0], points[-1][1]), 5, traj_color, -1)
     
     def draw_box_on_frame(self, id : int, color : tuple[int,int,int], bbox : tuple[int,int,int,int], score : float, class_name : str):
-        label = f"{class_name} - {id}: {score:0.2f}" # bbox label
+        label = f"{class_name}|{id}: {score:0.2f}" # bbox label
         lbl_margin = 3 #label margin
         bbox = [int(value) for value in bbox]
         self.frame = cv2.rectangle(self.frame, (bbox[0]-bbox[2]//2,bbox[1]-bbox[3]//2),(bbox[0]+bbox[2]//2,bbox[1]+bbox[3]//2), color=color,thickness = 2) #Draw bbox
@@ -499,14 +499,14 @@ class Annotator:
                 line_y = 70
                 for clss, count in class_lines.items():
                     class_text = f"{self.data_manager.names[int(clss)]}: {count}"
-                    cv2.putText(self.frame, class_text, (10, line_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                    cv2.putText(self.frame, class_text, (10, line_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (40, 35, 210), 2)
                     line_y += 30
 
                 # Add the model name in the bottom right corner
                 (model_text_w, model_text_h), _ = cv2.getTextSize(model_name_text, fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, thickness=2)
                 model_text_x = self.width - model_text_w - 10 #10 px from right edge
                 model_text_y = self.height - model_text_h - 5
-                cv2.putText(self.frame, model_name_text, (model_text_x, model_text_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                cv2.putText(self.frame, model_name_text, (model_text_x, model_text_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (40, 35, 210), 2)
 
 
                 # Write frame to video
