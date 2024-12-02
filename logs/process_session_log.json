@@ -270,5 +270,69 @@
         "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\traffic_camera_us_v11n2.onnx",
         "session_id": "6f365606-736c-40f3-a479-e0e368392a49",
         "video_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\Standard_SCU5ZK_2024_04_16_0600_003_very_short.mp4"
+    },
+    "fc561faf-e4dc-4f59-a4ce-27072ccc1334": {
+        "frame_filename": "good-cut-shortest_first_frame.jpg",
+        "video_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\good-cut-shortest.mp4",
+        "session_id": "fc561faf-e4dc-4f59-a4ce-27072ccc1334",
+        "form_data": {
+            "site_location": "test",
+            "inference_tracker": "bytetrack.yaml",
+            "export_video": true,
+            "start_date": "2024-11-28",
+            "start_time": "05:51",
+            "triplines": "[{\"start\":{\"x\":337.88519637462235,\"y\":900.9192900200937},\"end\":{\"x\":1779.335347432024,\"y\":611.5689886135298}}]",
+            "directions": "{\"1\":\"North\",\"2\":\"South\"}"
+        },
+        "first_frame_path": "good-cut-shortest_first_frame.jpg",
+        "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\traffic_camera_sg_v11n.onnx"
+    },
+    "297b8930-820d-49d3-b3db-bdf0a9ca972a": {
+        "first_frame_path": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "form_data": {
+            "site_location": "test",
+            "inference_tracker": "bytetrack.yaml",
+            "export_video": true,
+            "start_date": "2024-11-28",
+            "start_time": "05:51",
+            "triplines": "[{\"start\":{\"x\":557.5830815709969,\"y\":664.021629778672},\"end\":{\"x\":51.48036253776435,\"y\":229.4139839034205}},{\"start\":{\"x\":109.48640483383686,\"y\":255.4904426559356},\"end\":{\"x\":353.11178247734136,\"y\":138.1463782696177}},{\"start\":{\"x\":361.81268882175226,\"y\":143.94114688128772},\"end\":{\"x\":764.9546827794561,\"y\":262.7339034205231}},{\"start\":{\"x\":619.9395770392749,\"y\":649.5347082494969},\"end\":{\"x\":849.0634441087612,\"y\":216.37575452716297}}]",
+            "directions": "{\"1\":\"Bottom Left\",\"2\":\"Top Left\",\"3\":\"Top Right\",\"4\":\"Bottom Right\"}"
+        },
+        "frame_filename": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\traffic_camera_sg_v11n.onnx",
+        "session_id": "297b8930-820d-49d3-b3db-bdf0a9ca972a",
+        "video_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\Standard_SCU5ZK_2024_04_16_0600_003_very_short.mp4"
+    },
+    "a6dd9883-ff99-49a9-b008-79d68d8e1e6d": {
+        "frame_filename": "videoplayback--veryshort_first_frame.jpg",
+        "video_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\videoplayback--veryshort.mp4",
+        "session_id": "a6dd9883-ff99-49a9-b008-79d68d8e1e6d",
+        "form_data": {
+            "site_location": "test",
+            "inference_tracker": "bytetrack.yaml",
+            "export_video": true,
+            "start_date": "2024-11-28",
+            "start_time": "17:56",
+            "triplines": "[{\"start\":{\"x\":95.202492211838,\"y\":224.42427385892117},\"end\":{\"x\":444.1121495327103,\"y\":320.0259336099585}}]",
+            "directions": "{\"1\":\"North\",\"2\":\"South\"}"
+        },
+        "first_frame_path": "videoplayback--veryshort_first_frame.jpg",
+        "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\traffic_camera_sg_v11n.onnx"
+    },
+    "d6e9bd8c-a489-451d-bef3-8345be87dbba": {
+        "frame_filename": "videoplayback--veryshort_first_frame.jpg",
+        "video_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\videoplayback--veryshort.mp4",
+        "session_id": "d6e9bd8c-a489-451d-bef3-8345be87dbba",
+        "form_data": {
+            "site_location": "test",
+            "inference_tracker": "bytetrack.yaml",
+            "export_video": true,
+            "start_date": "2024-11-28",
+            "start_time": "18:07",
+            "triplines": "[{\"start\":{\"x\":9.177038567918968,\"y\":281.2624366574913},\"end\":{\"x\":103.94012542838048,\"y\":231.42855024586737}},{\"start\":{\"x\":168.77802696448575,\"y\":212.49167340945027},\"end\":{\"x\":246.58350880781205,\"y\":177.6079529213135}},{\"start\":{\"x\":146.8328910599578,\"y\":230.4318725176349},\"end\":{\"x\":253.56605205016183,\"y\":254.35213799521438}},{\"start\":{\"x\":185.73563198162097,\"y\":299.20263576567595},\"end\":{\"x\":422.1445960440355,\"y\":342.0597780796725}},{\"start\":{\"x\":517.9051890819755,\"y\":299.20263576567595},\"end\":{\"x\":511.9201520171043,\"y\":240.39864979995968}},{\"start\":{\"x\":324.38899065113833,\"y\":211.49499568121777},\"end\":{\"x\":448.0797566584776,\"y\":224.45180614824002}}]",
+            "directions": "{\"1\":\"North\",\"2\":\"Down\",\"3\":\"Left1\",\"4\":\"Left2\",\"5\":\"Right\",\"6\":\"South\"}"
+        },
+        "first_frame_path": "videoplayback--veryshort_first_frame.jpg",
+        "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\traffic_camera_sg_v11n.pt"
     }
 }
