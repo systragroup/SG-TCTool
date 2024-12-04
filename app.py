@@ -1,4 +1,4 @@
-import os
+import os, sys
 import threading
 import datetime
 import logging
@@ -15,7 +15,12 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [L
 logger = logging.getLogger(__name__)
 
 # App configuration
-app = Flask(__name__)
+base_dir = '.'
+if hasattr(sys, '_MEIPASS'):
+    base_dir = os.path.join(sys._MEIPASS)
+app = Flask(__name__, 
+        static_folder=os.path.join(base_dir, 'static'),
+        template_folder=os.path.join(base_dir, 'templates'))
 
 app.config['UPLOADS_FOLDER'] = 'uploads'
 app.config['MODELS_FOLDER'] = 'models'
@@ -29,21 +34,17 @@ os.makedirs(os.path.join(app.root_path, app.config['MODELS_FOLDER']), exist_ok=T
 os.makedirs(os.path.join(app.root_path, app.config['RESULTS_FOLDER']), exist_ok=True)
 os.makedirs(os.path.join(app.root_path, os.path.join(app.config['RESULTS_FOLDER'], 'compiler')), exist_ok=True)
 os.makedirs(os.path.join(app.root_path, app.config['LOGS_FOLDER']), exist_ok=True)
-logging.info(f"In case of app crash : ouput saved in {os.path.join(app.root_path,app.config['MODELS_FOLDER'])} and logs in {os.path.join(app.root_path,app.config['LOGS_FOLDER'])}")
+logging.WARNING(f"  -  In case of app crash : ouput saved in {os.path.join(app.root_path,app.config['MODELS_FOLDER'])} and logs in {os.path.join(app.root_path,app.config['LOGS_FOLDER'])}")
 
-app.secret_key = "TrafficCounting"
-
+app.secret_key = "192b9bdd45ab9ed4d12e236c78afzb9a393ec15f71bbf5dc987d54727823bcbf"  #not used
 app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024  # 1000 MB
 
 
+#Processing
 data_manager = DataManager()
 
 app.progress = {}
 app.results = {}
-
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 def extract_first_frame(video_path):
     import cv2
@@ -107,6 +108,10 @@ def process_video_task(data_manager, session_id, paths):
             update_progress(session_id, 'Annotation', -1)
             app.results[session_id] = {'error': f"Error processing video: {str(e)}"}
             logging.error(f"Error processing video: {str(e)}", exc_info=True)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/process', methods=['POST'])
 def process_video():
@@ -249,8 +254,6 @@ def get_results():
 def download_file(session_id, filename):
     directory = os.path.join(os.path.join(app.root_path, app.config['RESULTS_FOLDER']), session_id)
     return send_from_directory(directory, filename, as_attachment=True)
-
-import uuid
 
 @app.route('/compile', methods=['GET', 'POST'])
 def compile_reports():
