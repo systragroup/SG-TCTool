@@ -334,5 +334,181 @@
         },
         "first_frame_path": "videoplayback--veryshort_first_frame.jpg",
         "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\traffic_camera_sg_v11n.pt"
+    },
+    "79a6e53b-af06-42b5-88bf-b8bec5f4d15b": {
+        "first_frame_path": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "form_data": {
+            "site_location": "test",
+            "inference_tracker": "bytetrack.yaml",
+            "export_video": true,
+            "start_date": "2024-12-02",
+            "start_time": "10:18",
+            "triplines": "[{\"start\":{\"x\":556.2728390708769,\"y\":662.7272398552107},\"end\":{\"x\":34.14307526156223,\"y\":194.76717491231906}},{\"start\":{\"x\":122.99498535530793,\"y\":261.6186127613036},\"end\":{\"x\":448.4525436762192,\"y\":136.89578095349665}},{\"start\":{\"x\":724.9916346421468,\"y\":251.64078621667903},\"end\":{\"x\":396.5390681158284,\"y\":159.84478200613313}},{\"start\":{\"x\":581.2312407826032,\"y\":658.7361092373609},\"end\":{\"x\":788.8851430241662,\"y\":203.74721880248117}}]",
+            "directions": "{\"1\":\"Bottom Left\",\"2\":\"Top Left\",\"3\":\"Top Right\",\"4\":\"Bottom Right\"}"
+        },
+        "frame_filename": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\dishonest_roboflow_model.onnx",
+        "session_id": "79a6e53b-af06-42b5-88bf-b8bec5f4d15b",
+        "video_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\Standard_SCU5ZK_2024_04_16_0600_003_very_short.mp4"
+    },
+    "72d04e66-175a-4899-9c20-dd0818ddc29b": {
+        "first_frame_path": "videoplayback--veryshort_first_frame.jpg",
+        "form_data": {
+            "site_location": "test",
+            "inference_tracker": "bytetrack.yaml",
+            "export_video": true,
+            "start_date": "2024-12-02",
+            "start_time": "10:18",
+            "triplines": "[{\"start\":{\"x\":117.90521191308008,\"y\":336.0797269183729},\"end\":{\"x\":10.17454474539751,\"y\":271.29567458326176}},{\"start\":{\"x\":164.78800225457158,\"y\":219.46843271517284},\"end\":{\"x\":252.5685458726833,\"y\":173.6212572164788}},{\"start\":{\"x\":243.5909902753764,\"y\":190.56477859643095},\"end\":{\"x\":340.349089490795,\"y\":198.53820042229077}},{\"start\":{\"x\":327.38150918357394,\"y\":209.50165543284805},\"end\":{\"x\":473.01741109544116,\"y\":222.45846589987028}},{\"start\":{\"x\":465.03736167561283,\"y\":302.1926841584686},\"end\":{\"x\":487.9800037576193,\"y\":199.53487815052327}},{\"start\":{\"x\":164.78800225457158,\"y\":314.15281689725833},\"end\":{\"x\":424.13960839899255,\"y\":343.0564710160002}}]",
+            "directions": "{\"1\":\"N1\",\"2\":\"NL\",\"3\":\"N2\",\"4\":\"S1\",\"5\":\"SR\",\"6\":\"S2\"}"
+        },
+        "frame_filename": "videoplayback--veryshort_first_frame.jpg",
+        "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\dishonest_roboflow_model.onnx",
+        "session_id": "72d04e66-175a-4899-9c20-dd0818ddc29b",
+        "video_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\videoplayback--veryshort.mp4"
+    },
+    "7e798d02-33e3-417a-b912-9cf0862cfa8c": {
+        "first_frame_path": "videoplayback--veryshort_first_frame.jpg",
+        "form_data": {
+            "site_location": "test",
+            "inference_tracker": "bytetrack.yaml",
+            "export_video": true,
+            "start_date": "2024-12-02",
+            "start_time": "10:18",
+            "triplines": "[{\"start\":{\"x\":117.90521191308008,\"y\":336.0797269183729},\"end\":{\"x\":10.17454474539751,\"y\":271.29567458326176}},{\"start\":{\"x\":164.78800225457158,\"y\":219.46843271517284},\"end\":{\"x\":252.5685458726833,\"y\":173.6212572164788}},{\"start\":{\"x\":243.5909902753764,\"y\":190.56477859643095},\"end\":{\"x\":340.349089490795,\"y\":198.53820042229077}},{\"start\":{\"x\":327.38150918357394,\"y\":209.50165543284805},\"end\":{\"x\":473.01741109544116,\"y\":222.45846589987028}},{\"start\":{\"x\":465.03736167561283,\"y\":302.1926841584686},\"end\":{\"x\":487.9800037576193,\"y\":199.53487815052327}},{\"start\":{\"x\":164.78800225457158,\"y\":314.15281689725833},\"end\":{\"x\":424.13960839899255,\"y\":343.0564710160002}}]",
+            "directions": "{\"1\":\"N1\",\"2\":\"NL\",\"3\":\"N2\",\"4\":\"S1\",\"5\":\"SR\",\"6\":\"S2\"}"
+        },
+        "frame_filename": "videoplayback--veryshort_first_frame.jpg",
+        "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\yolo11n_1.onnx",
+        "session_id": "7e798d02-33e3-417a-b912-9cf0862cfa8c",
+        "video_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\videoplayback--veryshort.mp4"
+    },
+    "d7cfab05-7871-48c2-b1a6-8683e78991e9": {
+        "first_frame_path": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "form_data": {
+            "site_location": "test",
+            "inference_tracker": "bytetrack.yaml",
+            "export_video": true,
+            "start_date": "2024-12-02",
+            "start_time": "10:18",
+            "triplines": "[{\"start\":{\"x\":547.2878144546554,\"y\":650.1551837377181},\"end\":{\"x\":60.099813041757606,\"y\":281.9733842410719}},{\"start\":{\"x\":102.02992791745783,\"y\":263.0155138062853},\"end\":{\"x\":339.6339122130924,\"y\":170.22172694127693}},{\"start\":{\"x\":374.57567460950924,\"y\":174.21285755912675},\"end\":{\"x\":735.9733313953064,\"y\":250.04433929827337}},{\"start\":{\"x\":819.8335611467069,\"y\":284.96673220445933},\"end\":{\"x\":616.17300317902,\"y\":672.106402135892}}]",
+            "directions": "{\"1\":\"Bottom Left\",\"2\":\"Top Left\",\"3\":\"Top Right\",\"4\":\"Bottom Right\"}"
+        },
+        "frame_filename": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\yolo11n_1.onnx",
+        "session_id": "d7cfab05-7871-48c2-b1a6-8683e78991e9",
+        "video_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\Standard_SCU5ZK_2024_04_16_0600_003_very_short.mp4"
+    },
+    "2e5d322d-c42e-4c15-b00c-7ed858d834b9": {
+        "first_frame_path": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "form_data": {
+            "site_location": "test",
+            "inference_tracker": "bytetrack.yaml",
+            "export_video": true,
+            "start_date": "2024-12-02",
+            "start_time": "10:18",
+            "triplines": "[{\"start\":{\"x\":568.2528718925055,\"y\":656.1418796644928},\"end\":{\"x\":100.03325578051972,\"y\":252.03990460719828}},{\"start\":{\"x\":137.97002638234372,\"y\":273.99111539289476},\"end\":{\"x\":386.5557074311379,\"y\":176.20841525557412}},{\"start\":{\"x\":381.5640270887926,\"y\":180.19954587342397},\"end\":{\"x\":751.9467084908113,\"y\":284.9667245919818}},{\"start\":{\"x\":771.9134298601923,\"y\":289.9556378642941},\"end\":{\"x\":573.2445522348507,\"y\":648.1596108163156}}]",
+            "directions": "{\"1\":\"Bottom Left\",\"2\":\"Top Left\",\"3\":\"Top Right\",\"4\":\"Bottom Right\"}"
+        },
+        "frame_filename": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\yolo11n_1.onnx",
+        "session_id": "2e5d322d-c42e-4c15-b00c-7ed858d834b9",
+        "video_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\Standard_SCU5ZK_2024_04_16_0600_003_very_short.mp4"
+    },
+    "7c87fc3a-902c-426d-978b-b912fb22817f": {
+        "first_frame_path": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "form_data": {
+            "site_location": "test",
+            "inference_tracker": "bytetrack.yaml",
+            "export_video": true,
+            "start_date": "2024-12-02",
+            "start_time": "10:18",
+            "triplines": "[{\"start\":{\"x\":568.2528718925055,\"y\":656.1418796644928},\"end\":{\"x\":100.03325578051972,\"y\":252.03990460719828}},{\"start\":{\"x\":137.97002638234372,\"y\":273.99111539289476},\"end\":{\"x\":386.5557074311379,\"y\":176.20841525557412}},{\"start\":{\"x\":381.5640270887926,\"y\":180.19954587342397},\"end\":{\"x\":751.9467084908113,\"y\":284.9667245919818}},{\"start\":{\"x\":771.9134298601923,\"y\":289.9556378642941},\"end\":{\"x\":573.2445522348507,\"y\":648.1596108163156}}]",
+            "directions": "{\"1\":\"Bottom Left\",\"2\":\"Top Left\",\"3\":\"Top Right\",\"4\":\"Bottom Right\"}"
+        },
+        "frame_filename": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\yolo11n_1.onnx",
+        "session_id": "7c87fc3a-902c-426d-978b-b912fb22817f",
+        "video_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\Standard_SCU5ZK_2024_04_16_0600_003_very_short.mp4"
+    },
+    "dc7466e8-d76a-4880-b8b1-cafcc0f58f83": {
+        "first_frame_path": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "form_data": {
+            "site_location": "test",
+            "inference_tracker": "bytetrack.yaml",
+            "export_video": true,
+            "start_date": "2024-12-02",
+            "start_time": "10:18",
+            "triplines": "[{\"start\":{\"x\":568.2528718925055,\"y\":656.1418796644928},\"end\":{\"x\":100.03325578051972,\"y\":252.03990460719828}},{\"start\":{\"x\":137.97002638234372,\"y\":273.99111539289476},\"end\":{\"x\":386.5557074311379,\"y\":176.20841525557412}},{\"start\":{\"x\":381.5640270887926,\"y\":180.19954587342397},\"end\":{\"x\":751.9467084908113,\"y\":284.9667245919818}},{\"start\":{\"x\":771.9134298601923,\"y\":289.9556378642941},\"end\":{\"x\":573.2445522348507,\"y\":648.1596108163156}}]",
+            "directions": "{\"1\":\"Bottom Left\",\"2\":\"Top Left\",\"3\":\"Top Right\",\"4\":\"Bottom Right\"}"
+        },
+        "frame_filename": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\yolo11n_1.onnx",
+        "session_id": "dc7466e8-d76a-4880-b8b1-cafcc0f58f83",
+        "video_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\Standard_SCU5ZK_2024_04_16_0600_003_very_short.mp4"
+    },
+    "7dc2b7b4-7a01-4d3d-9e4a-e2ea9be1860e": {
+        "first_frame_path": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "form_data": {
+            "site_location": "test",
+            "inference_tracker": "bytetrack.yaml",
+            "export_video": true,
+            "start_date": "2024-12-02",
+            "start_time": "10:18",
+            "triplines": "[{\"start\":{\"x\":568.2528718925055,\"y\":656.1418796644928},\"end\":{\"x\":100.03325578051972,\"y\":252.03990460719828}},{\"start\":{\"x\":137.97002638234372,\"y\":273.99111539289476},\"end\":{\"x\":386.5557074311379,\"y\":176.20841525557412}},{\"start\":{\"x\":381.5640270887926,\"y\":180.19954587342397},\"end\":{\"x\":751.9467084908113,\"y\":284.9667245919818}},{\"start\":{\"x\":771.9134298601923,\"y\":289.9556378642941},\"end\":{\"x\":573.2445522348507,\"y\":648.1596108163156}}]",
+            "directions": "{\"1\":\"Bottom Left\",\"2\":\"Top Left\",\"3\":\"Top Right\",\"4\":\"Bottom Right\"}"
+        },
+        "frame_filename": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\yolo11n_1.pt",
+        "session_id": "7dc2b7b4-7a01-4d3d-9e4a-e2ea9be1860e",
+        "video_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\Standard_SCU5ZK_2024_04_16_0600_003_very_short.mp4"
+    },
+    "925e3f3e-d57a-481d-98ec-84f5f06c0889": {
+        "first_frame_path": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "form_data": {
+            "site_location": "test",
+            "inference_tracker": "bytetrack.yaml",
+            "export_video": true,
+            "start_date": "2024-12-02",
+            "start_time": "10:18",
+            "triplines": "[{\"start\":{\"x\":568.2528718925055,\"y\":656.1418796644928},\"end\":{\"x\":100.03325578051972,\"y\":252.03990460719828}},{\"start\":{\"x\":137.97002638234372,\"y\":273.99111539289476},\"end\":{\"x\":386.5557074311379,\"y\":176.20841525557412}},{\"start\":{\"x\":381.5640270887926,\"y\":180.19954587342397},\"end\":{\"x\":751.9467084908113,\"y\":284.9667245919818}},{\"start\":{\"x\":771.9134298601923,\"y\":289.9556378642941},\"end\":{\"x\":573.2445522348507,\"y\":648.1596108163156}}]",
+            "directions": "{\"1\":\"Bottom Left\",\"2\":\"Top Left\",\"3\":\"Top Right\",\"4\":\"Bottom Right\"}"
+        },
+        "frame_filename": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\yolo11n_1.pt",
+        "session_id": "925e3f3e-d57a-481d-98ec-84f5f06c0889",
+        "video_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\Standard_SCU5ZK_2024_04_16_0600_003_very_short.mp4"
+    },
+    "aa577ff2-0396-4d53-8b26-c53c3846ee3a": {
+        "first_frame_path": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "form_data": {
+            "site_location": "test",
+            "inference_tracker": "bytetrack.yaml",
+            "export_video": true,
+            "start_date": "2024-12-02",
+            "start_time": "10:18",
+            "triplines": "[{\"start\":{\"x\":568.2528718925055,\"y\":656.1418796644928},\"end\":{\"x\":100.03325578051972,\"y\":252.03990460719828}},{\"start\":{\"x\":137.97002638234372,\"y\":273.99111539289476},\"end\":{\"x\":386.5557074311379,\"y\":176.20841525557412}},{\"start\":{\"x\":381.5640270887926,\"y\":180.19954587342397},\"end\":{\"x\":751.9467084908113,\"y\":284.9667245919818}},{\"start\":{\"x\":771.9134298601923,\"y\":289.9556378642941},\"end\":{\"x\":573.2445522348507,\"y\":648.1596108163156}}]",
+            "directions": "{\"1\":\"Bottom Left\",\"2\":\"Top Left\",\"3\":\"Top Right\",\"4\":\"Bottom Right\"}"
+        },
+        "frame_filename": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\yolo11n_1.pt",
+        "session_id": "aa577ff2-0396-4d53-8b26-c53c3846ee3a",
+        "video_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\Standard_SCU5ZK_2024_04_16_0600_003_very_short.mp4"
+    },
+    "eeda5505-e0cb-4801-98d2-a789d9230929": {
+        "first_frame_path": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "form_data": {
+            "site_location": "test",
+            "inference_tracker": "bytetrack.yaml",
+            "export_video": true,
+            "start_date": "2024-12-02",
+            "start_time": "10:18",
+            "triplines": "[{\"start\":{\"x\":568.2528718925055,\"y\":656.1418796644928},\"end\":{\"x\":100.03325578051972,\"y\":252.03990460719828}},{\"start\":{\"x\":137.97002638234372,\"y\":273.99111539289476},\"end\":{\"x\":386.5557074311379,\"y\":176.20841525557412}},{\"start\":{\"x\":381.5640270887926,\"y\":180.19954587342397},\"end\":{\"x\":751.9467084908113,\"y\":284.9667245919818}},{\"start\":{\"x\":771.9134298601923,\"y\":289.9556378642941},\"end\":{\"x\":573.2445522348507,\"y\":648.1596108163156}}]",
+            "directions": "{\"1\":\"Bottom Left\",\"2\":\"Top Left\",\"3\":\"Top Right\",\"4\":\"Bottom Right\"}"
+        },
+        "frame_filename": "Standard_SCU5ZK_2024_04_16_0600_003_very_short_first_frame.jpg",
+        "model_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\models\\traffic_camera_us_v11n2.pt",
+        "session_id": "eeda5505-e0cb-4801-98d2-a789d9230929",
+        "video_path": "C:\\Users\\adufour\\OneDrive - SystraGroup\\Documents\\Traffic Count\\webapp\\TrafficCounting\\uploads\\Standard_SCU5ZK_2024_04_16_0600_003_very_short.mp4"
     }
 }

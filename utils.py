@@ -84,6 +84,7 @@ class DataManager:
 
     def set_names(self, selected_model):
         _, extension = os.path.splitext(selected_model)
+        self.model_type = extension
         if extension == ".pt": #YOLO returns pt model names in dict format
             from ultralytics import YOLO
             class_names = YOLO(selected_model).model.names
@@ -161,6 +162,9 @@ class Tracker:
         self.inference_tracker = data_manager.inference_tracker
         self.device_name = data_manager.device_name
         self.verbose = verbose
+        if data_manager.model_type ==".pt": #Only pt models support resizing
+            self.image_size = [32 * (data_manager.width//32) + 32 * min (1,data_manager.width%32), 32 * (data_manager.height//32) + 32 * min (1,data_manager.height%32)] # Input size must be a multiple of max stride 32
+        else : self.image_size = [640, 640]
         # Load YOLO model
         self.model = YOLO(self.selected_model, task='detect')
         
@@ -171,7 +175,7 @@ class Tracker:
         self.success, self.current_frame = self.cap.read()
 
     def process_frame(self, data_manager):
-        results = self.model.track(self.current_frame, persist=True, verbose=self.verbose, tracker=self.inference_tracker, device=self.device_name, save=False)
+        results = self.model.track(self.current_frame, imgsz=self.image_size, persist=True, verbose=self.verbose, tracker=self.inference_tracker, device=self.device_name, save=False)
         
         boxes = results[0].boxes.xywh.cpu()
         track_ids = results[0].boxes.id
@@ -488,7 +492,7 @@ class Annotator:
                     )
 
                 # Write the count of objects on each frame
-                count_text_1 = f"{len(counted)}/{len(self.data_manager.CROSSED)} objects have crossed the line :"
+                count_text_1 = f"{len(counted)}/{len(self.data_manager.CROSSED)} objects :"
                 cv2.putText(self.frame, count_text_1, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
                 # Add and display text lines for each of the detected classes
