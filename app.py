@@ -17,10 +17,12 @@ logger = logging.getLogger(__name__)
 # App configuration
 app = Flask(__name__)
 
-app.config['UPLOADS_FOLDER'] = 'uploads'
-app.config['MODELS_FOLDER'] = 'models'
-app.config['RESULTS_FOLDER'] = 'results'
-app.config['LOGS_FOLDER'] = 'logs'
+app.config['CONTENTS'] = 'contents'
+
+app.config['UPLOADS_FOLDER'] = os.path.join(app.config['CONTENTS'],'uploads')
+app.config['MODELS_FOLDER'] = os.path.join(app.config['CONTENTS'],'models')
+app.config['RESULTS_FOLDER'] = os.path.join(app.config['CONTENTS'],'results')
+app.config['LOGS_FOLDER'] = os.path.join(app.config['CONTENTS'],'logs')
 
 # Check directories for uploads, models, results, and logs
 os.makedirs(os.path.join(app.root_path, app.config['UPLOADS_FOLDER']), exist_ok=True)
