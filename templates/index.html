@@ -294,12 +294,13 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0);
 
-                triplines.forEach(line => {
-                    drawLine(ctx, line.start, line.end);
+                triplines.forEach((line, index) => {
+                    drawLine(ctx, line);
+                    drawIndex(ctx, index, line);
                 });
 
                 // Draw current tripline
-                drawLine(ctx, currentTripline.start, currentTripline.end);
+                drawLine(ctx, currentTripline);
             });
 
             canvas.addEventListener('mouseup', () => {
@@ -308,6 +309,14 @@
                     triplines.push({ ...currentTripline });
                     currentTripline = {};
                     updateTriplineCounter();
+
+                     // Redraw frame and all triplines
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                    triplines.forEach((line, index) => {
+                        drawLine(ctx, line);
+                        drawIndex(ctx, index, line);
+                });
                 }
             });
 
@@ -316,7 +325,8 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0);
                 triplines.forEach(line => {
-                    drawLine(ctx, line.start, line.end);
+                    drawLine(ctx, line);
+                    drawIndex(ctx, index, line);
                 });
             });
 
@@ -338,13 +348,19 @@
             });
         }
 
-        function drawLine(ctx, start, end) {
+        function drawLine(ctx, line) {
             ctx.beginPath();
-            ctx.moveTo(start.x, start.y);
-            ctx.lineTo(end.x, end.y);
+            ctx.moveTo(line.start.x, line.start.y);
+            ctx.lineTo(line.end.x, line.end.y);
             ctx.strokeStyle = 'red';
             ctx.lineWidth = 2;
             ctx.stroke();
+        }
+
+        function drawIndex(ctx, index, line) {
+            ctx.fillStyle = 'red';
+            ctx.font = '24px sans-serif';
+            ctx.fillText(index + 1, (line.start.x + line.end.x) / 2 - 5, (line.start.y + line.end.y) / 2 - 10);
         }
 
         function updateTriplineCounter() {
