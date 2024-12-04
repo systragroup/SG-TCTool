@@ -29,7 +29,7 @@ os.makedirs(os.path.join(app.root_path, app.config['MODELS_FOLDER']), exist_ok=T
 os.makedirs(os.path.join(app.root_path, app.config['RESULTS_FOLDER']), exist_ok=True)
 os.makedirs(os.path.join(app.root_path, os.path.join(app.config['RESULTS_FOLDER'], 'compiler')), exist_ok=True)
 os.makedirs(os.path.join(app.root_path, app.config['LOGS_FOLDER']), exist_ok=True)
-logging.WARNING(f"  -  In case of app crash : ouput saved in {os.path.join(app.root_path,app.config['MODELS_FOLDER'])} and logs in {os.path.join(app.root_path,app.config['LOGS_FOLDER'])}")
+logging.warning(f"  -  In case of app crash : ouput saved in {os.path.join(app.root_path,app.config['MODELS_FOLDER'])} and logs in {os.path.join(app.root_path,app.config['LOGS_FOLDER'])}")
 
 app.secret_key = "192b9bdd45ab9ed4d12e236c78afzb9a393ec15f71bbf5dc987d54727823bcbf"  #not used
 app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024  # 1000 MB
