@@ -1,15 +1,20 @@
 import os
+import threading
+import datetime
+import logging
+
 import uuid
 import json
-import logging
-import threading
 from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for, session
 from werkzeug.utils import secure_filename
-from utils import DataManager, Counter, Tracker, xlsxWriter, xlsxCompiler, Annotator
-import datetime
-import json
-import os
 
+from utils import DataManager, Counter, Tracker, xlsxWriter, xlsxCompiler, Annotator
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [Line %(lineno)d] - %(message)s')
+logger = logging.getLogger(__name__)
+
+# App configuration
 app = Flask(__name__)
 
 app.config['UPLOADS_FOLDER'] = 'uploads'
@@ -17,23 +22,19 @@ app.config['MODELS_FOLDER'] = 'models'
 app.config['RESULTS_FOLDER'] = 'results'
 app.config['LOGS_FOLDER'] = 'logs'
 
-
+# Check directories for uploads, models, results, and logs
 os.makedirs(os.path.join(app.root_path, app.config['UPLOADS_FOLDER']), exist_ok=True)
 os.makedirs(os.path.join(app.root_path, os.path.join(app.config['UPLOADS_FOLDER'], 'compiler')), exist_ok=True)
 os.makedirs(os.path.join(app.root_path, app.config['MODELS_FOLDER']), exist_ok=True)
 os.makedirs(os.path.join(app.root_path, app.config['RESULTS_FOLDER']), exist_ok=True)
 os.makedirs(os.path.join(app.root_path, os.path.join(app.config['RESULTS_FOLDER'], 'compiler')), exist_ok=True)
 os.makedirs(os.path.join(app.root_path, app.config['LOGS_FOLDER']), exist_ok=True)
+logging.info(f"In case of app crash : ouput saved in {os.path.join(app.root_path,app.config['MODELS_FOLDER'])} and logs in {os.path.join(app.root_path,app.config['LOGS_FOLDER'])}")
 
 app.secret_key = "TrafficCounting"
 
 app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024  # 1000 MB
 
-
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [Line %(lineno)d] - %(message)s')
-logger = logging.getLogger(__name__)
 
 data_manager = DataManager()
 
@@ -338,3 +339,8 @@ def log_compile_session(session_id, data):
     # Write the updated log back to the file
     with open(COMPILE_LOG_FILE, 'w') as f:
         json.dump(compile_log, f, indent=4, default=str)
+
+
+# Run the app
+if __name__ == "__main__" :
+    app.run(debug=False) #Only use for development. Debug should be False to prevent server restart at each change of .py files

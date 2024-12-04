@@ -10,6 +10,8 @@ import torch.cuda
 import cv2
 import pandas as pd
 import numpy as np
+import onnx
+import onnxruntime
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -86,7 +88,6 @@ class DataManager:
         _, extension = os.path.splitext(selected_model)
         self.model_type = extension
         if extension == ".pt": #YOLO returns pt model names in dict format
-            from ultralytics import YOLO
             class_names = YOLO(selected_model).model.names
             if class_names:
                 self.names = YOLO(selected_model).model.names
@@ -95,7 +96,6 @@ class DataManager:
                 logging.warning("Class names not found in pt metadata.")
                 
         elif extension == ".onnx": #ONNX model names metadata is a string
-            import onnx
             model = onnx.load(selected_model)
             metadata_props = {prop.key: prop.value for prop in model.metadata_props}
             class_names = metadata_props.get('names', None)
