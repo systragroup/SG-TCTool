@@ -1,4 +1,4 @@
-import os, sys
+import os
 import threading
 import datetime
 import logging
@@ -15,12 +15,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [L
 logger = logging.getLogger(__name__)
 
 # App configuration
-base_dir = '.'
-if hasattr(sys, '_MEIPASS'):
-    base_dir = os.path.join(sys._MEIPASS)
-app = Flask(__name__, 
-        static_folder=os.path.join(base_dir, 'static'),
-        template_folder=os.path.join(base_dir, 'templates'))
+app = Flask(__name__)
 
 app.config['UPLOADS_FOLDER'] = 'uploads'
 app.config['MODELS_FOLDER'] = 'models'
