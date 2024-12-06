@@ -13,6 +13,12 @@
         .progress-bar-gray {
             background-color: #7b7a7a; /* Gray */
         }
+        .progress-bar-good {
+            background-color: #1e8f1e; /* Red */
+        }
+        .progress-bar-bad {
+            background-color: #610808; /* Red */
+        }
 
         /* Compact Directions and Tripline */
         .compact-input-group {
@@ -177,19 +183,19 @@
                 <!-- YOLO Progress Bar -->
                 <div class="progress-row">
                     <div class="progress" style="height: 20px; flex: 1;">
-                        <div id="progressBarYOLO" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-red" role="progressbar" style="width: 0%; min-width: 2em;">YOLO: 0%</div>
+                        <div id="progressBarYOLO" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-red" role="progressbar" style="width: 0%; ">YOLO: 0%</div>
                     </div>
                 </div>
                 <!-- Counting, Excel, Annotation Progress Bars -->
                 <div class="progress-row three-columns">
                     <div class="progress" style="height: 20px;">
-                        <div id="progressBarCounting" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-gray" role="progressbar" style="width: 0%; min-width: 2em;">Counting: 0%</div>
+                        <div id="progressBarCounting" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-gray" role="progressbar" style="width: 0%; ">Counting: 0%</div>
                     </div>
                     <div class="progress" style="height: 20px;">
-                        <div id="progressBarExcel" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-red" role="progressbar" style="width: 0%; min-width: 2em;">Excel: 0%</div>
+                        <div id="progressBarExcel" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-red" role="progressbar" style="width: 0%; ">Excel: 0%</div>
                     </div>
                     <div class="progress" style="height: 20px;">
-                        <div id="progressBarAnnotation" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-gray" role="progressbar" style="width: 0%; min-width: 2em;">Annotation: 0%</div>
+                        <div id="progressBarAnnotation" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-gray" role="progressbar" style="width: 0%;">Annotation: 0%</div>
                 </div>
             </div>
             </div>
@@ -355,7 +361,17 @@
         function drawIndex(ctx, index, line) {
             ctx.fillStyle = 'red';
             ctx.font = '24px sans-serif';
-            ctx.fillText(index + 1, (line.start.x + line.end.x) / 2 - 5, (line.start.y + line.end.y) / 2 - 10);
+            const m_x = (line.start.x + line.end.x) / 2;
+            const m_y = (line.start.y + line.end.y) / 2;
+            const dx = line.end.x - line.start.x;
+            const dy = line.end.y - line.start.y;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const orthogonal_x = dy / length;
+            const orthogonal_y = -dx / length;
+            const offset = 20;
+            const pt_x = m_x + orthogonal_x * offset;
+            const pt_y = m_y + orthogonal_y * offset;
+            ctx.fillText(index + 1, pt_x, pt_y);
         }
 
         function updateTriplineCounter() {
@@ -514,6 +530,10 @@
                                                     (progressData.Annotation === 100 || !document.getElementById('exportVideo').checked));
 
                                     if (isComplete) {
+                                        progressBarYOLO.className = "progress-bar progress-bar-striped progress-bar-good"
+                                        progressBarCounting.className = "progress-bar progress-bar-striped progress-bar-good"
+                                        progressBarExcel.className = "progress-bar progress-bar-striped progress-bar-good"
+                                        progressBarAnnotation.className = "progress-bar progress-bar-striped progress-bar-good"
                                         clearInterval(progressInterval);
                                         document.getElementById('result').innerText = `Processing complete \n Your session ID is : ${session_id}`;
                                         
@@ -535,6 +555,10 @@
                                             progressData.Counting === -1 || 
                                             progressData.Excel === -1 || 
                                             progressData.Annotation === -1) {
+                                        progressBarYOLO.className = "progress-bar progress-bar-striped progress-bar-bad"
+                                        progressBarCounting.className = "progress-bar progress-bar-striped progress-bar-bad"
+                                        progressBarExcel.className = "progress-bar progress-bar-striped progress-bar-bad"
+                                        progressBarAnnotation.className = "progress-bar progress-bar-striped progress-bar-bad"
                                         clearInterval(progressInterval);
                                         document.getElementById('result').innerText = 'An error occurred during processing.';
                                         // Try to fetch specific error message

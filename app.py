@@ -8,6 +8,8 @@ import json
 from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for, session
 from werkzeug.utils import secure_filename
 
+from cv2 import VideoCapture, imread, imwrite
+
 from utils import DataManager, Counter, Tracker, xlsxWriter, xlsxCompiler, Annotator
 
 # Configure logging
@@ -31,7 +33,8 @@ os.makedirs(os.path.join(app.root_path, app.config['MODELS_FOLDER']), exist_ok=T
 os.makedirs(os.path.join(app.root_path, app.config['RESULTS_FOLDER']), exist_ok=True)
 os.makedirs(os.path.join(app.root_path, os.path.join(app.config['RESULTS_FOLDER'], 'compiler')), exist_ok=True)
 os.makedirs(os.path.join(app.root_path, app.config['LOGS_FOLDER']), exist_ok=True)
-logging.info(f"In case of app crash : find uploads, models, results and logs in {os.path.join(app.root_path,app.config['CONTENTS'])}")
+
+logging.info("--> logs in {os.path.join(app.root_path,app.config['LOGS_FOLDER'])}")
 
 app.secret_key = "192b9bdd45ab9ed4d12e236c78afzb9a393ec15f71bbf5dc987d54727823bcbf"  #not used
 app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024  # 1000 MB
@@ -44,15 +47,14 @@ app.progress = {}
 app.results = {}
 
 def extract_first_frame(video_path):
-    import cv2
-    cap = cv2.VideoCapture(video_path)
+    cap = VideoCapture(video_path)
     success, frame = cap.read()
     if success:
         base_filename = secure_filename(os.path.basename(video_path))
         frame_filename = f"{os.path.splitext(base_filename)[0]}_first_frame.jpg"
-        frame_path = os.path.join(os.path.join(app.root_path, app.config['UPLOADS_FOLDER']), frame_filename)
-        cv2.imwrite(frame_path, frame)
-        return frame_filename  # Return only the filename
+        frame_path = os.path.join(app.root_path, app.config['RESULTS_FOLDER'], session['session_id'], frame_filename)
+        imwrite(frame_path, frame)
+        return frame_filename
     return None
 
 def update_progress(session_id, step, percentage):
@@ -112,9 +114,6 @@ def index():
 
 @app.route('/process', methods=['POST'])
 def process_video():
-    session_id = str(uuid.uuid4())
-    session['session_id'] = session_id
-    
     # Store form data in session
     session['form_data'] = {
         'site_location': request.form.get('siteLocation'),
@@ -125,7 +124,6 @@ def process_video():
         'triplines': request.form.get('triplines'),
         'directions': request.form.get('directions')
     }
-
     # Handle file uploads
     video_file = request.files.get('videoFile')
     model_file = request.files.get('modelFile')
@@ -134,24 +132,22 @@ def process_video():
         video_filename = secure_filename(video_file.filename)
         video_path = os.path.join(os.path.join(app.root_path, app.config['UPLOADS_FOLDER']), video_filename)
         video_file.save(video_path)
-        
-        # Extract first frame
-        frame_path = extract_first_frame(video_path)
+
         session['video_path'] = video_path
-        session['first_frame_path'] = frame_path
-        
+
         model_filename = secure_filename(model_file.filename)
         model_path = os.path.join(os.path.join(app.root_path, app.config['MODELS_FOLDER']), model_filename)
         model_file.save(model_path)
         session['model_path'] = model_path
-        
         log_session(session['session_id'],session)
-        return jsonify({"status": "success", "session_id": session_id})
+        return jsonify({"status": "success", "session_id": session['session_id']})
     
     return jsonify({'error': 'Missing files'}), 400
 
 @app.route('/start_processing/<session_id>', methods=['POST'])
 def start_processing(session_id):
+    # Check initialisation complete 
+    process_initial(failsafe_session_id=session_id)
     # Initialize DataManager with stored session data
     form_data = session.get('form_data')
     data_manager = DataManager()
@@ -172,10 +168,9 @@ def start_processing(session_id):
     data_manager.set_start_datetime(form_data['start_date'], form_data['start_time'])
     
     # Define paths
-    session_dir = os.path.join(os.path.join(app.root_path, app.config['RESULTS_FOLDER']), session_id)
+    session_dir = os.path.join(app.root_path, app.config['RESULTS_FOLDER'], session_id)
     report_path = os.path.join(session_dir, 'report_'+ data_manager.site_location +'.xlsx')
     annotated_video_path = os.path.join(session_dir, 'annotated_'+ data_manager.site_location +'_video.mp4') if data_manager.do_video_export else None
-    os.makedirs(session_dir, exist_ok=True)
     paths = {'session_dir' : session_dir, 'report_path' : report_path}
     if annotated_video_path:
         paths['annotated_video_path'] = annotated_video_path
@@ -205,21 +200,26 @@ def log_session(session_id, data):
         json.dump(session_log, f, indent=4)
 
 @app.route('/process_initial', methods=['POST'])
-def process_initial():
+def process_initial(failsafe_session_id = None):
+    if not failsafe_session_id : session_id = str(uuid.uuid1())
+    else : session_id = failsafe_session_id
+
+    session['session_id'] = session_id
+    session_dir = os.path.join(app.root_path, app.config['RESULTS_FOLDER'], session_id)
+    os.makedirs(session_dir, exist_ok=True)
+
     video_file = request.files.get('videoFile')
     if (video_file):
         video_filename = secure_filename(video_file.filename)
         video_path = os.path.join(os.path.join(app.root_path, app.config['UPLOADS_FOLDER']), video_filename)
         video_file.save(video_path)
 
-        # Extract first frame
-        frame_filename = extract_first_frame(video_path)
-        if frame_filename:
-            frame_url = url_for('uploaded_file', filename=frame_filename)
+        first_frame_filename = extract_first_frame(video_path)
+        if first_frame_filename:
+            frame_url = url_for('download_file', filename=first_frame_filename, session_id=session_id)
 
-            # Store the video and frame filenames in the session
             session['video_path'] = video_path
-            session['frame_filename'] = frame_filename
+            session['first_frame_filename'] = first_frame_filename
 
             return jsonify({'status': 'success', 'frame_url': frame_url})
         else:
@@ -249,8 +249,8 @@ def get_results():
 
 @app.route('/download/<session_id>/<filename>')
 def download_file(session_id, filename):
-    directory = os.path.join(os.path.join(app.root_path, app.config['RESULTS_FOLDER']), session_id)
-    return send_from_directory(directory, filename, as_attachment=True)
+    directory = os.path.join(os.path.join(app.config['RESULTS_FOLDER']), session_id)
+    return send_from_directory(directory, filename)
 
 @app.route('/compile', methods=['GET', 'POST'])
 def compile_reports():
@@ -360,6 +360,8 @@ def history():
     selected_type = None
     selected_session_id = None
     session_log = None
+    triplines = None
+    first_frame_path = None
     available_files = []
 
     if request.method == 'POST':
@@ -369,6 +371,12 @@ def history():
         # Get the session log based on selected type and session ID
         if selected_type == 'Counting' and selected_session_id in process_sessions:
             session_log = process_sessions[selected_session_id]
+            # Load first frame
+            first_frame_filename = session_log['first_frame_filename'] 
+            first_frame_path = url_for('download_file', filename=first_frame_filename, session_id=selected_session_id)
+            # Load triplines
+            triplines = json.loads(session_log['form_data']['triplines'])
+            print(triplines)
             # Determine available files for download
             session_dir = os.path.join(app.config['RESULTS_FOLDER'], selected_session_id)
             if os.path.exists(session_dir):
@@ -385,6 +393,8 @@ def history():
                            process_sessions=process_sessions,
                            compile_sessions=compile_sessions,
                            selected_type=selected_type,
+                           first_frame_path=first_frame_path,
+                           triplines=triplines,
                            selected_session_id=selected_session_id,
                            session_log=session_log,
                            available_files=available_files)
@@ -402,4 +412,4 @@ def download_history_file(session_type, session_id, filename):
 
 # Run the app
 if __name__ == "__main__" :
-    app.run(debug=False) #Only use for development. Debug should be False to prevent server restart at each change of .py files
+    app.run(debug=True) #Only use for development. Debug should be False to prevent server restart at each change of .py files
