@@ -62,29 +62,19 @@
     </style>
 </head>
 <body>
+    { padding-top: 70px; }
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
         <div class="container-fluid">
-            <!-- App Title -->
             <a class="navbar-brand" href="/">Traffic Counting App</a>
-            <!-- Toggler -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <!-- Navigation Links and Buttons -->
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto d-flex flex-column align-items-end">
-                    <li class="nav-item">
-                        <a class="nav-link-active" href="/">Home</a>
-                    </li>
-                    <!-- Add the Compiler button -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="/compile">Compiler</a>
-                    </li>
-                    <!--History button -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="/history">History</a>
-                    </li>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/compile">Compiler</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/history">History</a></li>
                 </ul>
             </div>
         </div>
@@ -187,19 +177,19 @@
                 <!-- YOLO Progress Bar -->
                 <div class="progress-row">
                     <div class="progress" style="height: 20px; flex: 1;">
-                        <div id="progressBarYOLO" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-red" role="progressbar" style="width: 0%;">YOLO: 0%</div>
+                        <div id="progressBarYOLO" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-red" role="progressbar" style="width: 0%; min-width: 2em;">YOLO: 0%</div>
                     </div>
                 </div>
                 <!-- Counting, Excel, Annotation Progress Bars -->
                 <div class="progress-row three-columns">
                     <div class="progress" style="height: 20px;">
-                        <div id="progressBarCounting" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-gray" role="progressbar" style="width: 0%;">Counting: 0%</div>
+                        <div id="progressBarCounting" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-gray" role="progressbar" style="width: 0%; min-width: 2em;">Counting: 0%</div>
                     </div>
                     <div class="progress" style="height: 20px;">
-                        <div id="progressBarExcel" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-red" role="progressbar" style="width: 0%;">Excel: 0%</div>
+                        <div id="progressBarExcel" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-red" role="progressbar" style="width: 0%; min-width: 2em;">Excel: 0%</div>
                     </div>
                     <div class="progress" style="height: 20px;">
-                        <div id="progressBarAnnotation" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-gray" role="progressbar" style="width: 0%;">Annotation: 0%</div>
+                        <div id="progressBarAnnotation" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-gray" role="progressbar" style="width: 0%; min-width: 2em;">Annotation: 0%</div>
                 </div>
             </div>
             </div>
@@ -513,7 +503,7 @@
                                         progressBarExcel.style.width = progressData.Excel + '%';
                                         progressBarExcel.innerText = 'Excel: ' + progressData.Excel + '%';
                                     }
-                                    if (progressData.Annotation >= 0 && progressData.Annotation <= 100) {
+                                    if (progressData.Annotation >= 0 && progressData.Annotation <= 100 && document.getElementById('exportVideo').checked) {
                                         progressBarAnnotation.style.width = progressData.Annotation + '%';
                                         progressBarAnnotation.innerText = 'Annotation: ' + progressData.Annotation + '%';
                                     }
