@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 
 from cv2 import VideoCapture, imread, imwrite
 
-from utils import DataManager, Counter, Tracker, xlsxWriter, xlsxCompiler, Annotator
+from utils import DataManager, Counter, Tracker, xlsxWriter, xlsxCompiler, StreetCountCompiler, Annotator
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [Line %(lineno)d] - %(message)s')
@@ -34,7 +34,7 @@ os.makedirs(os.path.join(app.root_path, app.config['RESULTS_FOLDER']), exist_ok=
 os.makedirs(os.path.join(app.root_path, os.path.join(app.config['RESULTS_FOLDER'], 'compiler')), exist_ok=True)
 os.makedirs(os.path.join(app.root_path, app.config['LOGS_FOLDER']), exist_ok=True)
 
-logging.info("--> logs in {os.path.join(app.root_path,app.config['LOGS_FOLDER'])}")
+logging.info(f"--> logs in {os.path.join(app.root_path,app.config['LOGS_FOLDER'])}")
 
 app.secret_key = "192b9bdd45ab9ed4d12e236c78afzb9a393ec15f71bbf5dc987d54727823bcbf"  #not used
 app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024  # 1000 MB
@@ -256,7 +256,7 @@ def download_file(session_id, filename):
 def compile_reports():
     if request.method == 'POST':
         # Generate a unique session ID for this compile session
-        session_id = str(uuid.uuid4())
+        session_id = str(uuid.uuid1())
         
         # Retrieve form data
         files = request.files.getlist('filePaths')
@@ -409,6 +409,67 @@ def download_history_file(session_type, session_id, filename):
         return "Invalid session type", 400
     return send_from_directory(directory, filename, as_attachment=True)
 
+@app.route('/streetcount', methods=['GET', 'POST'])
+def compile_streetcount():
+    if request.method == 'POST':
+        # Generate a unique session ID for this compile session
+        session_id = str(uuid.uuid1())
+        
+        # Retrieve form data
+        files = request.files.getlist('filePaths')
+        site_location = request.form.get('siteLocation')
+        timezone = request.form.get('timezone')
+        # Convert timezone string to datetime timezone
+        try:
+            hours_offset = int(timezone.split(':')[0].replace('UTC', ''))
+            minutes_offset = int(timezone.split(':')[1])
+            timezone_offset = datetime.timezone(datetime.timedelta(hours=hours_offset, minutes=minutes_offset))
+        except Exception as e:
+            return jsonify({'status': 'error', 'message': 'Invalid timezone format'}), 400
+        output_filename = request.form.get('outputFilename')
+        
+        # Set default output filename if not provided
+        if not output_filename.strip():
+            output_filename = 'compiled_report.xlsx'
+        elif not output_filename.endswith('.xlsx'):
+            output_filename += '.xlsx'
+        
+        output_path = os.path.join(os.path.join(app.root_path, os.path.join(app.config['RESULTS_FOLDER'], 'compiler')), output_filename)
+        
+        # Initialize compile session data
+        compile_data = {
+            'session_id': session_id,
+            'output_filename': output_filename,
+            'timestamp': datetime.datetime.now(datetime.UTC),  # ISO 8601 format in UTC
+            'status': 'initiated',
+            'input_paths': files,
+            'site_location': site_location,
+            'timezone': timezone,
+            'error_message': None
+        }
+        try :
+            compiler = StreetCountCompiler(file_paths=files, site_location=site_location, timezone=timezone_offset)
+            
+            # Perform compilation
+            compiler.compile(output_path=output_path)
+            compile_data['status'] = 'success'
+            log_compile_session(session_id, compile_data)
+
+            # Send the compiled file as a download
+            return send_from_directory(os.path.join(app.root_path,os.path.join(app.config['RESULTS_FOLDER'], 'compiler')), output_filename, as_attachment=True)
+        
+        except Exception as e:
+                # Update compile_data with error details
+                compile_data['status'] = 'error'
+                compile_data['error_message'] = str(e)
+                
+                # Log the failed compile session
+                log_compile_session(session_id, compile_data)
+                
+                # Return error response
+                return jsonify({'status': 'error', 'message': str(e)}), 500
+
+    return render_template('streetcount.html')
 
 # Run the app
 if __name__ == "__main__" :

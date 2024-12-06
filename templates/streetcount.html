@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Street Count Compiler - Traffic Counting App</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+</head>
+<body>{ padding-top: 70px; }
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Traffic Counting App</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/compile">Compiler</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/streetcount">Street Count</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/history">History</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Compiler Form -->
+    <div class="container mt-4">
+        <h1>Compiler</h1>
+        <form action="/streetcount" method="POST" enctype="multipart/form-data">
+
+            <!-- File Selection -->
+            <div class="mb-3" id="fileInput" >
+                <label for="filePaths" class="form-label">Select Files</label>
+                <input type="file" class="form-control" id="filePaths" name="filePaths" multiple accept=".csv" required>
+            </div>
+            
+            <!-- Site/Location -->
+            <div class="mb-3">
+                <label for="siteLocation" class="form-label">Site Location</label>
+                <input type="text" class="form-control" id="siteLocation" name="siteLocation" placeholder="somestreet somewhere 2022" required>
+            </div>
+
+            <!-- Timezone -->
+            <div class="mb-3">
+                <label for="timezone" class="form-label">Timezone</label>
+                <select class="form-select" id="timezone" name="timezone" required>
+                    <option value="" disabled selected>Select your timezone</option>
+                    <option value="UTC-12:00">UTC-12:00</option>
+                    <option value="UTC-11:00">UTC-11:00</option>
+                    <option value="UTC-10:00">UTC-10:00</option>
+                    <option value="UTC-09:00">UTC-09:00</option>
+                    <option value="UTC-08:00">UTC-08:00</option>
+                    <option value="UTC-07:00">UTC-07:00</option>
+                    <option value="UTC-06:00">UTC-06:00</option>
+                    <option value="UTC-05:00">UTC-05:00</option>
+                    <option value="UTC-04:00">UTC-04:00</option>
+                    <option value="UTC-03:00">UTC-03:00</option>
+                    <option value="UTC-02:00">UTC-02:00</option>
+                    <option value="UTC-01:00">UTC-01:00</option>
+                    <option value="UTC+00:00">UTC+00:00</option>
+                    <option value="UTC+01:00">UTC+01:00</option>
+                    <option value="UTC+02:00">UTC+02:00</option>
+                    <option value="UTC+03:00">UTC+03:00</option>
+                    <option value="UTC+04:00">UTC+04:00</option>
+                    <option value="UTC+05:00">UTC+05:00</option>
+                    <option value="UTC+06:00">UTC+06:00</option>
+                    <option value="UTC+07:00">UTC+07:00</option>
+                    <option value="UTC+08:00">UTC+08:00</option>
+                    <option value="UTC+09:00">UTC+09:00</option>
+                    <option value="UTC+10:00">UTC+10:00</option>
+                    <option value="UTC+11:00">UTC+11:00</option>
+                    <option value="UTC+12:00">UTC+12:00</option>
+                </select>
+            </div>
+            
+            <!-- Output Filename -->
+            <div class="mb-3">
+                <label for="outputFilename" class="form-label">Output Filename</label>
+                <input type="text" class="form-control" id="outputFilename" name="outputFilename" placeholder="compiled_report.xlsx" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Compile</button>
+        </form>
+    </div>
+
+    <!-- Include Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    </script>
+</body>
+</html>

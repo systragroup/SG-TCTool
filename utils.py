@@ -357,6 +357,111 @@ class xlsxCompiler:
         self.precompile()
         self.write_compiled_data(output_path)
 
+class StreetCountCompiler:
+    def __init__(self, file_paths, site_location, timezone):
+        self.file_paths = file_paths
+        self.site_location = site_location
+        self.timezone = timezone
+        self.object_data = defaultdict(list)  # To store raw data
+        self.compiled_data = defaultdict(int)  # To store aggregated counts
+        
+    def extract_data(self):
+        """
+        Extracts data from each CSV file and stores it in object_data.
+        """
+        for file_path in self.file_paths:
+            try:
+                df = pd.read_csv(file_path, header=None, names=["Timestamp", "Direction", "Vehicle Type"])
+                
+                # Parse the Timestamp to datetime objects and adjust for timezone
+                df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='%Y-%m-%dT%H:%M:%S.%fZ').dt.tz_localize('UTC').dt.tz_convert(self.timezone)
+                
+                # Append to object_data
+                for _, row in df.iterrows():
+                    self.object_data["records"].append({
+                        "timestamp": row["Timestamp"],
+                        "direction": row["Direction"],
+                        "vehicle_type": row["Vehicle Type"]
+                    })
+            except Exception as e:
+                logging.error(f"Error processing file {file_path}: {e}")
+    
+    def precompile(self):
+        """
+        Aggregates the extracted data into compiled_data.
+        """
+
+        for record in self.object_data["records"]:
+            date = record["timestamp"].date()
+            hour = record["timestamp"].hour
+            minute = record["timestamp"].minute
+            # Calculate 15-minute interval
+            interval_15 = (minute // 15) * 15
+            # Format interval strings
+            interval_15_str = f"{interval_15:02d}:00 - {interval_15 + 15:02d}:00"
+            interval_hour_str = f"{hour:02d}:00 - {hour:02d}:59"
+
+            key = (
+                self.site_location,
+                date.strftime('%Y-%m-%d'),
+                record["vehicle_type"],
+                record["direction"],
+                interval_15_str,
+                interval_hour_str
+            )
+
+            self.compiled_data[key] += 1
+
+    def write_compiled_data(self, export_path_excel):
+        """
+        Writes the aggregated data to an Excel file.
+
+        Args:
+            export_path_excel (str): Path to save the Excel report.
+        
+        Returns:
+            str: Path to the saved Excel file.
+        """
+        
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.title = "Street Count Report"
+
+        # Define headers
+        headers = ['Site/Location', 'Date', 'Vehicle Type', 'Direction', 
+                   '15 Min Interval', 'Hour Interval', 'Total Count']
+        sheet.append(headers)
+
+        # Sort keys for organized reporting
+        sorted_keys = sorted(self.compiled_data.keys(), key=lambda x: (
+            x[0], x[1], x[2], x[3], x[4], x[5]
+        ))
+
+        # Write data rows
+        for key in tqdm(sorted_keys, desc="Writing Rows", unit="rows"):
+            row = list(key) + [self.compiled_data[key]]
+            sheet.append(row)
+
+        # Save the workbook
+        workbook.save(export_path_excel)
+        logging.info(f"Excel report saved at {export_path_excel}.")
+
+        return export_path_excel
+    
+    def compile(self, output_path):
+        """
+        Executes the full compilation process.
+
+        Args:
+            export_path_excel (str): Path to save the Excel report.
+        
+        Returns:
+            str: Path to the saved Excel file.
+        """
+        self.extract_data()
+        self.precompile()
+        return self.write_compiled_data(output_path)
+
 class Annotator:
     def __init__(self, data_manager, progress_callback):
         self.progress_callback = progress_callback
