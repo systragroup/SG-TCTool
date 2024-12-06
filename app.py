@@ -340,6 +340,65 @@ def log_compile_session(session_id, data):
     with open(COMPILE_LOG_FILE, 'w') as f:
         json.dump(compile_log, f, indent=4, default=str)
 
+@app.route('/history', methods=['GET', 'POST'])
+def history():
+    # Paths to log files
+    PROCESS_LOG_FILE = os.path.join(app.root_path, app.config['LOGS_FOLDER'], 'process_session_log.json')
+    COMPILE_LOG_FILE = os.path.join(app.root_path, app.config['LOGS_FOLDER'], 'compile_session_log.json')
+
+    # Load session data
+    process_sessions = {}
+    compile_sessions = {}
+
+    if os.path.exists(PROCESS_LOG_FILE):
+        with open(PROCESS_LOG_FILE, 'r') as f:
+            process_sessions = json.load(f)
+    if os.path.exists(COMPILE_LOG_FILE):
+        with open(COMPILE_LOG_FILE, 'r') as f:
+            compile_sessions = json.load(f)
+
+    selected_type = None
+    selected_session_id = None
+    session_log = None
+    available_files = []
+
+    if request.method == 'POST':
+        selected_type = request.form.get('session_type')
+        selected_session_id = request.form.get('session_id')
+
+        # Get the session log based on selected type and session ID
+        if selected_type == 'Counting' and selected_session_id in process_sessions:
+            session_log = process_sessions[selected_session_id]
+            # Determine available files for download
+            session_dir = os.path.join(app.config['RESULTS_FOLDER'], selected_session_id)
+            if os.path.exists(session_dir):
+                for filename in os.listdir(session_dir):
+                    available_files.append(filename)
+        elif selected_type == 'Compiling' and selected_session_id in compile_sessions:
+            session_log = compile_sessions[selected_session_id]
+            # Compiled files are stored in RESULTS_FOLDER/compiler
+            compiled_file = session_log.get('output_filename')
+            if compiled_file:
+                available_files.append(compiled_file)
+
+    return render_template('history.html',
+                           process_sessions=process_sessions,
+                           compile_sessions=compile_sessions,
+                           selected_type=selected_type,
+                           selected_session_id=selected_session_id,
+                           session_log=session_log,
+                           available_files=available_files)
+
+@app.route('/download_history_file/<session_type>/<session_id>/<filename>')
+def download_history_file(session_type, session_id, filename):
+    if session_type == 'Counting':
+        directory = os.path.join(app.root_path, app.config['RESULTS_FOLDER'], session_id)
+    elif session_type == 'Compiling':
+        directory = os.path.join(app.root_path, app.config['RESULTS_FOLDER'], 'compiler')
+    else:
+        return "Invalid session type", 400
+    return send_from_directory(directory, filename, as_attachment=True)
+
 
 # Run the app
 if __name__ == "__main__" :

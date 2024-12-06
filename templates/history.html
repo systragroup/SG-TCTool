@@ -1,0 +1,92 @@
+<!-- templates/history.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>History - Traffic Counting App</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <!-- App Title -->
+            <a class="navbar-brand" href="/">Traffic Counting App</a>
+            <!-- Toggler -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <!-- Navigation Links and Buttons -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto d-flex flex-column align-items-end">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <!-- Compiler button -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/compile">Compiler</a>
+                    </li>
+                    <!-- History button -->
+                    <li class="nav-item">
+                        <a class="nav-link-active" href="/history">History</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- History Content -->
+    <div class="container mt-4">
+        <h1>History</h1>
+        <form method="POST" action="/history">
+            <div class="mb-3">
+                <label for="sessionType" class="form-label">Select Session Type</label>
+                <select class="form-select" id="sessionType" name="session_type" onchange="this.form.submit()">
+                    <option value="" disabled {% if not selected_type %}selected{% endif %}>Select type</option>
+                    <option value="Counting" {% if selected_type == 'Counting' %}selected{% endif %}>Counting</option>
+                    <option value="Compiling" {% if selected_type == 'Compiling' %}selected{% endif %}>Compiling</option>
+                </select>
+            </div>
+
+            {% if selected_type %}
+            <div class="mb-3">
+                <label for="sessionId" class="form-label">Select Session ID</label>
+                <select class="form-select" id="sessionId" name="session_id" onchange="this.form.submit()">
+                    <option value="" disabled {% if not selected_session_id %}selected{% endif %}>Select session ID</option>
+                    {% if selected_type == 'Counting' %}
+                        {% for session_id in process_sessions.keys() %}
+                            <option value="{{ session_id }}" {% if session_id == selected_session_id %}selected{% endif %}>{{ session_id }}</option>
+                        {% endfor %}
+                    {% elif selected_type == 'Compiling' %}
+                        {% for session_id in compile_sessions.keys() %}
+                            <option value="{{ session_id }}" {% if session_id == selected_session_id %}selected{% endif %}>{{ session_id }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+            {% endif %}
+        </form>
+
+        {% if session_log %}
+            <h3>Session Log:</h3>
+            <pre>{{ session_log | tojson(indent=2) }}</pre>
+
+            {% if available_files %}
+                <h3>Available Files:</h3>
+                {% for filename in available_files %}
+                    <a href="{{ url_for('download_history_file', session_type=selected_type, session_id=selected_session_id, filename=filename) }}" class="btn btn-primary m-1">{{ filename }}</a>
+                {% endfor %}
+            {% else %}
+                <p>No files available for download.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- Include Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    </script>
+</body>
+</html>
