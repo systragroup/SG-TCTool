@@ -193,7 +193,7 @@
                         <div id="progressBarCounting" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-gray" role="progressbar" style="width: 0%; ">Counting: 0%</div>
                     </div>
                     <div class="progress" style="height: 20px;">
-                        <div id="progressBarExcel" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-red" role="progressbar" style="width: 0%; ">Excel: 0%</div>
+                        <div id="progressBarExcel" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-red" role="progressbar" style="width: 0%; ">Report: 0%</div>
                     </div>
                     <div class="progress" style="height: 20px;">
                         <div id="progressBarAnnotation" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-gray" role="progressbar" style="width: 0%;">Annotation: 0%</div>
@@ -216,7 +216,6 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
@@ -229,6 +228,7 @@
             if (videoFile) {
                 const formData = new FormData();
                 formData.append('videoFile', videoFile);
+                
 
                 // Upload the video file to the server to extract the first frame
                 fetch('/process_initial', {
@@ -292,7 +292,6 @@
                 if (!isDrawing) return;
                 currentTripline.end = getScaledCoordinates(e);
 
-                // Redraw frame and all triplines
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0);
 
@@ -301,7 +300,6 @@
                     drawIndex(ctx, index, line);
                 });
 
-                // Draw current tripline
                 drawLine(ctx, currentTripline);
             });
 
@@ -312,7 +310,6 @@
                     currentTripline = {};
                     updateTriplineCounter();
 
-                     // Redraw frame and all triplines
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.drawImage(img, 0, 0);
                     triplines.forEach((line, index) => {
@@ -427,6 +424,27 @@
             form.appendChild(div);
         }
 
+        function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            // Success
+            const feedback = document.getElementById('copyFeedback');
+            feedback.style.display = 'inline';
+            setTimeout(() => {
+                feedback.style.display = 'none';
+            }, 2000); // Hide after 2 seconds
+        }, function(err) {
+            // Error
+            console.error('Could not copy text: ', err);
+        });
+    }
+
+        document.addEventListener('click', function(event) {
+            if (event.target && event.target.id === 'sessionId') {
+                const sessionId = event.target.textContent;
+                copyToClipboard(sessionId);
+            }
+        });
+
         // Add event listener for the new Save & Submit for Processing button
         document.getElementById('saveAndSubmitBtn').addEventListener('click', () => {
             if (triplines.length === 0) {
@@ -469,7 +487,7 @@
             progressBarCounting.innerText = 'Counting: 0%';
 
             progressBarExcel.style.width = '0%';
-            progressBarExcel.innerText = 'Excel: 0%';
+            progressBarExcel.innerText = 'Report: 0%';
 
             progressBarAnnotation.style.width = '0%';
             progressBarAnnotation.innerText = 'Annotation: 0%';
@@ -502,7 +520,16 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === "Processing started") {
-                            document.getElementById('result').innerText = `Please wait, processing... \n Your session ID is : ${session_id}`;
+                            document.getElementById('result').innerHTML = `
+                                        Please wait, processing...<br>
+                                        Session ID : <span id="sessionId" class="text-primary" style="cursor: pointer; text-decoration: underline;">
+                                            ${session_id}
+                                        </span>
+                                        <span id="copyFeedback" class="text-success" style="display: none; margin-left: 10px;">
+                                            Copied!
+                                        </span>
+                                    `;
+
                             // Start polling for progress updates
                             const progressInterval = setInterval(() => {
                                 fetch(`/progress?session_id=${session_id}`)
@@ -518,7 +545,7 @@
                                     }
                                     if (progressData.Excel >= 0 && progressData.Excel <= 100) {
                                         progressBarExcel.style.width = progressData.Excel + '%';
-                                        progressBarExcel.innerText = 'Excel: ' + progressData.Excel + '%';
+                                        progressBarExcel.innerText = 'Report: ' + progressData.Excel + '%';
                                     }
                                     if (progressData.Annotation >= 0 && progressData.Annotation <= 100 && document.getElementById('exportVideo').checked) {
                                         progressBarAnnotation.style.width = progressData.Annotation + '%';
@@ -536,8 +563,15 @@
                                         progressBarExcel.className = "progress-bar progress-bar-striped progress-bar-good"
                                         progressBarAnnotation.className = "progress-bar progress-bar-striped progress-bar-good"
                                         clearInterval(progressInterval);
-                                        document.getElementById('result').innerText = `Processing complete \n Your session ID is : ${session_id}`;
-                                        
+                                        document.getElementById('result').innerHTML = `
+                                        Processing complete. <br>
+                                        Session ID : <span id="sessionId" class="text-primary" style="cursor: pointer; text-decoration: underline;">
+                                            ${session_id}
+                                        </span>
+                                        <span id="copyFeedback" class="text-success" style="display: none; margin-left: 10px;">
+                                            Copied!
+                                        </span>
+                                    `;
                                         // Generate download links
                                         const downloadLinks = [];
                                         downloadLinks.push(`<a href="/download/${session_id}/${data.paths.report_path}" class="btn btn-success m-2">Download Report</a>`);
