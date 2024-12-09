@@ -5,12 +5,12 @@ import logging
 
 import uuid
 import json
-from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for, session
+from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for
 from werkzeug.utils import secure_filename
 
 from cv2 import VideoCapture, imread, imwrite
 
-from utils import DataManager, Counter, Tracker, xlsxWriter, xlsxCompiler, StreetCountCompiler, Annotator
+from utils import SessionManager, DataManager, Counter, Tracker, xlsxWriter, xlsxCompiler, StreetCountCompiler, Annotator
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [Line %(lineno)d] - %(message)s')
@@ -18,6 +18,9 @@ logger = logging.getLogger(__name__)
 
 # App configuration
 app = Flask(__name__)
+
+# Initialize session manager
+session_manager = SessionManager()
 
 app.config['CONTENTS'] = 'contents'
 
@@ -41,26 +44,19 @@ app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024  # 1000 MB
 
 
 #Processing
-data_manager = DataManager()
 
-app.progress = {}
-app.results = {}
-
-def extract_first_frame(video_path):
+def extract_first_frame(video_path, frame_path):
     cap = VideoCapture(video_path)
     success, frame = cap.read()
     if success:
-        base_filename = secure_filename(os.path.basename(video_path))
-        frame_filename = f"{os.path.splitext(base_filename)[0]}_first_frame.jpg"
-        frame_path = os.path.join(app.root_path, app.config['RESULTS_FOLDER'], session['session_id'], frame_filename)
         imwrite(frame_path, frame)
-        return frame_filename
+        return True
     return None
 
 def update_progress(session_id, step, percentage):
-    if session_id not in app.progress:
-        app.progress[session_id] = {}
-    app.progress[session_id][step] = percentage
+    if session_id not in session_manager.sessions[session_id]['progress']:
+        session_manager.sessions[session_id]['progress'][session_id] = {}
+    session_manager.sessions[session_id]['progress'][session_id][step] = percentage
 
 def process_video_task(data_manager, session_id, paths):
     with app.app_context():
@@ -105,17 +101,19 @@ def process_video_task(data_manager, session_id, paths):
             update_progress(session_id, 'Counting', -1)
             update_progress(session_id, 'Excel', -1)
             update_progress(session_id, 'Annotation', -1)
-            app.results[session_id] = {'error': f"Error processing video: {str(e)}"}
+            session_manager.sessions[session_id]['results'][session_id] = {'error': f"Error processing video: {str(e)}"}
             logging.error(f"Error processing video: {str(e)}", exc_info=True)
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/process', methods=['POST'])
-def process_video():
+@app.route('/pre_process/<session_id>', methods=['POST'])
+def pre_process_video(session_id):
+    # Check initialisation complete 
+    process_initial(session_id=session_id)
     # Store form data in session
-    session['form_data'] = {
+    session_manager.sessions[session_id]['form_data'] = {
         'site_location': request.form.get('siteLocation'),
         'inference_tracker': request.form.get('inferenceTracker'),
         'export_video': request.form.get('exportVideo') == 'on',
@@ -125,35 +123,26 @@ def process_video():
         'directions': request.form.get('directions')
     }
     # Handle file uploads
-    video_file = request.files.get('videoFile')
     model_file = request.files.get('modelFile')
     
-    if video_file and model_file:
-        video_filename = secure_filename(video_file.filename)
-        video_path = os.path.join(os.path.join(app.root_path, app.config['UPLOADS_FOLDER']), video_filename)
-        video_file.save(video_path)
-
-        session['video_path'] = video_path
-
+    if model_file:
         model_filename = secure_filename(model_file.filename)
         model_path = os.path.join(os.path.join(app.root_path, app.config['MODELS_FOLDER']), model_filename)
         model_file.save(model_path)
-        session['model_path'] = model_path
-        log_session(session['session_id'],session)
-        return jsonify({"status": "success", "session_id": session['session_id']})
+        session_manager.sessions[session_id]['model_path'] = model_path
+        log_session(session_id)
+        return jsonify({"status": "success"})
     
     return jsonify({'error': 'Missing files'}), 400
 
 @app.route('/start_processing/<session_id>', methods=['POST'])
 def start_processing(session_id):
-    # Check initialisation complete 
-    process_initial(failsafe_session_id=session_id)
     # Initialize DataManager with stored session data
-    form_data = session.get('form_data')
-    data_manager = DataManager()
-    data_manager.video_path = session.get('video_path')
+    form_data = session_manager.sessions[session_id].get('form_data')
+    data_manager = session_manager.sessions[session_id]['data_manager']
+    data_manager.video_path = session_manager.sessions[session_id].get('video_path')
     data_manager.set_video_params(data_manager.video_path)
-    data_manager.selected_model = session.get('model_path')
+    data_manager.selected_model = session_manager.sessions[session_id].get('model_path')
     data_manager.set_names(data_manager.selected_model)
     
     # Set triplines from drawing stage
@@ -183,7 +172,7 @@ def start_processing(session_id):
     
     return jsonify({"status": "Processing started", "session_id": session_id, "paths": response_paths})
 
-def log_session(session_id, data):
+def log_session(session_id):
     PROCESS_LOG_FILE = os.path.join(os.path.join(app.root_path, app.config['LOGS_FOLDER']), 'process_session_log.json')
     # Load existing log data
     if os.path.exists(PROCESS_LOG_FILE):
@@ -193,18 +182,21 @@ def log_session(session_id, data):
         session_log = {}
 
     # Add the new session data
-    session_log[session_id] = data
+    session_log[session_id] = { 
+        'form_data': session_manager.sessions[session_id]['form_data'],
+        'model_path': session_manager.sessions[session_id]['model_path'],
+        'video_path': session_manager.sessions[session_id]['video_path'],
+        'first_frame_filename': session_manager.sessions[session_id]['first_frame_filename'],
+    }
 
     # Write the updated log back to the file
     with open(PROCESS_LOG_FILE, 'w') as f:
         json.dump(session_log, f, indent=4)
 
 @app.route('/process_initial', methods=['POST'])
-def process_initial(failsafe_session_id = None):
-    if not failsafe_session_id : session_id = str(uuid.uuid1())
-    else : session_id = failsafe_session_id
+def process_initial(session_id = None):
+    session_id = session_manager.create_session(session_id) # Will reinitialize if session_id is provided 
 
-    session['session_id'] = session_id
     session_dir = os.path.join(app.root_path, app.config['RESULTS_FOLDER'], session_id)
     os.makedirs(session_dir, exist_ok=True)
 
@@ -213,15 +205,16 @@ def process_initial(failsafe_session_id = None):
         video_filename = secure_filename(video_file.filename)
         video_path = os.path.join(os.path.join(app.root_path, app.config['UPLOADS_FOLDER']), video_filename)
         video_file.save(video_path)
-
-        first_frame_filename = extract_first_frame(video_path)
-        if first_frame_filename:
+        first_frame_filename = f"{os.path.splitext(os.path.basename(video_path))[0]}_first_frame.jpg"
+        frame_path = os.path.join(app.root_path, app.config['RESULTS_FOLDER'], session_id, first_frame_filename)
+        success = extract_first_frame(video_path, frame_path)
+        if success:
             frame_url = url_for('download_file', filename=first_frame_filename, session_id=session_id)
 
-            session['video_path'] = video_path
-            session['first_frame_filename'] = first_frame_filename
+            session_manager.sessions[session_id]['video_path'] = video_path
+            session_manager.sessions[session_id]['first_frame_filename'] = first_frame_filename
 
-            return jsonify({'status': 'success', 'frame_url': frame_url})
+            return jsonify({'status': 'success', 'session_id': session_id , 'frame_url': frame_url})
         else:
             return jsonify({'status': 'error', 'message': 'Failed to extract frame'}), 500
     else:
@@ -234,16 +227,16 @@ def uploaded_file(filename):
 @app.route('/progress')
 def progress_update():
     session_id = request.args.get('session_id')
-    if session_id in app.progress:
-        return jsonify(app.progress[session_id])
+    if session_id in session_manager.sessions[session_id]['progress']:
+        return jsonify(session_manager.sessions[session_id]['progress'][session_id])
     else:
         return jsonify({'YOLO': -1, 'Counting': -1, 'Excel': -1, 'Annotation': -1})
 
 @app.route('/results')
 def get_results():
     session_id = request.args.get('session_id')
-    if session_id in app.results:
-        return jsonify(app.results[session_id])
+    if session_id in session_manager.sessions[session_id]['results']:
+        return jsonify(session_manager.sessions[session_id]['results'][session_id])
     else:
         return jsonify({'error': 'Results not available yet'}), 202
 
