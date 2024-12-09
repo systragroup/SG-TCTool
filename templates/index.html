@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Traffic Counting App</title>
@@ -8,16 +9,23 @@
     <style>
         /* Custom Colors */
         .progress-bar-red {
-            background-color: #D22328; /* Red */
+            background-color: #D22328;
+            /* Red */
         }
+
         .progress-bar-gray {
-            background-color: #7b7a7a; /* Gray */
+            background-color: #7b7a7a;
+            /* Gray */
         }
+
         .progress-bar-good {
-            background-color: #1e8f1e; /* Red */
+            background-color: #1e8f1e;
+            /* Red */
         }
+
         .progress-bar-bad {
-            background-color: #610808; /* Red */
+            background-color: #610808;
+            /* Red */
         }
 
         /* Compact Directions and Tripline */
@@ -25,10 +33,12 @@
             display: flex;
             align-items: center;
         }
+
         .compact-input-group input {
             margin-right: 10px;
             flex: 1;
         }
+
         .compact-input-group span {
             margin-right: 10px;
         }
@@ -42,14 +52,17 @@
             margin-top: 10px;
             margin-bottom: 10px;
         }
+
         .progress-row {
             display: flex;
             gap: 20px;
             width: 97%;
         }
+
         .progress-row.three-columns {
             flex: 1;
         }
+
         .progress-row.three-columns .progress {
             flex: 1;
         }
@@ -60,6 +73,7 @@
             margin: 20px auto;
             text-align: center;
         }
+
         canvas {
             border: 1px solid #7b7a7a;
             max-width: 100%;
@@ -67,13 +81,15 @@
         }
     </style>
 </head>
+
 <body>
     { padding-top: 70px; }
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">Traffic Counting App</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -89,7 +105,7 @@
 
     <div class="container my-4">
         <h1 class="mb-4">Home</h1>
-        
+
         <!-- Input Form -->
         <div class="card mb-4">
             <div class="card-header">Input Files</div>
@@ -99,15 +115,17 @@
                         <!-- Video File Selector -->
                         <div class="col-md-6">
                             <label for="videoFile" class="form-label">Video File</label>
-                            <input class="form-control" type="file" id="videoFile" name="videoFile" accept=".mp4,.avi" required>
+                            <input class="form-control" type="file" id="videoFile" name="videoFile" accept=".mp4,.avi"
+                                required>
                         </div>
                         <!-- Model File Selector -->
                         <div class="col-md-6">
                             <label for="modelFile" class="form-label">Model File</label>
-                            <input class="form-control" type="file" id="modelFile" name="modelFile" accept=".pt,.onnx" required>
+                            <input class="form-control" type="file" id="modelFile" name="modelFile" accept=".pt,.onnx"
+                                required>
                         </div>
                     </div>
-                    
+
                     <!-- Inference Tracker Selector -->
                     <div class="mb-3">
                         <label for="inferenceTracker" class="form-label">Inference Tracker</label>
@@ -116,13 +134,13 @@
                             <option value="botsort.yaml">BoT-SORT</option>
                         </select>
                     </div>
-                    
+
                     <!-- Site Location -->
                     <div class="mb-3">
                         <label for="siteLocation" class="form-label">Site Location</label>
                         <input type="text" class="form-control" id="siteLocation" name="siteLocation" required>
                     </div>
-                    
+
                     <!-- Start Date and Time Inputs -->
                     <div class="row mb-3">
                         <div class="col-md-6">
@@ -134,7 +152,7 @@
                             <input type="time" class="form-control" id="startTime" name="startTime" required>
                         </div>
                     </div>
-                    
+
                     <!-- Export Annotated Video Checkbox -->
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="exportVideo" name="exportVideo">
@@ -145,7 +163,7 @@
                 </form>
             </div>
         </div>
-        
+
         <!-- Tripline Drawing -->
         <div class="card mb-4" id="triplineSection" style="display: none;">
             <div class="card-header">Draw Triplines</div>
@@ -155,12 +173,12 @@
                     <canvas id="drawCanvas"></canvas>
                 </div>
                 <p class="text-muted">Click and drag on the image above to draw a tripline.</p>
-                
+
                 <!-- Tripline Counter -->
                 <div id="triplineCounter" class="mb-3">
                     Triplines: <span id="triplineCount">0</span>
                 </div>
-                
+
                 <!-- Tripline Reset Button -->
                 <button type="button" id="resetTriplinesBtn" class="btn btn-danger">Reset Triplines</button>
             </div>
@@ -173,7 +191,8 @@
                 <form id="directionsForm">
                 </form>
                 <!-- Save and Processing button -->
-                <button type="button" id="saveAndSubmitBtn" class="btn btn-primary">Save & Submit for Processing</button>
+                <button type="button" id="saveAndSubmitBtn" class="btn btn-primary">Save & Submit for
+                    Processing</button>
             </div>
         </div>
 
@@ -184,25 +203,33 @@
                 <!-- YOLO Progress Bar -->
                 <div class="progress-row">
                     <div class="progress" style="height: 20px; flex: 1;">
-                        <div id="progressBarYOLO" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-red" role="progressbar" style="width: 0%; ">YOLO: 0%</div>
+                        <div id="progressBarYOLO"
+                            class="progress-bar progress-bar-striped progress-bar-animated progress-bar-red"
+                            role="progressbar" style="width: 0%; ">YOLO: 0%</div>
                     </div>
                 </div>
                 <!-- Counting, Excel, Annotation Progress Bars -->
                 <div class="progress-row three-columns">
                     <div class="progress" style="height: 20px;">
-                        <div id="progressBarCounting" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-gray" role="progressbar" style="width: 0%; ">Counting: 0%</div>
+                        <div id="progressBarCounting"
+                            class="progress-bar progress-bar-striped progress-bar-animated progress-bar-gray"
+                            role="progressbar" style="width: 0%; ">Counting: 0%</div>
                     </div>
                     <div class="progress" style="height: 20px;">
-                        <div id="progressBarExcel" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-red" role="progressbar" style="width: 0%; ">Report: 0%</div>
+                        <div id="progressBarExcel"
+                            class="progress-bar progress-bar-striped progress-bar-animated progress-bar-red"
+                            role="progressbar" style="width: 0%; ">Report: 0%</div>
                     </div>
                     <div class="progress" style="height: 20px;">
-                        <div id="progressBarAnnotation" class="progress-bar progress-bar-striped progress-bar-animated progress-bar-gray" role="progressbar" style="width: 0%;">Annotation: 0%</div>
+                        <div id="progressBarAnnotation"
+                            class="progress-bar progress-bar-striped progress-bar-animated progress-bar-gray"
+                            role="progressbar" style="width: 0%;">Annotation: 0%</div>
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
 
-        
+
 
         <!-- Result and Download Links -->
         <div class="card mb-4">
@@ -212,315 +239,308 @@
 
                 <div id="downloadLinks" class="mt-4">
                 </div>
-                
+
+            </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        let triplines = [];
-        let currentTripline = {};
-        let videoUploaded = false;
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-        document.getElementById('videoFile').addEventListener('change', function() {
-            const videoFile = this.files[0];
-            if (videoFile) {
-                const formData = new FormData();
-                formData.append('videoFile', videoFile);
-                
+        <script>
+            let triplines = [];
+            let currentTripline = {};
+            let videoUploaded = false;
 
-                // Upload the video file to the server to extract the first frame
-                fetch('/process_initial', {
-                    method: 'POST',
-                    body: formData,
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        loadCanvasImage(data.frame_url);
-                        document.getElementById('triplineSection').style.display = 'block';
-                        videoUploaded = true;
-                    } else {
-                        alert('Error uploading video: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while uploading the video.');
-                });
-            }
-        });
+            document.getElementById('videoFile').addEventListener('change', function () {
+                const videoFile = this.files[0];
+                if (videoFile) {
+                    const formData = new FormData();
+                    formData.append('videoFile', videoFile);
 
-        function loadCanvasImage(imageUrl) {
-            const canvas = document.getElementById('drawCanvas');
-            const ctx = canvas.getContext('2d');
-            const img = new Image();
-            img.src = imageUrl;
-            img.onload = function() {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
 
-                // Now initialize drawing events
-                initCanvasEvents(img);
-            };
-        }
-
-        function initCanvasEvents(img) {
-            const canvas = document.getElementById('drawCanvas');
-            const ctx = canvas.getContext('2d');
-            let isDrawing = false;
-            currentTripline = {};
-
-            function getScaledCoordinates(e) {
-                const rect = canvas.getBoundingClientRect();
-                const scaleX = canvas.width / rect.width;
-                const scaleY = canvas.height / rect.height;
-                return {
-                    x: (e.clientX - rect.left) * scaleX,
-                    y: (e.clientY - rect.top) * scaleY
-                };
-            }
-
-            canvas.addEventListener('mousedown', (e) => {
-                currentTripline.start = getScaledCoordinates(e);
-                isDrawing = true;
-            });
-
-            canvas.addEventListener('mousemove', (e) => {
-                if (!isDrawing) return;
-                currentTripline.end = getScaledCoordinates(e);
-
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
-
-                triplines.forEach((line, index) => {
-                    drawLine(ctx, line);
-                    drawIndex(ctx, index, line);
-                });
-
-                drawLine(ctx, currentTripline);
-            });
-
-            canvas.addEventListener('mouseup', () => {
-                isDrawing = false;
-                if (currentTripline.start && currentTripline.end) {
-                    triplines.push({ ...currentTripline });
-                    currentTripline = {};
-                    updateTriplineCounter();
-
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0);
-                    triplines.forEach((line, index) => {
-                        drawLine(ctx, line);
-                        drawIndex(ctx, index, line);
-                });
+                    fetch('/process_initial', {
+                        method: 'POST',
+                        body: formData,
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                loadCanvasImage(data.frame_url);
+                                document.getElementById('triplineSection').style.display = 'block';
+                                videoUploaded = true;
+                            } else {
+                                alert('Error uploading video: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while uploading the video.');
+                        });
                 }
             });
 
-            window.addEventListener('resize', () => {
-                // Redraw frame and all triplines on window resize
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
-                triplines.forEach(line => {
-                    drawLine(ctx, line);
-                    drawIndex(ctx, index, line);
-                });
-            });
+            function loadCanvasImage(imageUrl) {
+                const canvas = document.getElementById('drawCanvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                img.src = imageUrl;
+                img.onload = function () {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
 
-            document.getElementById('resetTriplinesBtn').addEventListener('click', () => {
-                // Clear the triplines array
-                triplines = [];
+                    initCanvasEvents(img);
+                };
+            }
+
+            function initCanvasEvents(img) {
+                const canvas = document.getElementById('drawCanvas');
+                const ctx = canvas.getContext('2d');
+                let isDrawing = false;
                 currentTripline = {};
 
-                // Update the tripline counter
-                updateTriplineCounter();
+                function getScaledCoordinates(e) {
+                    const rect = canvas.getBoundingClientRect();
+                    const scaleX = canvas.width / rect.width;
+                    const scaleY = canvas.height / rect.height;
+                    return {
+                        x: (e.clientX - rect.left) * scaleX,
+                        y: (e.clientY - rect.top) * scaleY
+                    };
+                }
 
-                // Clear the canvas and redraw the original image
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
-
-                // Hide the directions card and reset button
-                document.getElementById('directionsCard').style.display = 'none';
-                document.getElementById('resetTriplinesBtn').style.display = 'none';
-            });
-        }
-
-        function drawLine(ctx, line) {
-            ctx.beginPath();
-            ctx.moveTo(line.start.x, line.start.y);
-            ctx.lineTo(line.end.x, line.end.y);
-            ctx.strokeStyle = 'red';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-        }
-
-        function drawIndex(ctx, index, line) {
-            ctx.fillStyle = 'red';
-            ctx.font = '24px sans-serif';
-            const m_x = (line.start.x + line.end.x) / 2;
-            const m_y = (line.start.y + line.end.y) / 2;
-            const dx = line.end.x - line.start.x;
-            const dy = line.end.y - line.start.y;
-            const length = Math.sqrt(dx * dx + dy * dy);
-            const orthogonal_x = dy / length;
-            const orthogonal_y = -dx / length;
-            const offset = 20;
-            const pt_x = m_x + orthogonal_x * offset;
-            const pt_y = m_y + orthogonal_y * offset;
-            ctx.fillText(index + 1, pt_x, pt_y);
-        }
-
-        function updateTriplineCounter() {
-            document.getElementById('triplineCount').innerText = triplines.length;
-            if (triplines.length > 0) {
-                document.getElementById('directionsCard').style.display = 'block';
-                adjustDirectionsInputs(); // Call function to adjust direction inputs
-                document.getElementById('resetTriplinesBtn').style.display = 'inline-block';
-            } else {
-                document.getElementById('directionsCard').style.display = 'none';
-                document.getElementById('processingSection').style.display = 'none';
-            }
-        }
-
-        function adjustDirectionsInputs() {
-            const directionsForm = document.getElementById('directionsForm');
-            // Clear existing direction inputs
-            directionsForm.innerHTML = '';
-
-            if (triplines.length === 1) {
-                // If one tripline, ask for two directions
-                addDirectionInput(directionsForm, 'direction1', 'Direction 1');
-                addDirectionInput(directionsForm, 'direction2', 'Direction 2');
-            } else if (triplines.length >= 2) {
-                // If multiple triplines, ask for one direction per tripline
-                triplines.forEach((tripline, index) => {
-                    addDirectionInput(directionsForm, `direction${index + 1}`, `Direction for Tripline ${index + 1}`);
+                canvas.addEventListener('mousedown', (e) => {
+                    currentTripline.start = getScaledCoordinates(e);
+                    isDrawing = true;
                 });
-            }
-        }
 
-        
+                canvas.addEventListener('mousemove', (e) => {
+                    if (!isDrawing) return;
+                    currentTripline.end = getScaledCoordinates(e);
 
-        function addDirectionInput(form, id, label) {
-            const div = document.createElement('div');
-            div.className = 'mb-3';
-            
-            const labelElem = document.createElement('label');
-            labelElem.htmlFor = id;
-            labelElem.className = 'form-label';
-            labelElem.innerText = label;
-            
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'form-control';
-            input.id = id;
-            input.name = id;
-            input.required = true;
-            
-            div.appendChild(labelElem);
-            div.appendChild(input);
-            form.appendChild(div);
-        }
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
 
-        function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(function() {
-            // Success
-            const feedback = document.getElementById('copyFeedback');
-            feedback.style.display = 'inline';
-            setTimeout(() => {
-                feedback.style.display = 'none';
-            }, 2000); // Hide after 2 seconds
-        }, function(err) {
-            // Error
-            console.error('Could not copy text: ', err);
-        });
-    }
+                    triplines.forEach((line, index) => {
+                        drawLine(ctx, line);
+                        drawIndex(ctx, index, line);
+                    });
 
-        document.addEventListener('click', function(event) {
-            if (event.target && event.target.id === 'sessionId') {
-                const sessionId = event.target.textContent;
-                copyToClipboard(sessionId);
-            }
-        });
+                    drawLine(ctx, currentTripline);
+                });
 
-        // Add event listener for the new Save & Submit for Processing button
-        document.getElementById('saveAndSubmitBtn').addEventListener('click', () => {
-            if (triplines.length === 0) {
-                alert('Please draw at least one tripline before saving and submitting.');
-                return;
-            }
+                canvas.addEventListener('mouseup', () => {
+                    isDrawing = false;
+                    if (currentTripline.start && currentTripline.end) {
+                        triplines.push({ ...currentTripline });
+                        currentTripline = {};
+                        updateTriplineCounter();
 
-            let directions = {};
-            if (triplines.length === 1) {
-                const directionValue1 = document.getElementById(`direction1`).value;
-                const directionValue2 = document.getElementById(`direction2`).value;
-                directions = {
-                    1: directionValue1,
-                    2: directionValue2
-                };
-            } else if (triplines.length >= 2) {
-                triplines.forEach((tripline, index) => {
-                    const directionValue = document.getElementById(`direction${index + 1}`).value;
-                    directions[index + 1] = directionValue;
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0);
+                        triplines.forEach((line, index) => {
+                            drawLine(ctx, line);
+                            drawIndex(ctx, index, line);
+                        });
+                    }
+                });
+
+                window.addEventListener('resize', () => {
+                    // Redraw frame and all triplines on window resize
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                    triplines.forEach(line => {
+                        drawLine(ctx, line);
+                        drawIndex(ctx, index, line);
+                    });
+                });
+
+                document.getElementById('resetTriplinesBtn').addEventListener('click', () => {
+                    triplines = [];
+                    currentTripline = {};
+
+                    // Update the tripline counter
+                    updateTriplineCounter();
+
+                    // Clear canvas  redraw  original image
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+
+                    document.getElementById('directionsCard').style.display = 'none';
+                    document.getElementById('resetTriplinesBtn').style.display = 'none';
                 });
             }
 
-            // Include directions in the form data
-            const form = document.getElementById('inputForm');
-            const formData = new FormData(form);
-            formData.append('directions', JSON.stringify(directions));
-            formData.append('triplines', JSON.stringify(triplines));
+            function drawLine(ctx, line) {
+                ctx.beginPath();
+                ctx.moveTo(line.start.x, line.start.y);
+                ctx.lineTo(line.end.x, line.end.y);
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
 
-            // Show progress bars and reset them
-            const progressBarYOLO = document.getElementById('progressBarYOLO');
-            const progressBarCounting = document.getElementById('progressBarCounting');
-            const progressBarExcel = document.getElementById('progressBarExcel');
-            const progressBarAnnotation = document.getElementById('progressBarAnnotation');
+            function drawIndex(ctx, index, line) {
+                ctx.fillStyle = 'red';
+                ctx.font = '24px sans-serif';
+                const m_x = (line.start.x + line.end.x) / 2;
+                const m_y = (line.start.y + line.end.y) / 2;
+                const dx = line.end.x - line.start.x;
+                const dy = line.end.y - line.start.y;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const orthogonal_x = dy / length;
+                const orthogonal_y = -dx / length;
+                const offset = 20;
+                const pt_x = m_x + orthogonal_x * offset;
+                const pt_y = m_y + orthogonal_y * offset;
+                ctx.fillText(index + 1, pt_x, pt_y);
+            }
 
-            // Reset progress bars
-            progressBarYOLO.style.width = '0%';
-            progressBarYOLO.innerText = 'YOLO: 0%';
+            function updateTriplineCounter() {
+                document.getElementById('triplineCount').innerText = triplines.length;
+                if (triplines.length > 0) {
+                    document.getElementById('directionsCard').style.display = 'block';
+                    adjustDirectionsInputs(); 
+                    document.getElementById('resetTriplinesBtn').style.display = 'inline-block';
+                } else {
+                    document.getElementById('directionsCard').style.display = 'none';
+                    document.getElementById('processingSection').style.display = 'none';
+                }
+            }
 
-            progressBarCounting.style.width = '0%';
-            progressBarCounting.innerText = 'Counting: 0%';
+            function adjustDirectionsInputs() {
+                const directionsForm = document.getElementById('directionsForm');
+                // Clear existing direction inputs
+                directionsForm.innerHTML = '';
 
-            progressBarExcel.style.width = '0%';
-            progressBarExcel.innerText = 'Report: 0%';
+                if (triplines.length === 1) {
+                    // If one tripline, ask for 2 directions
+                    addDirectionInput(directionsForm, 'direction1', 'Direction 1');
+                    addDirectionInput(directionsForm, 'direction2', 'Direction 2');
+                } else if (triplines.length >= 2) {
+                    // If multiple triplines, ask for 1 dir/tripline
+                    triplines.forEach((tripline, index) => {
+                        addDirectionInput(directionsForm, `direction${index + 1}`, `Direction for Tripline ${index + 1}`);
+                    });
+                }
+            }
 
-            progressBarAnnotation.style.width = '0%';
-            progressBarAnnotation.innerText = 'Annotation: 0%';
 
-            // Display progress bars
-            document.querySelectorAll('.progress').forEach(progress => {
-                progress.style.display = 'block';
+
+            function addDirectionInput(form, id, label) {
+                const div = document.createElement('div');
+                div.className = 'mb-3';
+
+                const labelElem = document.createElement('label');
+                labelElem.htmlFor = id;
+                labelElem.className = 'form-label';
+                labelElem.innerText = label;
+
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'form-control';
+                input.id = id;
+                input.name = id;
+                input.required = true;
+
+                div.appendChild(labelElem);
+                div.appendChild(input);
+                form.appendChild(div);
+            }
+
+            function copyToClipboard(text) {
+                navigator.clipboard.writeText(text).then(function () {
+                    const feedback = document.getElementById('copyFeedback');
+                    feedback.style.display = 'inline';
+                    setTimeout(() => {
+                        feedback.style.display = 'none';
+                    }, 1000);
+                }, function (err) {
+                    console.error('Could not copy text: ', err);
+                });
+            }
+
+            document.addEventListener('click', function (event) {
+                if (event.target && event.target.id === 'sessionId') {
+                    const sessionId = event.target.textContent;
+                    copyToClipboard(sessionId);
+                }
             });
 
-            document.getElementById('result').innerText = '';
-            document.getElementById('downloadLinks').innerHTML = '';
+            document.getElementById('saveAndSubmitBtn').addEventListener('click', () => {
+                if (triplines.length === 0) {
+                    alert('Please draw at least one tripline before saving and submitting.');
+                    return;
+                }
 
-            // Start the processing to get the session_id
-            fetch('/process', {
-                method: 'POST',
-                body: formData,
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "success") {
-                    const session_id = data.session_id;
-                    // Start the processing thread with the session_id
-                    fetch(`/start_processing/${session_id}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ 'triplines': triplines , 'directions': directions })
-                    })
+                let directions = {};
+                if (triplines.length === 1) {
+                    const directionValue1 = document.getElementById(`direction1`).value;
+                    const directionValue2 = document.getElementById(`direction2`).value;
+                    directions = {
+                        1: directionValue1,
+                        2: directionValue2
+                    };
+                } else if (triplines.length >= 2) {
+                    triplines.forEach((tripline, index) => {
+                        const directionValue = document.getElementById(`direction${index + 1}`).value;
+                        directions[index + 1] = directionValue;
+                    });
+                }
+
+                // Include directions in the form data
+                const form = document.getElementById('inputForm');
+                const formData = new FormData(form);
+                formData.append('directions', JSON.stringify(directions));
+                formData.append('triplines', JSON.stringify(triplines));
+
+                // Show progress bars and reset them
+                const progressBarYOLO = document.getElementById('progressBarYOLO');
+                const progressBarCounting = document.getElementById('progressBarCounting');
+                const progressBarExcel = document.getElementById('progressBarExcel');
+                const progressBarAnnotation = document.getElementById('progressBarAnnotation');
+
+                // Reset progress bars
+                progressBarYOLO.style.width = '0%';
+                progressBarYOLO.innerText = 'YOLO: 0%';
+
+                progressBarCounting.style.width = '0%';
+                progressBarCounting.innerText = 'Counting: 0%';
+
+                progressBarExcel.style.width = '0%';
+                progressBarExcel.innerText = 'Report: 0%';
+
+                progressBarAnnotation.style.width = '0%';
+                progressBarAnnotation.innerText = 'Annotation: 0%';
+
+                // Display progress bars
+                document.querySelectorAll('.progress').forEach(progress => {
+                    progress.style.display = 'block';
+                });
+
+                document.getElementById('result').innerText = '';
+                document.getElementById('downloadLinks').innerHTML = '';
+
+                // get the session_id
+                fetch('/process', {
+                    method: 'POST',
+                    body: formData,
+                })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.status === "Processing started") {
-                            document.getElementById('result').innerHTML = `
+                        if (data.status === "success") {
+                            const session_id = data.session_id;
+                            // Start the processing thread with the session_id
+                            fetch(`/start_processing/${session_id}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ 'triplines': triplines, 'directions': directions })
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.status === "Processing started") {
+                                        document.getElementById('result').innerHTML = `
                                         Please wait, processing...<br>
                                         Session ID : <span id="sessionId" class="text-primary" style="cursor: pointer; text-decoration: underline;">
                                             ${session_id}
@@ -530,40 +550,40 @@
                                         </span>
                                     `;
 
-                            // Start polling for progress updates
-                            const progressInterval = setInterval(() => {
-                                fetch(`/progress?session_id=${session_id}`)
-                                .then(response => response.json())
-                                .then(progressData => {
-                                    if (progressData.YOLO >= 0 && progressData.YOLO <= 100) {
-                                        progressBarYOLO.style.width = progressData.YOLO + '%';
-                                        progressBarYOLO.innerText = 'YOLO: ' + progressData.YOLO + '%';
-                                    }
-                                    if (progressData.Counting >= 0 && progressData.Counting <= 100) {
-                                        progressBarCounting.style.width = progressData.Counting + '%';
-                                        progressBarCounting.innerText = 'Counting: ' + progressData.Counting + '%';
-                                    }
-                                    if (progressData.Excel >= 0 && progressData.Excel <= 100) {
-                                        progressBarExcel.style.width = progressData.Excel + '%';
-                                        progressBarExcel.innerText = 'Report: ' + progressData.Excel + '%';
-                                    }
-                                    if (progressData.Annotation >= 0 && progressData.Annotation <= 100 && document.getElementById('exportVideo').checked) {
-                                        progressBarAnnotation.style.width = progressData.Annotation + '%';
-                                        progressBarAnnotation.innerText = 'Annotation: ' + progressData.Annotation + '%';
-                                    }
-                                    // Check if processing is complete
-                                    const isComplete = (progressData.YOLO === 100 && 
-                                                    progressData.Counting === 100 && 
-                                                    progressData.Excel === 100 && 
-                                                    (progressData.Annotation === 100 || !document.getElementById('exportVideo').checked));
+                                        // Start polling for progress updates
+                                        const progressInterval = setInterval(() => {
+                                            fetch(`/progress?session_id=${session_id}`)
+                                                .then(response => response.json())
+                                                .then(progressData => {
+                                                    if (progressData.YOLO >= 0 && progressData.YOLO <= 100) {
+                                                        progressBarYOLO.style.width = progressData.YOLO + '%';
+                                                        progressBarYOLO.innerText = 'YOLO: ' + progressData.YOLO + '%';
+                                                    }
+                                                    if (progressData.Counting >= 0 && progressData.Counting <= 100) {
+                                                        progressBarCounting.style.width = progressData.Counting + '%';
+                                                        progressBarCounting.innerText = 'Counting: ' + progressData.Counting + '%';
+                                                    }
+                                                    if (progressData.Excel >= 0 && progressData.Excel <= 100) {
+                                                        progressBarExcel.style.width = progressData.Excel + '%';
+                                                        progressBarExcel.innerText = 'Report: ' + progressData.Excel + '%';
+                                                    }
+                                                    if (progressData.Annotation >= 0 && progressData.Annotation <= 100 && document.getElementById('exportVideo').checked) {
+                                                        progressBarAnnotation.style.width = progressData.Annotation + '%';
+                                                        progressBarAnnotation.innerText = 'Annotation: ' + progressData.Annotation + '%';
+                                                    }
+                                                    // Check if processing is complete
+                                                    const isComplete = (progressData.YOLO === 100 &&
+                                                        progressData.Counting === 100 &&
+                                                        progressData.Excel === 100 &&
+                                                        (progressData.Annotation === 100 || !document.getElementById('exportVideo').checked));
 
-                                    if (isComplete) {
-                                        progressBarYOLO.className = "progress-bar progress-bar-striped progress-bar-good"
-                                        progressBarCounting.className = "progress-bar progress-bar-striped progress-bar-good"
-                                        progressBarExcel.className = "progress-bar progress-bar-striped progress-bar-good"
-                                        progressBarAnnotation.className = "progress-bar progress-bar-striped progress-bar-good"
-                                        clearInterval(progressInterval);
-                                        document.getElementById('result').innerHTML = `
+                                                    if (isComplete) {
+                                                        progressBarYOLO.className = "progress-bar progress-bar-striped progress-bar-good"
+                                                        progressBarCounting.className = "progress-bar progress-bar-striped progress-bar-good"
+                                                        progressBarExcel.className = "progress-bar progress-bar-striped progress-bar-good"
+                                                        progressBarAnnotation.className = "progress-bar progress-bar-striped progress-bar-good"
+                                                        clearInterval(progressInterval);
+                                                        document.getElementById('result').innerHTML = `
                                         Processing complete. <br>
                                         Session ID : <span id="sessionId" class="text-primary" style="cursor: pointer; text-decoration: underline;">
                                             ${session_id}
@@ -572,61 +592,62 @@
                                             Copied!
                                         </span>
                                     `;
-                                        // Generate download links
-                                        const downloadLinks = [];
-                                        downloadLinks.push(`<a href="/download/${session_id}/${data.paths.report_path}" class="btn btn-success m-2">Download Report</a>`);
-                                        
-                                        // Add video download link if video export was enabled
-                                        if (document.getElementById('exportVideo').checked) {
-                                            downloadLinks.push(`<a href="/download/${session_id}/${data.paths.annotated_video_path}" class="btn btn-success m-2">Download Annotated Video</a>`);
-                                        }
-                                        else { 
-                                            downloadLinks.push(' <a href="#" class="btn btn-secondary m-2 disabled">No video output</a>');
-                                        }
-                                        document.getElementById('downloadLinks').innerHTML = downloadLinks.join('');
+                                                        // Generate download links
+                                                        const downloadLinks = [];
+                                                        downloadLinks.push(`<a href="/download/${session_id}/${data.paths.report_path}" class="btn btn-success m-2">Download Report</a>`);
+
+                                                        // Add video download link if video export was enabled
+                                                        if (document.getElementById('exportVideo').checked) {
+                                                            downloadLinks.push(`<a href="/download/${session_id}/${data.paths.annotated_video_path}" class="btn btn-success m-2">Download Annotated Video</a>`);
+                                                        }
+                                                        else {
+                                                            downloadLinks.push(' <a href="#" class="btn btn-secondary m-2 disabled">No video output</a>');
+                                                        }
+                                                        document.getElementById('downloadLinks').innerHTML = downloadLinks.join('');
+                                                    }
+                                                    // Check for errors
+                                                    else if (progressData.YOLO === -1 ||
+                                                        progressData.Counting === -1 ||
+                                                        progressData.Excel === -1 ||
+                                                        progressData.Annotation === -1) {
+                                                        progressBarYOLO.className = "progress-bar progress-bar-striped progress-bar-bad"
+                                                        progressBarCounting.className = "progress-bar progress-bar-striped progress-bar-bad"
+                                                        progressBarExcel.className = "progress-bar progress-bar-striped progress-bar-bad"
+                                                        progressBarAnnotation.className = "progress-bar progress-bar-striped progress-bar-bad"
+                                                        clearInterval(progressInterval);
+                                                        document.getElementById('result').innerText = 'An error occurred during processing.';
+                                                        // Try to fetch specific error message
+                                                        fetch(`/results?session_id=${session_id}`)
+                                                            .then(response => response.json())
+                                                            .then(resultData => {
+                                                                if (resultData.error) {
+                                                                    document.getElementById('result').innerText = `Error: ${resultData.error}`;
+                                                                }
+                                                            });
+                                                    }
+                                                })
+                                                .catch(error => {
+                                                    console.error('Error:', error);
+                                                    clearInterval(progressInterval);
+                                                    document.getElementById('result').innerText = 'An unexpected error occurred.';
+                                                });
+                                        }, 500); // Poll every half second
+                                    } else {
+                                        document.getElementById('result').innerText = data.error || 'An unexpected error occurred';
                                     }
-                                    // Check for errors
-                                    else if (progressData.YOLO === -1 || 
-                                            progressData.Counting === -1 || 
-                                            progressData.Excel === -1 || 
-                                            progressData.Annotation === -1) {
-                                        progressBarYOLO.className = "progress-bar progress-bar-striped progress-bar-bad"
-                                        progressBarCounting.className = "progress-bar progress-bar-striped progress-bar-bad"
-                                        progressBarExcel.className = "progress-bar progress-bar-striped progress-bar-bad"
-                                        progressBarAnnotation.className = "progress-bar progress-bar-striped progress-bar-bad"
-                                        clearInterval(progressInterval);
-                                        document.getElementById('result').innerText = 'An error occurred during processing.';
-                                        // Try to fetch specific error message
-                                        fetch(`/results?session_id=${session_id}`)
-                                            .then(response => response.json())
-                                            .then(resultData => {
-                                                if (resultData.error) {
-                                                    document.getElementById('result').innerText = `Error: ${resultData.error}`;
-                                                }
-                                            });
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error:', error);
-                                    clearInterval(progressInterval);
-                                    document.getElementById('result').innerText = 'An unexpected error occurred.';
                                 });
-                            }, 500); // Poll every half second
                         } else {
                             document.getElementById('result').innerText = data.error || 'An unexpected error occurred';
                         }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('result').innerText = 'An unexpected error occurred.';
                     });
-                } else {
-                    document.getElementById('result').innerText = data.error || 'An unexpected error occurred';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('result').innerText = 'An unexpected error occurred.';
-            });
 
-            alert('Triplines and directions saved, processing started.');
-        });
-    </script>
+                alert('Triplines and directions saved, processing started.');
+            });
+        </script>
 </body>
+
 </html>
