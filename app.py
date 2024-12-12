@@ -111,7 +111,7 @@ def index():
 @app.route('/pre_process/<session_id>', methods=['POST'])
 def pre_process_video(session_id):
     # Check initialisation complete 
-    process_initial(session_id=session_id)
+    initialize(session_id=session_id)
     # Store form data in session
     session_manager.sessions[session_id]['form_data'] = {
         'site_location': request.form.get('siteLocation'),
@@ -193,8 +193,8 @@ def log_session(session_id):
     with open(PROCESS_LOG_FILE, 'w') as f:
         json.dump(session_log, f, indent=4)
 
-@app.route('/process_initial', methods=['POST'])
-def process_initial(session_id = None):
+@app.route('/initialize', methods=['POST'])
+def initialize(session_id = None):
     session_id = session_manager.create_session(session_id) # Will reinitialize if session_id is provided 
 
     session_dir = os.path.join(app.root_path, app.config['RESULTS_FOLDER'], session_id)
