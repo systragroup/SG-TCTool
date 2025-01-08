@@ -146,7 +146,7 @@ class DataManager:
         self.site_location = site_location
 
 class Counter:
-    def __init__(self, data_manager, progress_callback):
+    def __init__(self, data_manager, progress_callback=None):
         self.progress_callback = progress_callback
         self.triplines = data_manager.triplines  # Access multiple triplines
         self.directions = data_manager.directions
@@ -154,7 +154,7 @@ class Counter:
     def count(self, data_manager):
         obj_count = 0
         total_objs = len(data_manager.TRACK_DATA)
-        console_progress = tqdm(total=total_objs, desc=f'{"Counting crossings":<{DESC_WIDTH}}', unit="tracks")
+        console_progress = tqdm(total=total_objs, desc=f'{"Counting crossings":<{DESC_WIDTH}}', unit="tracks", dynamic_ncols=True)
         for track_id, data in data_manager.TRACK_DATA.items():
             for idx, tripline in enumerate(self.triplines):
                 for i in range(1, len(data)):
@@ -226,7 +226,7 @@ class Tracker:
         self.cap = cv2.VideoCapture(self.video_path)
         self.frame_count = data_manager.frame_count
 
-        self.console_progress = tqdm(total=self.frame_count, desc=f"{'YOLO is working':<{DESC_WIDTH}}", unit="frames")
+        self.console_progress = tqdm(total=self.frame_count, desc=f"{'YOLO is working':<{DESC_WIDTH}}", unit="frames", dynamic_ncols=True)
         # Run inference and tracking
         total_frames = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
         current_frame = 0
@@ -250,7 +250,7 @@ class Tracker:
         pass
 
 class xlsxWriter:
-    def __init__(self, progress_callback):
+    def __init__(self, progress_callback=None):
         self.progress_callback = progress_callback
         # Create a new workbook
         self.workbook = Workbook()
@@ -280,7 +280,7 @@ class xlsxWriter:
 
         # Write the data
         length, prog_count = len(self.write_data), 0
-        self.console_progress = tqdm(total=length, desc=f'{"Writing xlsx report":<{DESC_WIDTH}}', unit="rows")
+        self.console_progress = tqdm(total=length, desc=f'{"Writing xlsx report":<{DESC_WIDTH}}', unit="rows", dynamic_ncols=True)
         for row in self.write_data:
             self.sheet.append(row)
             self.console_progress.update(1)
@@ -491,7 +491,7 @@ class StreetCountCompiler:
         return self.write_compiled_data(output_path)
 
 class Annotator:
-    def __init__(self, data_manager, progress_callback):
+    def __init__(self, data_manager, progress_callback=None):
         self.progress_callback = progress_callback
         self.data_manager = data_manager
         self.START = data_manager.START
@@ -530,7 +530,7 @@ class Annotator:
 
     def write_annotated_video(self, export_path_mp4):
         self.frame_count = self.data_manager.frame_count
-        self.console_progress = tqdm(total=self.frame_count, desc=f'{"Writing annotated video":<{DESC_WIDTH}}', unit="frames")
+        self.console_progress = tqdm(total=self.frame_count, desc=f'{"Writing annotated video":<{DESC_WIDTH}}', unit="frames", dynamic_ncols=True)
         model_name_text = f"Model: {os.path.basename(self.data_manager.selected_model)}"
 
         # Check if same file exists and enumerate names if it does
