@@ -130,9 +130,8 @@ def draw_triplines(first_frame_path):
     
 
 def main():
-    video_path = r'C:\Users\adufour\OneDrive - SystraGroup\Desktop\data\good-cut-shortest.mp4'
-    model_path = r'C:\Users\adufour\OneDrive - SystraGroup\Desktop\data\traffic_camera_us_v11n2.onnx'
-    directions = {"1":"North","2":"South"}
+    video_path = r'/Users/amaurydufour/Desktop/SYSTRA/good-cut-shortest 1.mp4'
+    model_path = r'/Users/amaurydufour/Desktop/SYSTRA/traffic_camera_us_v11n2.onnx'
     site_location = "Test Junction"
     inference_tracker = "bytetrack.yaml" # 2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)
     export_video = True
@@ -146,6 +145,10 @@ def main():
 
     paths['video_path'], paths['model_path'], paths['report_path'], paths['first_frame_path'] = pre_process(paths['content_dir'], video_path, model_path) # Save the video, model and first frame to the content directory
     triplines = draw_triplines(paths['first_frame_path']) # Draw triplines on the first frame of the video
+    directions = []
+    for tripline in triplines:
+        prompt = f"Enter the direction for tripline {tripline}: "
+        directions.append(input(prompt))
     
     paths['annotated_video_path'] = paths['video_path'].replace('.mp4','_annotated.mp4')
     data_manager = DataManager()
@@ -154,7 +157,7 @@ def main():
     data_manager.selected_model = paths['model_path']
     data_manager.set_names(data_manager.selected_model) # Extract the names of the detection classes
     data_manager.triplines = triplines
-    data_manager.set_directions(directions)
+    data_manager.directions = directions
     data_manager.site_location = site_location
     data_manager.inference_tracker = inference_tracker
     data_manager.do_video_export = export_video
