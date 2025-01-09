@@ -146,8 +146,8 @@ def main():
     paths['video_path'], paths['model_path'], paths['report_path'], paths['first_frame_path'] = pre_process(paths['content_dir'], video_path, model_path) # Save the video, model and first frame to the content directory
     triplines = draw_triplines(paths['first_frame_path']) # Draw triplines on the first frame of the video
     directions = []
-    for tripline in triplines:
-        prompt = f"Enter the direction for tripline {tripline}: "
+    for count, tripline in enumerate(triplines):
+        prompt = f"Enter the direction for tripline {count} : {tripline} >"
         directions.append(input(prompt))
     
     paths['annotated_video_path'] = paths['video_path'].replace('.mp4','_annotated.mp4')
