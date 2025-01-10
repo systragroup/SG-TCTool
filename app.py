@@ -12,6 +12,8 @@ from cv2 import VideoCapture, imread, imwrite
 
 from utils import SessionManager, DataManager, Counter, Tracker, xlsxWriter, xlsxCompiler, StreetCountCompiler, Annotator
 
+os.environ['install_ffmpeg_path'] = r"C:\ffmpeg\bin\ffmpeg.exe"
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [Line %(lineno)d] - %(message)s')
 logger = logging.getLogger(__name__)
@@ -92,6 +94,7 @@ def process_video_task(data_manager, session_id, paths):
                 annotated_video_path = paths['annotated_video_path']
                 annotator = Annotator(data_manager, progress_callback=lambda p: update_progress(session_id, 'Annotation', p))
                 annotator.write_annotated_video(annotated_video_path)
+                paths['annotated_video_path'] = annotator.reformat_video(annotated_video_path, ffmpeg_path=paths['ffmpeg_path'], cleanup=True)
                 update_progress(session_id, 'Annotation', 100)
 
             end_time = datetime.datetime.now()
@@ -163,13 +166,16 @@ def start_processing(session_id):
     paths = {'session_dir' : session_dir, 'report_path' : report_path}
     if annotated_video_path:
         paths['annotated_video_path'] = annotated_video_path
+        # Check for local ffmpeg path in environment variables
+        paths['ffmpeg_path'] = os.getenv('install_ffmpeg_path', 'ffmpeg')
     
-    response_paths = {key : os.path.basename(path) for key, path in paths.items()}
     # Start processing thread
     processing_thread = threading.Thread(target=process_video_task, 
                                       args=(data_manager, session_id, paths))
     processing_thread.start()
-    
+
+    response_paths = {key : os.path.basename(path) for key, path in paths.items()}
+
     return jsonify({"status": "Processing started", "session_id": session_id, "paths": response_paths})
 
 def log_session(session_id):
@@ -466,4 +472,4 @@ def compile_streetcount():
 
 # Run the app
 if __name__ == "__main__" :
-    app.run(debug=True) #Only use for development. Debug should be False to prevent server restart at each change of .py files
+    app.run() #Only use for development. Debug should be False to prevent server restart at each change of .py files
