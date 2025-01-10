@@ -19,11 +19,11 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 DESC_WIDTH = 25
 
 CLASS_COLORS = {
-    0: (134, 110, 135),  # Car -        #876eea
-    1: (140, 215, 243),  # Van -        #f3d78c
-    2: (116, 236, 197),  # Bus -        #c5ec74
-    3: (40, 183, 216),   # Motorcycle - #28b7d8
-    4: (57, 151, 238),   # Lorry -      #ee9739
+    0: (135, 110, 234),  # Car -        #876eea
+    1: (216, 183, 40),  # Van -        #28b7d8
+    2: (197, 236, 116),  # Bus -        #c5ec74
+    3: (243, 215, 140),   # Motorcycle - #f3d78c
+    4: (238, 151, 57),   # Lorry -      #ee9739
     5: (186, 186, 186)   # Other -      #bababa
 }
 
