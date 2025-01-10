@@ -350,7 +350,7 @@
                     // Redraw frame and all triplines on window resize
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.drawImage(img, 0, 0);
-                    triplines.forEach(line => {
+                    triplines.forEach(line, index => {
                         drawLine(ctx, line);
                         drawIndex(ctx, index, line);
                     });
@@ -642,7 +642,7 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        document.getElementById('result').innerText = 'An unexpected error occurred.';
+                        document.getElementById('result').innerText = error || 'An unexpected error occurred';
                     });
 
                 alert('Triplines and directions saved, processing started.');
