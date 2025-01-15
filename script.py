@@ -58,8 +58,8 @@ def pre_process(paths, video_path, model_path):
     model_shortcut = os.path.join(paths['content_dir'], 'inference_model_sc'+ os.path.splitext(model_path)[1])
 
     try:
-        os.symlink(video_path, video_shortcut)
-        os.symlink(model_path, model_shortcut)
+        os.symlink(video_shortcut, video_path)
+        os.symlink(model_shortcut, model_path)
         logger.info("Shortcuts created successfully.")
     except AttributeError:
         logger.error("Symbolic links are not supported on this system.")
@@ -157,7 +157,7 @@ def draw_triplines(first_frame_path):
 
 
 def main():
-    video_path = r'/Users/amaurydufour/Desktop/SYSTRA/good-cut-shortest 1.mp4'
+    video_path = r'/Users/amaurydufour/Desktop/SYSTRA/good-cut-shortest.mp4'
     model_path = r'/Users/amaurydufour/Desktop/SYSTRA/traffic_camera_us_v11n2.onnx'
     site_location = "Test Junction"
     inference_tracker = "bytetrack.yaml" # 2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)
@@ -176,9 +176,16 @@ def main():
     paths['video_path'], paths['model_path'], paths['report_path'], paths['first_frame_path'] = pre_process(paths, video_path, model_path) # Save the video, model and first frame to the content directory
     triplines = draw_triplines(paths['first_frame_path']) # Draw triplines on the first frame of the video
     directions = []
-    for count, tripline in enumerate(triplines):
-        prompt = f"Enter the direction for tripline {count} : {tripline} >"
+    
+    if len(triplines) == 1:
+        prompt = "Enter direction 1 : >"
         directions.append(input(prompt))
+        prompt = "Enter direction 2 : >"
+        directions.append(input(prompt))
+    else :
+        for count, tripline in enumerate(triplines):
+            prompt = f"Enter the direction for tripline {count} : {tripline} >"
+            directions.append(input(prompt))
     
     data_manager = DataManager()
     data_manager.video_path = paths['video_path']
