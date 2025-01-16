@@ -58,8 +58,8 @@ def pre_process(paths, video_path, model_path):
     model_shortcut = os.path.join(paths['content_dir'], 'inference_model_sc'+ os.path.splitext(model_path)[1])
 
     try:
-        os.symlink(video_shortcut, video_path)
-        os.symlink(model_shortcut, model_path)
+        os.symlink(video_path, video_shortcut)
+        os.symlink(model_path, model_shortcut)
         logger.info("Shortcuts created successfully.")
     except AttributeError:
         logger.error("Symbolic links are not supported on this system.")
@@ -157,8 +157,8 @@ def draw_triplines(first_frame_path):
 
 
 def main():
-    video_path = r'/Users/amaurydufour/Desktop/SYSTRA/good-cut-shortest.mp4'
-    model_path = r'/Users/amaurydufour/Desktop/SYSTRA/traffic_camera_us_v11n2.onnx'
+    video_path = r"C:\Users\adufour\OneDrive - SystraGroup\Microsoft Copilot Chat Files\Desktop\data\good-cut-shortest.mp4"
+    model_path = r"C:\Users\adufour\OneDrive - SystraGroup\Microsoft Copilot Chat Files\Desktop\data\traffic_camera_us_v11n2.onnx"
     site_location = "Test Junction"
     inference_tracker = "bytetrack.yaml" # 2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)
     export_video = True
