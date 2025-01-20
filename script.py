@@ -2,8 +2,11 @@ import os
 import threading
 import datetime
 import logging
-from shutil import copy2
+from shutil import copy2, copytree
 import subprocess
+import onnxruntime as ort
+
+
 
 import json
 from cv2 import VideoCapture, imread, imwrite
@@ -40,17 +43,28 @@ def extract_first_frame(video_path, frame_path):
     return None
 
 def pre_process(paths, video_path, model_path):
-    # Save the video, model and first frame to the content directory. is a full copy
-    if os.path.exists(video_path):
-        video_path = copy2(video_path, paths['uploads_dir'])
+    ''' Save the video, model and first frame to the content directory. is a full copy
+        '''
+    #Check video, and copy if needed
+    if not os.path.exists(os.path.join(paths['uploads_dir'], os.path.basename(video_path))) : #If it isn't already in the uploads dir
+        if os.path.exists(video_path): #Copy
+            video_path = copy2(video_path, paths['uploads_dir']) 
+    else : video_path = os.path.join(paths['uploads_dir'], os.path.basename(video_path)) #Otherwise, just point to existing uploads dir copy
 
-        # extract_first_frame
-        frame_path = os.path.join(paths['content_dir'], 'first_frame.jpg')
-        extract_first_frame(video_path, frame_path)
+    #Check model, and copy if needed
+    if not os.path.exists(os.path.join(paths['models_dir'], os.path.basename(model_path))) : #Check not already in models dir
+        if os.path.exists(model_path) : #Check exists at source
+            if os.path.isfile(model_path) : #If is file
+                model_path = copy2(model_path, os.path.join(paths['models_dir'], os.path.basename(model_path)))
+            elif os.path.isdir(model_path): #Else if folder
+                model_path = copytree(model_path, os.path.join(paths['models_dir'], os.path.basename(model_path)))
+    else : model_path = os.path.join(paths['models_dir'], os.path.basename(model_path)) #If already uploaded, just point to preexisting copy
+    
+    #Extract the first Frame
+    frame_path = os.path.join(paths['content_dir'], 'first_frame.jpg')
+    extract_first_frame(video_path, frame_path)
 
-    if os.path.exists(model_path):
-        model_path = copy2(model_path, paths['models_dir'])
-
+    # 
     report_path = os.path.join(paths['content_dir'], 'report.xslx')
     
     # Create shortcuts in content_dir
@@ -174,8 +188,8 @@ def log_setup(data_manager, paths):
     logger.info(f"Setup data logged to {setup_file_path}")
 
 def main():
-    video_path = r"C:\Users\adufour\OneDrive - SystraGroup\Microsoft Copilot Chat Files\Desktop\data\good-cut-shortest.mp4"
-    model_path = r"C:\Users\adufour\OneDrive - SystraGroup\Microsoft Copilot Chat Files\Desktop\data\traffic_camera_us_v11n2.onnx"
+    video_path = r"C:\Users\adufour\SystraGroup\SIN Chee Keong - AI Training Video Set\Singapore\SG Video 2.mp4"
+    model_path = r"yolo11m_openvino_model"
     site_location = "Test Junction"
     inference_tracker = "bytetrack.yaml" # 2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)
     export_video = True
@@ -188,7 +202,6 @@ def main():
     paths = {}
     paths['models_dir'], paths['uploads_dir'], paths['content_dir'] = dir_create()
     paths['ffmpeg_path'] = ffmpeg_executable_path
-    
 
     paths['video_path'], paths['model_path'], paths['report_path'], paths['first_frame_path'] = pre_process(paths, video_path, model_path) # Save the video, model and first frame to the content directory
     triplines = draw_triplines(paths['first_frame_path']) # Draw triplines on the first frame of the video
