@@ -65,7 +65,7 @@ def pre_process(paths, video_path, model_path):
     extract_first_frame(video_path, frame_path)
 
     # 
-    report_path = os.path.join(paths['content_dir'], 'report.xslx')
+    report_path = os.path.join(paths['content_dir'], 'report.xlsx')
     
     # Create shortcuts in content_dir
     video_shortcut = os.path.join(paths['content_dir'], 'source_video_sc.mp4')
