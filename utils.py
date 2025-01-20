@@ -22,12 +22,12 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 DESC_WIDTH = 25
 
 CLASS_COLORS = {
-    0: (135, 110, 234),  # Car -        #876eea
-    1: (216, 183, 40),  # Van -        #28b7d8
-    2: (197, 236, 116),  # Bus -        #c5ec74
-    3: (243, 215, 140),   # Motorcycle - #f3d78c
-    4: (238, 151, 57),   # Lorry -      #ee9739
-    5: (186, 186, 186)   # Other -      #bababa
+    0: (135, 110, 234),  # #876eea
+    1: (216, 183, 40),   # #28b7d8
+    2: (197, 236, 116),  # #c5ec74
+    3: (243, 215, 140),  # #f3d78c
+    4: (238, 151, 57),   # #ee9739
+    5: (215, 146, 255)   # #ff92d7
 }
 
 # Assign colors to each tripline
@@ -589,7 +589,7 @@ class Annotator:
                         # In all cases, get the class of the object
                         cls = self.data_manager.TRACK_DATA[track_id][track_length_at_frame-1][3] 
                         # Get corresponding class color for bounding box
-                        class_color = CLASS_COLORS.get(cls, (255, 255, 255))  # Dflt 2 white
+                        class_color = CLASS_COLORS.get(cls%len(CLASS_COLORS))  # Dflt 2 white
 
                         # Draw trajectories
                         points = np.array([[self.data_manager.TRACK_DATA[track_id][i][1][0], self.data_manager.TRACK_DATA[track_id][i][1][1]]
