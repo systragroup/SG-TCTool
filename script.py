@@ -187,15 +187,16 @@ def log_setup(data_manager, paths):
 
     logger.info(f"Setup data logged to {setup_file_path}")
 
-def main():
-    video_path = r"C:\Users\adufour\SystraGroup\SIN Chee Keong - AI Training Video Set\Singapore\SG Video 2.mp4"
-    model_path = r"yolo11m_openvino_model"
-    site_location = "Test Junction"
-    inference_tracker = "bytetrack.yaml" # 2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)
-    export_video = True
-    start_date = "2025-01-20" # 'YYYY-MM-DD'
-    start_time = "08:07" # 'HH:MM'
-    ffmpeg_executable_path = r"C:\ffmpeg\bin\ffmpeg.exe"
+def run(params):
+    video_path = params['video_path']
+    model_path = params['model_path']
+    site_location = params['site_location']
+    inference_tracker = params['inference_tracker'] # 2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)
+    export_video = params['export_video']
+    start_date = params['start_date'] # 'YYYY-MM-DD'
+    start_time = params['start_time'] # 'HH:MM'
+    ffmpeg_executable_path = params['ffmpeg_executable_path']
+    
 
     global logger
     logger = setup_logging()
@@ -234,4 +235,16 @@ def main():
     process_video_task(data_manager, paths)
 
 if __name__ == '__main__':
-    main()
+    params = {}
+
+    params['video_path'] = r"C:\Users\adufour\SystraGroup\SIN Chee Keong - AI Training Video Set\Singapore\SG Video 2.mp4"
+    params['model_path'] = r"yolo11m_openvino_model"
+    params['site_location'] = "Test Junction"
+    params['inference_tracker'] = "bytetrack.yaml" # 2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)
+    params['export_video'] = True
+    params['start_date'] = "2025-01-20" # 'YYYY-MM-DD'
+    params['start_time'] = "08:07" # 'HH:MM'
+    params['ffmpeg_executable_path'] = r"C:\ffmpeg\bin\ffmpeg.exe"
+
+    run(params)
+    
