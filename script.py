@@ -11,7 +11,7 @@ import onnxruntime as ort
 import json
 from cv2 import VideoCapture, imread, imwrite
 
-from utils import SessionManager, DataManager, Counter, Tracker, xlsxWriter, xlsxCompiler, StreetCountCompiler, Annotator
+from utils import DataManager, Counter, Tracker, xlsxWriter, xlsxCompiler, Annotator
 import cv2
 
 def setup_logging():
@@ -233,6 +233,9 @@ def run(params):
     log_setup(data_manager, paths=paths)
 
     process_video_task(data_manager, paths)
+
+    compiler = xlsxCompiler(file_paths=[paths['report_path']])
+    compiler.compile(output_path=os.path.join(paths['content_dir'],'totals.xlsx'))
 
 if __name__ == '__main__':
     params = {}
