@@ -155,6 +155,23 @@ def draw_triplines(first_frame_path):
     cv2.destroyAllWindows()
     return triplines
 
+def log_setup(data_manager, paths):
+    setup_data = {
+    "video_path": data_manager.video_path,
+    "model_path": data_manager.selected_model,
+    "triplines": data_manager.triplines,
+    "directions": data_manager.directions,
+    "site_location": data_manager.site_location,
+    "inference_tracker": data_manager.inference_tracker,
+    "do_video_export": data_manager.do_video_export,
+    "start_datetime": data_manager.start_datetime.isoformat()
+}
+
+    setup_file_path = os.path.join(paths['content_dir'], 'setup_data.json')
+    with open(setup_file_path, 'w') as f:
+        json.dump(setup_data, f, indent=4)
+
+    logger.info(f"Setup data logged to {setup_file_path}")
 
 def main():
     video_path = r"C:\Users\adufour\OneDrive - SystraGroup\Microsoft Copilot Chat Files\Desktop\data\good-cut-shortest.mp4"
@@ -199,9 +216,9 @@ def main():
     data_manager.do_video_export = export_video
     data_manager.set_start_datetime(start_date, start_time)
 
-    processing_thread = threading.Thread(target=process_video_task, 
-                                      args=(data_manager, paths))
-    processing_thread.start()
+    log_setup(data_manager, paths=paths)
+
+    process_video_task(data_manager, paths)
 
 if __name__ == '__main__':
     main()
