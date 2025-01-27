@@ -43,7 +43,7 @@ Development/testing only. Use a production server for actual deployment *(refer 
 
 - The Flask server can be run on a separate machine so multiple users can access it for video processing tasks.
 - All the graphical interactions (tripline drawing, form inputs, etc.) are handled by the web app.
-- **[`script.py`](script.py)** can be used iin two ways :
+- **[`script.py`](script.py)** can be used in two ways :
     - Imported and used as such :
 
         ```python
