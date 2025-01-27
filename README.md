@@ -7,8 +7,8 @@ A Flask-based web app that processes uploaded video files to perform object dete
 - **[`script.py`](script.py)** provides the core processing logic without any GUI code (except a cv2 window for tripline drawing). It handles opening a video, detecting objects, tracking them, counting crossings, generating Excel reports, and optionally exporting annotated videos.  
 - **[`app.py`](app.py)** uses Flask to provide a browser-based interface and asynchronous server handling. This allows the server to be deployed separately from the client machines accessing it.
 
-Both implementations rely on the same framework and processing tools, found in [`utils.py`](utils.py). They were made to rely on Ultralytics' YOLO. 
-Both implementations create a local copy of all uploads (video & model), as well as log input parameters, for the sake of trouble shooting and to ensure data integrity. 
+Both implementations rely on the same framework and processing tools, found in [`utils.py`](utils.py). They were made to rely on Ultralytics' YOLO.
+Both implementations create a local copy of all uploads (video & model), as well as log input parameters, for the sake of trouble shooting and to ensure data integrity.
 
 ## Installation
 
@@ -51,9 +51,10 @@ Development/testing only. Use a production server for actual deployment *(refer 
 - The Flask server can be run on a separate machine so multiple users can access it for video processing tasks.
 - All the graphical interactions (tripline drawing, form inputs, etc.) are handled by the web app.
 - **[`script.py`](script.py)** can be used in two ways :
-    - Imported and used as such :
 
-        ```python
+  - Imported and used as such :
+
+    ```python
         >>>from script import *
         >>>params = {}
         >>>params['video_path'] = r"\path\to\your\vid"
@@ -65,6 +66,6 @@ Development/testing only. Use a production server for actual deployment *(refer 
         >>>params['start_time'] = "12:12" # 'HH:MM'
         >>>params['ffmpeg_executable_path'] = "ffmpeg"
         >>>run(params)
-        ```
+    ```
 
     - The contents of `if __name__ == "__main__:"` can be edited and the script directly run : `python script.py`
