@@ -12,7 +12,7 @@ from cv2 import VideoCapture, imread, imwrite
 
 from utils import SessionManager, DataManager, Counter, Tracker, xlsxWriter, xlsxCompiler, StreetCountCompiler, Annotator
 
-os.environ['install_ffmpeg_path'] = r"C:\ffmpeg\bin\ffmpeg.exe"
+#os.environ['ffmpeg'] = r"C:\ffmpeg\bin\ffmpeg.exe"
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [Line %(lineno)d] - %(message)s')
@@ -167,7 +167,7 @@ def start_processing(session_id):
     if annotated_video_path:
         paths['annotated_video_path'] = annotated_video_path
         # Check for local ffmpeg path in environment variables
-        paths['ffmpeg_path'] = os.getenv('install_ffmpeg_path', 'ffmpeg')
+        paths['ffmpeg_path'] = os.getenv('ffmpeg', 'ffmpeg')
     
     # Start processing thread
     processing_thread = threading.Thread(target=process_video_task, 
