@@ -4,8 +4,11 @@ A Flask-based web app that processes uploaded video files to perform object dete
 
 ## Overview
 
-- **[`script.py`](script.py)** provides the core processing logic without any GUI code. It handles reading a video, detecting objects, tracking them, counting crossings, generating Excel reports, and optionally exporting annotated videos.  
+- **[`script.py`](script.py)** provides the core processing logic without any GUI code (except a cv2 window for tripline drawing). It handles opening a video, detecting objects, tracking them, counting crossings, generating Excel reports, and optionally exporting annotated videos.  
 - **[`app.py`](app.py)** uses Flask to provide a browser-based interface and asynchronous server handling. This allows the server to be deployed separately from the client machines accessing it.
+
+Both implementations rely on the same framework and processing tools, found in [`utils.py`](utils.py). They were made to rely on Ultralytics' YOLO. 
+Both implementations create a local copy of all uploads (video & model), as well as log input parameters, for the sake of trouble shooting and to ensure data integrity. 
 
 ## Installation
 
@@ -36,8 +39,12 @@ Development/testing only. Use a production server for actual deployment *(refer 
 
     - This starts a local development server on the default host/port (see *[Flask - Quickstart](https://flask.palletsprojects.com/en/stable/quickstart/#debug-mode)*).
 2. Access the web interface (e.g., [127.0.0.1:5000](http://127.0.0.1:5000)) to upload video and model files ( `.pt`, `openvino` and `onnx` supported), draw triplines, set direction names, and process the video.
+3. The web interface also features other utilities apart from the main processing function :
+   1. **Compiler** handles the processing of one/multiple traffic counting reports (which identify each vehicle tripline crossing individually) to output a condensed version, with totals *per site per direction per 15-min interval per vehicle class*
+   2. **History** allows the user to go through all logged records of past sessions (whether processing succesfully concluded or not). The session id displayed a tthe bottom of the page for each processing session is useful to this aim.
+   3. **Street Count** allows the user to transform the `.csv` output of the [Street Count app by Neil Kimmet](https://streetcount.app/) to the same compiled report format as this app.
 
-3. The backend logic and processing is handled in separate threads by main.py : multiple current processes can be handled at once (performance is however degraded)
+- The backend logic and processing is handled in separate threads by main.py : multiple current processes can be handled at once (performance is however degraded)
 
 ## Notes
 
