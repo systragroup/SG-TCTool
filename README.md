@@ -35,7 +35,7 @@ Development/testing only. Use a production server for actual deployment *(refer 
     ```
 
     - This starts a local development server on the default host/port (see *[Flask - Quickstart](https://flask.palletsprojects.com/en/stable/quickstart/#debug-mode)*).
-2. Access the web interface (e.g., [127.0.0.1:5000](127.0.0.1:5000)) to upload video and model files ( `.pt`, `openvino` and `onnx` supported), draw triplines, set direction names, and process the video.
+2. Access the web interface (e.g., [127.0.0.1:5000](http://127.0.0.1:5000)) to upload video and model files ( `.pt`, `openvino` and `onnx` supported), draw triplines, set direction names, and process the video.
 
 3. The backend logic and processing is handled in separate threads by main.py : multiple current processes can be handled at once (performance is however degraded)
 
@@ -50,8 +50,8 @@ Development/testing only. Use a production server for actual deployment *(refer 
 
     params = {}
 
-    params['video_path'] = "\path\to\your\vid"
-    params['model_path'] = "\path\to\your\model"
+    params['video_path'] = r"\path\to\your\vid"
+    params['model_path'] = r"\path\to\your\model"
     params['site_location'] = "Name of Location"
     params['inference_tracker'] = "tracker.yaml" # 2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)
     params['export_video'] = True # False 

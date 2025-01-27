@@ -240,14 +240,14 @@ def run(params):
 if __name__ == '__main__':
     params = {}
 
-    params['video_path'] = r"C:\Users\adufour\SystraGroup\SIN Chee Keong - AI Training Video Set\Singapore\SG Video 2.mp4"
-    params['model_path'] = r"yolo11m_openvino_model"
-    params['site_location'] = "Test Junction"
-    params['inference_tracker'] = "bytetrack.yaml" # 2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)
-    params['export_video'] = True
-    params['start_date'] = "2025-01-20" # 'YYYY-MM-DD'
-    params['start_time'] = "08:07" # 'HH:MM'
-    params['ffmpeg_executable_path'] = r"C:\ffmpeg\bin\ffmpeg.exe"
+    params['video_path'] = input("\path\to\your\vid>").strip().strip("'").strip('"')
+    params['model_path'] = input("\path\to\your\model>").strip().strip("'").strip('"')
+    params['site_location'] = input("Name of Location >").strip().strip("'").strip('"')
+    params['inference_tracker'] = input("Tracker (2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)) >").strip().strip("'").strip('"')
+    params['export_video'] = input("Do video export (True/False) >").strip().strip("'").strip('"') == "True"
+    params['start_date'] = input("Date # 'YYYY-MM-DD' >") .strip().strip("'").strip('"')
+    params['start_time'] = input("Time # 'HH:MM' >").strip().strip("'").strip('"')
+    params['ffmpeg_executable_path'] = input("FFmpeg executable path >").strip().strip("'").strip('"')
 
     run(params)
     
