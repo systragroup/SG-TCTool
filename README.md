@@ -22,7 +22,7 @@ A Flask-based web app that processes uploaded video files to perform object dete
     pip install -r requirements.txt
     ```
 
-4. By default, the FFmpeg executable used is the one referenced by the `FFmepg PATH`. Uncomment and edit `os.environ['ffmpeg'] = "\path\to\the\exe"` [`app.py:15`](app.py) if your installation differs.
+4. By default, the FFmpeg executable used is the one referenced by the `FFmepg PATH`. Uncomment and edit `os.environ['ffmpeg'] = "\path\to\the\exe"` [(`app.py:15`)](app.py) if your installation differs.
 
 ## Usage
 
