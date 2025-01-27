@@ -60,4 +60,4 @@ Development/testing only. Use a production server for actual deployment *(refer 
         >>>run(params)
         ```
 
-    - The contents of `if __name__ == "__main__:" can be edited and the script directly run : `python script.py`
+    - The contents of `if __name__ == "__main__:"` can be edited and the script directly run : `python script.py`
