@@ -43,22 +43,21 @@ Development/testing only. Use a production server for actual deployment *(refer 
 
 - The Flask server can be run on a separate machine so multiple users can access it for video processing tasks.
 - All the graphical interactions (tripline drawing, form inputs, etc.) are handled by the web app.
-- **[`script.py`](script.py)** can be imported and used as such :
+- **[`script.py`](script.py)** can be used iin two ways :
+    - Imported and used as such :
 
-    ```python
-    from script import *
+        ```python
+        >>>from script import *
+        >>>params = {}
+        >>>params['video_path'] = r"\path\to\your\vid"
+        >>>params['model_path'] = r"\path\to\your\model"
+        >>>params['site_location'] = "Name of Location"
+        >>>params['inference_tracker'] = "tracker.yaml" # 2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)
+        >>>params['export_video'] = True # False 
+        >>>params['start_date'] = "2025-01-20" # 'YYYY-MM-DD'
+        >>>params['start_time'] = "12:12" # 'HH:MM'
+        >>>params['ffmpeg_executable_path'] = "ffmpeg"
+        >>>run(params)
+        ```
 
-    params = {}
-
-    params['video_path'] = r"\path\to\your\vid"
-    params['model_path'] = r"\path\to\your\model"
-    params['site_location'] = "Name of Location"
-    params['inference_tracker'] = "tracker.yaml" # 2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)
-    params['export_video'] = True # False 
-    params['start_date'] = "2025-01-20" # 'YYYY-MM-DD'
-    params['start_time'] = "12:12" # 'HH:MM'
-    params['ffmpeg_executable_path'] = "ffmpeg"
-
-    run(params)
-
-    ```
+    - The contents of `if __name__ == "__main__:" can be edited and the script directly run : `python script.py`
