@@ -309,6 +309,7 @@ def compile_reports():
             
             # Log the failed compile session
             log_compile_session(session_id, compile_data)
+
             
             # Return error response
             return jsonify({'status': 'error', 'message': str(e)}), 500
