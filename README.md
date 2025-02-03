@@ -41,7 +41,7 @@ Development/testing only. Use a production server for actual deployment *(refer 
 2. Access the web interface (e.g., [127.0.0.1:5000](http://127.0.0.1:5000)) to upload video and model files ( `.pt`, `openvino` and `onnx` supported), draw triplines, set direction names, and process the video.
 3. The web interface also features other utilities apart from the main processing function :
    1. **Compiler** handles the processing of one/multiple traffic counting reports (which identify each vehicle tripline crossing individually) to output a condensed version, with totals *per site per direction per 15-min interval per vehicle class*
-   2. **History** allows the user to go through all logged records of past sessions (whether processing succesfully concluded or not). The session id displayed a tthe bottom of the page for each processing session is useful to this aim.
+   2. **History** allows the user to go through all logged records of past sessions (whether processing succesfully concluded or not). The session id displayed at the bottom of the page for each processing session is useful to this aim.
    3. **Street Count** allows the user to transform the `.csv` output of the [Street Count app by Neil Kimmet](https://streetcount.app/) to the same compiled report format as this app.
 
 - The backend logic and processing is handled in separate threads by main.py : multiple current processes can be handled at once (performance is however degraded)
