@@ -15,18 +15,19 @@ import numpy as np
 import onnx
 import onnxruntime
 from tqdm.contrib.logging import logging_redirect_tqdm
+import yaml
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 DESC_WIDTH = 25
 
 CLASS_COLORS = {
-    0: (135, 110, 234),  # Car -        #876eea
-    1: (216, 183, 40),  # Van -        #28b7d8
-    2: (197, 236, 116),  # Bus -        #c5ec74
-    3: (243, 215, 140),   # Motorcycle - #f3d78c
-    4: (238, 151, 57),   # Lorry -      #ee9739
-    5: (186, 186, 186)   # Other -      #bababa
+    0: (135, 110, 234),  # #876eea
+    1: (216, 183, 40),   # #28b7d8
+    2: (197, 236, 116),  # #c5ec74
+    3: (243, 215, 140),  # #f3d78c
+    4: (238, 151, 57),   # #ee9739
+    5: (215, 146, 255)   # #ff92d7
 }
 
 # Assign colors to each tripline
@@ -115,34 +116,44 @@ class DataManager:
         cap.release()
 
     def set_names(self, selected_model):
-        _, extension = os.path.splitext(selected_model)
-        self.model_type = extension
-        if extension == ".pt": #YOLO returns pt model names in dict format
-            class_names = YOLO(selected_model).model.names
-            if class_names:
-                self.names = YOLO(selected_model).model.names
-                logging.info("Class names loaded from pt metadata.")
-            else:
-                logging.warning("Class names not found in pt metadata.")
-                
-        elif extension == ".onnx": #ONNX model names metadata is a string
-            model = onnx.load(selected_model)
-            metadata_props = {prop.key: prop.value for prop in model.metadata_props}
-            class_names = metadata_props.get('names', None)
-            if class_names:
-                items = class_names.strip('{}').split(',')
-                self.names =  {}
-                for item in items :
-                    key, name = item.split(':')
-                    key = int(key.strip())
-                    name = name.strip().strip("'").strip('"')
-                    self.names[key] = name
-                logging.info("Class names loaded from onnx metadata.")
-            else:
-                logging.warning("Class names not found in onnx metadata.")
-                return []
+        if os.path.isdir(selected_model): #check for an openvino model if model is a folder
+            files = [f for f in os.listdir(selected_model) if os.path.isfile(os.path.join(selected_model, f))]
+            if 'metadata.yaml' in files: 
+                self.model_type = "openvino"
+                yaml_path = os.path.join(selected_model, 'metadata.yaml')
+                with open(yaml_path, 'r') as f:
+                    metadata = yaml.safe_load(f)
+                self.names = metadata.get('names', {})
+                logging.info("Class names loaded from yaml metadata.")
         else :
-            logging.warning("Unsupported model format : Class names not loaded from model metadata.")
+            _, extension = os.path.splitext(selected_model)
+            self.model_type = extension
+            if extension == ".pt": #YOLO returns pt model names in dict format
+                class_names = YOLO(selected_model).model.names
+                if class_names:
+                    self.names = YOLO(selected_model).model.names
+                    logging.info("Class names loaded from pt metadata.")
+                else:
+                    logging.warning("Class names not found in pt metadata.")
+                    
+            elif extension == ".onnx": #ONNX model names metadata is a string
+                model = onnx.load(selected_model)
+                metadata_props = {prop.key: prop.value for prop in model.metadata_props}
+                class_names = metadata_props.get('names', None)
+                if class_names:
+                    items = class_names.strip('{}').split(',')
+                    self.names =  {}
+                    for item in items :
+                        key, name = item.split(':')
+                        key = int(key.strip())
+                        name = name.strip().strip("'").strip('"')
+                        self.names[key] = name
+                    logging.info("Class names loaded from onnx metadata.")
+                else:
+                    logging.warning("Class names not found in onnx metadata.")
+                    return []
+            else :
+                logging.warning("Unsupported model format : Class names not loaded from model metadata.")
 
     def set_site_location(self, site_location):
         self.site_location = site_location
@@ -578,7 +589,7 @@ class Annotator:
                         # In all cases, get the class of the object
                         cls = self.data_manager.TRACK_DATA[track_id][track_length_at_frame-1][3] 
                         # Get corresponding class color for bounding box
-                        class_color = CLASS_COLORS.get(cls, (255, 255, 255))  # Dflt 2 white
+                        class_color = CLASS_COLORS.get(cls%len(CLASS_COLORS))  # Dflt 2 white
 
                         # Draw trajectories
                         points = np.array([[self.data_manager.TRACK_DATA[track_id][i][1][0], self.data_manager.TRACK_DATA[track_id][i][1][1]]
