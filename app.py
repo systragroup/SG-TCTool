@@ -94,7 +94,10 @@ def process_video_task(data_manager, session_id, paths):
                 annotated_video_path = paths['annotated_video_path']
                 annotator = Annotator(data_manager, progress_callback=lambda p: update_progress(session_id, 'Annotation', p))
                 annotator.write_annotated_video(annotated_video_path)
-                paths['annotated_video_path'] = annotator.reformat_video(annotated_video_path, ffmpeg_path=paths['ffmpeg_path'], cleanup=True)
+                if not os.path.exists(paths['ffmpeg_path']):
+                    logger.warning(f"ffmpeg executable not found at {paths['ffmpeg_path']}")
+                else :
+                    paths['annotated_video_path'] = annotator.reformat_video(annotated_video_path, ffmpeg_path=paths['ffmpeg_path'], cleanup=True)
                 update_progress(session_id, 'Annotation', 100)
 
             end_time = datetime.datetime.now()
