@@ -26,6 +26,7 @@ class DataManager:
         self.CROSSED =  defaultdict(lambda: [])
         self.TRACK_DATA = defaultdict(lambda: [])
         self.TRACK_INFO = []
+        self.TRACK_ANALYSIS = {}
 
         self.device_name = ""
         # Check if CUDA is available

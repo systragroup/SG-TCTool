@@ -13,24 +13,92 @@ class Counter:
         self.triplines = data_manager.triplines  # Access multiple triplines
         self.directions = data_manager.directions
 
+    def analyze_track(self, track_data):
+        """Analyze full track history to determine most likely class"""
+        class_stats = defaultdict(lambda: {
+            'count': 0,
+            'total_conf': 0.0,
+            'max_consecutive': 0,
+            'current_consecutive': 0,
+            'last_class': None
+        })
+        
+        # Collect statistics
+        for frame, _, conf, cls in track_data:
+            stats = class_stats[cls]
+            stats['count'] += 1
+            stats['total_conf'] += conf
+            
+            # Track consecutive detections
+            if stats['last_class'] == cls:
+                stats['current_consecutive'] += 1
+            else:
+                stats['current_consecutive'] = 1
+            stats['max_consecutive'] = max(stats['max_consecutive'], 
+                                         stats['current_consecutive'])
+            stats['last_class'] = cls
+
+        # Calculate final scores
+        class_scores = {}
+        for cls, stats in class_stats.items():
+            avg_conf = stats['total_conf'] / stats['count']
+            freq_score = stats['count'] / len(track_data)
+            consec_score = stats['max_consecutive'] / len(track_data)
+            
+            # Combine scores (can be weighted differently)
+            class_scores[cls] = (avg_conf + freq_score + consec_score) / 3
+
+        # Get class with highest score
+        final_class = max(class_scores.items(), key=lambda x: x[1])
+        return {
+            'class': final_class[0],
+            'confidence': final_class[1],
+            'stats': class_stats
+        }
+
     def count(self, data_manager):
         obj_count = 0
         total_objs = len(data_manager.TRACK_DATA)
-        console_progress = tqdm(total=total_objs, desc=f'{"Counting crossings":<{DESC_WIDTH}}', unit="tracks", dynamic_ncols=True)
+        console_progress = tqdm(total=total_objs, 
+                              desc=f'{"Counting crossings":<{DESC_WIDTH}}', 
+                              unit="tracks", 
+                              dynamic_ncols=True)
+        
         with logging_redirect_tqdm():
-            for track_id, data in data_manager.TRACK_DATA.items():
+             for track_id, data in data_manager.TRACK_DATA.items():
+                # Analyze track once at the start
+                track_analysis = self.analyze_track(data)
+                data_manager.TRACK_ANALYSIS[track_id] = track_analysis # Store it for export
+                
                 for idx, tripline in enumerate(self.triplines):
                     for i in range(1, len(data)):
                         point_A = {'x': data[i - 1][1][0], 'y': data[i - 1][1][1]}
                         point_B = {'x': data[i][1][0], 'y': data[i][1][1]}
                         if self.intersect_tripline(tripline['start'], tripline['end'], point_A, point_B):
                             frame = data[i][0]
-                            cls = data[i][3]
-                            if len(self.triplines) == 1 : direction = self.directions[0] if self.CP(tripline['start'], tripline['end'], point_A, point_B) > 0 else self.directions[1]
-                            else : direction = self.directions[idx]
-                            # Store the tripline index
-                            data_manager.CROSSED[track_id].append((frame, cls, direction, idx))
-                            break 
+                            # Analyze entire track history to determine most likely class
+                            track_analysis = self.analyze_track(data)
+                            final_class = track_analysis['class']
+                            final_conf = track_analysis['confidence']
+
+                            if len(self.triplines) == 1:
+                                direction = (self.directions[0] 
+                                          if self.CP(tripline['start'], tripline['end'], 
+                                                   point_A, point_B) > 0 
+                                          else self.directions[1])
+                            else:
+                                direction = self.directions[idx]
+
+                            # Store the tripline index, class, direction, and confidence
+                            data_manager.CROSSED[track_id].append((
+                                frame,
+                                final_class,
+                                direction,
+                                idx,
+                                final_conf,
+                                track_analysis['stats']
+                            ))
+                            break
                 console_progress.update(1)
                 obj_count += 1 
         console_progress.close()
