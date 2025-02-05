@@ -101,7 +101,11 @@ def process_video_task(data_manager, paths):
             paths['annotated_video_path'] = os.path.join(paths['content_dir'], 'annotated_video.mp4')
             annotator = Annotator(data_manager)
             annotator.write_annotated_video(paths['annotated_video_path'])
-            paths['output_vid'] = annotator.reformat_video(paths['annotated_video_path'], ffmpeg_path=paths['ffmpeg_path'])
+            if not os.path.exists(paths['ffmpeg_path']):
+                logger.warning(f"ffmpeg executable not found at {paths['ffmpeg_path']}")
+                return
+            else :
+                paths['output_vid'] = annotator.reformat_video(paths['annotated_video_path'], ffmpeg_path=paths['ffmpeg_path'])
 
     except Exception as e:
         logger.error(f"Error processing video: {str(e)}", exc_info=True)
@@ -179,6 +183,17 @@ def log_setup(data_manager, paths):
     "start_datetime": data_manager.start_datetime.isoformat()
 }
 
+<<<<<<< HEAD
+def main():
+    video_path = r"/Users/amaurydufour/Documents/Studenting/Césure/systra/data/good-cut-shortest.mp4"
+    model_path = r"/Users/amaurydufour/Documents/Studenting/Césure/systra/data/traffic_camera_us_v11n2.onnx"
+    site_location = "Test Junction"
+    inference_tracker = "bytetrack.yaml" # 2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)
+    export_video = True
+    start_date = "2025-01-20" # 'YYYY-MM-DD'
+    start_time = "08:07" # 'HH:MM'
+    ffmpeg_executable_path = r"ffmpeg" # Path to the ffmpeg executable
+=======
     setup_file_path = os.path.join(paths['content_dir'], 'setup_data.json')
     with open(setup_file_path, 'w') as f:
         json.dump(setup_data, f, indent=4)
@@ -196,6 +211,7 @@ def run(params):
     ffmpeg_executable_path = params['ffmpeg_executable_path']
     
 
+>>>>>>> f425e25e581552576696f62187d6e9b9a5392893
     global logger
     logger = setup_logging()
     paths = {}
@@ -204,6 +220,7 @@ def run(params):
 
     paths['video_path'], paths['model_path'], paths['report_path'], paths['first_frame_path'] = pre_process(paths, video_path, model_path) # Save the video, model and first frame to the content directory
     triplines = draw_triplines(paths['first_frame_path']) # Draw triplines on the first frame of the video
+    cv2.destroyAllWindows()
     directions = []
     
     if len(triplines) == 1:
