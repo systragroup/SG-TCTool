@@ -13,7 +13,7 @@ from utils import DataManager, Counter, Tracker, xlsxWriter, xlsxCompiler, Annot
 import cv2
 
 def setup_logging():
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [Line %(lineno)d] - %(message)s')
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [%(name)s:%(lineno)d] - %(message)s')
     logger = logging.getLogger(__name__)
     return logger
 
