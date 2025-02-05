@@ -1,15 +1,19 @@
+<!-- omit from toc -->
 # Traffic Counting App
 
 A Flask-based web app that processes uploaded video files to perform object detection, counting, and optional annotated video export. It uses YOLO (Ultralytics) for detection and can create Excel reports with the results.
 
-- [Traffic Counting App](#traffic-counting-app)
-  - [Overview](#overview)
-    - [`script.py`](#scriptpy)
-    - [`app.py`](#apppy)
-    - [`utils.py`](#utilspy)
-  - [Installation](#installation)
-  - [Usage](#usage)
-  - [Notes](#notes)
+- [Overview](#overview)
+  - [`script.py`](#scriptpy)
+  - [`app.py`](#apppy)
+  - [`utils`](#utils)
+    - [`data.py`](#datapy)
+    - [`session.py`](#sessionpy)
+    - [`tracking.py`](#trackingpy)
+    - [`export/`](#export)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Notes](#notes)
 
 ## Overview
 
@@ -22,12 +26,62 @@ It handles opening a video, detecting objects, tracking them, counting crossings
 
 [`app.py`](app.py) uses Flask to provide a browser-based interface and asynchronous server handling. This allows the server to be deployed separately from the client machines accessing it.
 
-### [`utils.py`](utils.py)
+### [`utils`](utils)
 
-Both implementations rely on the same framework and processing tools, found in [`utils.py`](utils.py).
+Both implementations rely on the same framework and processing tools, found in [`utils`](utils).
+
+The utils directory contains several key modules:
+
+#### `data.py`
+  
+  Core data management class that handles:
+  
+- Video metadata and parameters
+- Model configuration and selection
+- Tracking data storage
+- Site and timing information
+- Export settings
+
+#### `session.py`
+  
+  Manages user sessions with features for:
+
+- Session creation and deletion
+- Data persistence
+- Multiple concurrent user support
+- Progress tracking
+
+#### `tracking.py`
+  
+  Implements object detection and tracking with:
+
+- YOLO model integration
+- Object trajectory analysis
+- Tripline crossing detection
+- Classification confidence scoring
+
+#### `export/`
+  
+  Contains export-related modules:
+
+- **`video.py`**: Handles annotated video creation with:
+  - Trajectory visualization
+  - Bounding box drawing
+  - Real-time statistics display
+  - FFmpeg integration for video encoding
+
+- **`xlsx.py`**: Manages Excel report generation with:
+  - Detailed crossing data (Direct counting output report)
+  - Vehicle classification summaries (Compiled report)
+  - Multiple report compilation
+  - Compiling of Street Count app output to report format
+
+---
 
 - This was made with the expectation of Ultralytics' YOLO models and relies on the associated libraries and tools first and foremost.
 - Both implementations create a local copy of all uploads (video & model), as well as log input parameters, for the sake of trouble shooting and to ensure data integrity (in case processing is interrupted).
+
+---
 
 ## Installation
 
@@ -51,7 +105,15 @@ Both implementations rely on the same framework and processing tools, found in [
     pip install -r requirements.txt
     ```
 
-4. By default, the FFmpeg executable used is the one referenced by your local `FFmepg PATH` (refer to the ffmpeg doc [here](https://www.ffmpeg.org/download.html)). Uncomment and edit `os.environ['ffmpeg'] = "\path\to\the\exe"` [(`app.py:15`)](app.py) if your installation differs.
+4. By default, the FFmpeg executable used is the one referenced by your local `ffmpeg` PATH variable (refer to the ffmpeg doc [here](https://www.ffmpeg.org/download.html)). Add a .env file in the root directory with the following content to specify the path to the FFmpeg executable:
+
+    ```bash
+    ffmpeg="path/to/ffmpeg"
+    ```
+
+    - For example, on Windows, this is typically `C:\ffmpeg\bin\ffmpeg.exe`.
+
+---
 
 ## Usage
 
@@ -70,7 +132,9 @@ Development/testing only. Use a production server for actual deployment *(refer 
    1. **History** allows the user to go through all logged records of past sessions (whether processing succesfully concluded or not). The session id displayed at the bottom of the page for each processing session is useful to this aim.
    1. **Street Count** allows the user to transform the `.csv` output of the [Street Count app by Neil Kimmet](https://streetcount.app/) to the same compiled report format as this app.
 
-- The backend logic and processing is handled in separate threads by main.py : multiple current processes can be handled at once (performance is however degraded)
+- The backend logic and processing is handled in separate threads by [`app.py`](app.py) : multiple current processes can be handled at once (performance is however degraded)
+
+---
 
 ## Notes
 
@@ -95,4 +159,3 @@ Development/testing only. Use a production server for actual deployment *(refer 
     ```
 
 - The contents of `if __name__ == "__main__:"` can be edited and the script directly run : `python script.py`
-

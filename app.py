@@ -21,6 +21,9 @@ app = Flask(__name__,
            static_folder='static',
            template_folder='templates')
 
+import dotenv
+dotenv.load_dotenv()
+
 # Initialize session manager
 session_manager = SessionManager()
 
