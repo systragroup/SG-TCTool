@@ -9,7 +9,18 @@ from ultralytics import YOLO
 import onnx
 
 class DataManager:
+    """
+    Central data management class for the traffic counting application.
+    
+    Handles:
+    - Video metadata and parameters
+    - Model selection and configuration
+    - Tracking data storage
+    - Site and timing information
+    - Export settings
+    """
     def __init__(self):
+        """Initialize data storage and default parameters."""
         self.names = None
         self.HOME = os.getcwd()
         self.video_path = None
@@ -49,6 +60,12 @@ class DataManager:
         self.start_datetime = datetime.datetime.strptime(f"{start_date} {start_time}:00", r"%Y-%m-%d %H:%M:%S")
 
     def set_video_params(self, video_path):
+        """
+        Extract and store video parameters from input file.
+        
+        Args:
+            video_path: Path to input video file
+        """
         self.video_path = video_path
         cap = cv2.VideoCapture(video_path)
         self.frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -58,6 +75,17 @@ class DataManager:
         cap.release()
 
     def set_names(self, selected_model):
+        """
+        Load class names from model metadata.
+        
+        Supports:
+        - YOLO .pt models
+        - ONNX models
+        - OpenVINO models
+        
+        Args:
+            selected_model: Path to model file or directory
+        """
         if os.path.isdir(selected_model): #check for an openvino model if model is a folder
             files = [f for f in os.listdir(selected_model) if os.path.isfile(os.path.join(selected_model, f))]
             if 'metadata.yaml' in files: 

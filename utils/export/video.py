@@ -10,7 +10,22 @@ from utils import CLASS_COLORS, TRIPLINE_COLORS, DESC_WIDTH
 
 
 class Annotator:
+    """
+    Handles video annotation and export with tracking visualization.
+    
+    Features:
+    - Draw object trajectories
+    - Display bounding boxes with class labels
+    - Show triplines and crossing points
+    - Display real-time counting statistics
+    """
+
     def __init__(self, data_manager, progress_callback=None):
+        """
+        Args:
+            data_manager: DataManager instance containing tracking results
+            progress_callback: Optional callback for progress reporting
+        """
         self.progress_callback = progress_callback
         self.data_manager = data_manager
         self.START = data_manager.START
@@ -24,10 +39,28 @@ class Annotator:
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
 
     def draw_trajectory(self, points, traj_color, traj_thickness=2):
+        """
+        Draws smooth trajectory lines for tracked objects.
+        
+        Args:
+            points: List of trajectory points
+            traj_color: RGB color tuple for the trajectory
+            traj_thickness: Line thickness in pixels
+        """
         cv2.polylines(self.frame, [points], isClosed=False, color=traj_color, thickness=traj_thickness)
         cv2.circle(self.frame, (points[-1][0], points[-1][1]), 5, traj_color, -1)
     
     def draw_box_on_frame(self, id : int, color : tuple[int,int,int], bbox : tuple[int,int,int,int], score : float, class_name : str):
+        """
+        Draws a bounding box with label on the current frame.
+        
+        Args:
+            id: Object tracking ID
+            color: RGB color tuple for the box
+            bbox: Bounding box coordinates (x,y,w,h)
+            score: Detection confidence score
+            class_name: Detected class name
+        """
         # Get analyzed data
         track_analysis = self.data_manager.TRACK_ANALYSIS.get(id, None)
         if track_analysis:
@@ -59,6 +92,21 @@ class Annotator:
                     thickness=2)
 
     def write_annotated_video(self, export_path_mp4):
+        """
+        Creates an annotated video file with visualization overlays.
+        
+        Features:
+        - Object trajectories
+        - Bounding boxes with labels
+        - Triplines
+        - Counting statistics
+        
+        Args:
+            export_path_mp4: Output video file path
+            
+        Returns:
+            str: Path to the exported video file
+        """
         self.frame_count = self.data_manager.frame_count
         self.console_progress = tqdm(total=self.frame_count, desc=f'{"Writing annotated video":<{DESC_WIDTH}}', unit="frames", dynamic_ncols=True)
         model_name_text = f"Model: {os.path.basename(self.data_manager.selected_model)}"
@@ -117,15 +165,19 @@ class Annotator:
                             points[5:-5, 0] = np.convolve(points[:, 0], kernel, mode='same')[5:-5]
                             points[5:-5, 1] = np.convolve(points[:, 1], kernel, mode='same')[5:-5]
 
-                            if tripline_indexes != []: #Meaning it will/has cross(ed) a tripline
+                            # Offset multiple trajectories slightly to make them visible
+                            # when an object crosses multiple triplines
+                            if tripline_indexes != []:
                                 for cnt, trip_idx in enumerate(tripline_indexes):
                                     trajectory_color = TRIPLINE_COLORS.get(trip_idx%len(TRIPLINE_COLORS))
-                                    # offset points for each tripline
+                                    # Each trajectory is offset by 3 pixels to prevent overlap
                                     offset_points = points + [3*cnt, 3*cnt]
                                     self.draw_trajectory(offset_points, trajectory_color)
 
+                            # Use gray color for unclassified tracks to distinguish them
+                            # from objects that have crossed triplines
                             else:
-                                trajectory_color = (128, 128, 128)  # Gray for uncounted tracks (or forgotten tracks)
+                                trajectory_color = (128, 128, 128)
                                 self.draw_trajectory(points, trajectory_color)
 
                         # Draw bounding box with class color
@@ -197,6 +249,17 @@ class Annotator:
         return self.export_path
     
     def reformat_video(self, input_path : str, ffmpeg_path='ffmpeg', cleanup=True):
+        """
+        Reencodes video using FFmpeg for better compatibility.
+        
+        Args:
+            input_path: Path to input video file
+            ffmpeg_path: Path to FFmpeg executable
+            cleanup: Whether to delete original file after conversion
+            
+        Returns:
+            str: Path to the reformatted video file
+        """
         output_path = str(input_path).replace('.mp4', '_reformatted.mp4')
 
         command = [

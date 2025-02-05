@@ -9,7 +9,20 @@ import datetime
 from utils import DESC_WIDTH
 
 class xlsxWriter:
+    """
+    Exports traffic counting results to Excel format.
+    
+    Creates detailed reports including:
+    - Crossing timestamps
+    - Vehicle classifications
+    - Direction information
+    - Confidence scores
+    """
     def __init__(self, progress_callback=None):
+        """
+        Args:
+            progress_callback: Optional callback function to report export progress
+        """
         self.progress_callback = progress_callback
         # Create a new workbook
         self.workbook = Workbook()
@@ -98,6 +111,15 @@ class xlsxWriter:
         return export_path_excel
     
 class xlsxCompiler:
+    """
+    Combines multiple Excel reports into a single consolidated report.
+    
+    Aggregates counting data from multiple files while maintaining:
+    - Site information
+    - Time intervals
+    - Vehicle classifications
+    - Directional data
+    """
     def __init__(self, folder_path=None, file_paths=None):
         self.folder_path = folder_path
         self.file_paths = file_paths if file_paths else []

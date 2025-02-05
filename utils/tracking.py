@@ -8,13 +8,26 @@ import numpy as np
 from utils import DESC_WIDTH, DETECTION_MODEL_CONST
 
 class Counter:
+    """
+    Handles counting objects crossing predefined triplines in video analysis.
+    
+    Analyzes tracks of detected objects and determines when they cross triplines,
+    recording their class, direction, and confidence scores.
+    """
     def __init__(self, data_manager, progress_callback=None):
+        """
+        Args:
+            data_manager: DataManager instance containing video and tracking data
+            progress_callback: Optional callback function to report progress
+        """
         self.progress_callback = progress_callback
         self.triplines = data_manager.triplines  # Access multiple triplines
         self.directions = data_manager.directions
 
     def analyze_track(self, track_data):
-        """Analyze full track history to determine most likely class"""
+        """Analyzes track history to determine most likely class"""
+        # We use defaultdict to avoid explicitly initializing stats for new classes
+        # This makes the code more concise and handles first appearances automatically
         class_stats = defaultdict(lambda: {
             'count': 0,
             'total_conf': 0.0,
@@ -23,7 +36,8 @@ class Counter:
             'last_class': None
         })
         
-        # Collect statistics
+        # Track consecutive detections because stable classifications
+        # are more reliable than sporadic ones
         for frame, _, conf, cls in track_data:
             stats = class_stats[cls]
             stats['count'] += 1
@@ -38,7 +52,10 @@ class Counter:
                                          stats['current_consecutive'])
             stats['last_class'] = cls
 
-        # Calculate final scores
+        # Combine different metrics for final class selection:
+        # - Average confidence: How sure the model is
+        # - Frequency: How often this class appears
+        # - Consecutive detections: Stability of classification
         class_scores = {}
         for cls, stats in class_stats.items():
             avg_conf = stats['total_conf'] / stats['count']
@@ -57,6 +74,18 @@ class Counter:
         }
 
     def count(self, data_manager):
+        """
+        Processes all tracks to count objects crossing triplines.
+        
+        For each track, determines if and where it crosses triplines and records:
+        - Frame number of crossing
+        - Object class
+        - Direction of crossing
+        - Confidence scores
+        
+        Args:
+            data_manager: DataManager instance containing tracking data
+        """
         obj_count = 0
         total_objs = len(data_manager.TRACK_DATA)
         console_progress = tqdm(total=total_objs, 
@@ -114,7 +143,19 @@ class Counter:
         return ccw_point(START, A, B) != ccw_point(END, A, B) and ccw_point(START, END, A) != ccw_point(START, END, B)
 
 class Tracker:
+    """
+    Handles object detection and tracking in video frames using YOLO.
+    
+    Processes video frames to detect and track objects, maintaining their
+    position and class information throughout the video.
+    """
     def __init__(self, data_manager, progress_callback=None, verbose=False):
+        """
+        Args:
+            data_manager: DataManager instance containing video and model settings
+            progress_callback: Optional callback function to report progress (for flask client calls)
+            verbose: Boolean to control logging verbosity
+        """
         self.progress_callback = progress_callback
         self.video_path = data_manager.video_path
         self.selected_model = data_manager.selected_model
