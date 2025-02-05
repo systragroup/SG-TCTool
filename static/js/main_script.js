@@ -373,7 +373,13 @@ let session_id = '';
                                                     .then(response => response.json())
                                                     .then(resultData => {
                                                         if (resultData.error) {
-                                                            document.getElementById('result').innerText = `Error: ${resultData.error}`;
+                                                            document.getElementById('result').innerText = `An unexpected error occured: ${resultData.error} <br>
+                                                             Session ID : <span id="sessionId" class="text-primary" style="cursor: pointer; text-decoration: underline;">
+                                                            ${session_id}
+                                                            </span>
+                                                            <span id="copyFeedback" class="text-success" style="display: none; margin-left: 10px;">
+                                                                Copied!
+                                                            </span>`;
                                                         }
                                                     });
                                             }
@@ -381,20 +387,32 @@ let session_id = '';
                                         .catch(error => {
                                             console.error('Error:', error);
                                             clearInterval(progressInterval);
-                                            document.getElementById('result').innerText = 'An unexpected error occurred.';
+                                            document.getElementById('result').innerHTML =`An unexpected error occured: ${error} <br>
+                                                             Session ID : <span id="sessionId" class="text-primary" style="cursor: pointer; text-decoration: underline;">
+                                                            ${session_id}
+                                                            </span>
+                                                            <span id="copyFeedback" class="text-success" style="display: none; margin-left: 10px;">
+                                                                Copied!
+                                                            </span>`;
                                         });
                                 }, 1000); // Poll every second
-                            } else {
-                                document.getElementById('result').innerText = data.error || 'An unexpected error occurred';
+                            } else { 
+                                document.getElementById('result').innerHTML = `An unexpected error occured: ${data.error} <br>
+                                Session ID : <span id="sessionId" class="text-primary" style="cursor: pointer; text-decoration: underline;">
+                               ${session_id}
+                               </span>
+                               <span id="copyFeedback" class="text-success" style="display: none; margin-left: 10px;">
+                                   Copied!
+                               </span>`;
                             }
                         });
                 } else {
-                    document.getElementById('result').innerText = data.error || 'An unexpected error occurred';
+                    document.getElementById('result').innerHTML = `An unexpected error occured: ${data.error}`; 
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                document.getElementById('result').innerText = error || 'An unexpected error occurred';
+                document.getElementById('result').innerHTML = `An unexpected error occured: ${error}`; 
             });
 
         alert('Triplines and directions saved, processing started.');

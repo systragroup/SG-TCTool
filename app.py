@@ -12,8 +12,6 @@ from cv2 import VideoCapture, imread, imwrite
 
 from utils import SessionManager, DataManager, Counter, Tracker, xlsxWriter, xlsxCompiler, StreetCountCompiler, Annotator
 
-#os.environ['ffmpeg'] = r"C:\ffmpeg\bin\ffmpeg.exe"
-
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [Line %(lineno)d] - %(message)s')
 logger = logging.getLogger(__name__)
@@ -45,7 +43,6 @@ logging.info(f"--> logs in {os.path.join(app.root_path,app.config['LOGS_FOLDER']
 
 app.secret_key = "192b9bdd45ab9ed4d12e236c78afzb9a393ec15f71bbf5dc987d54727823bcbf"  #not used
 app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024  # 1000 MB
-
 
 #Processing
 
@@ -478,4 +475,4 @@ def compile_streetcount():
 
 # Run the app
 if __name__ == "__main__" :
-    app.run() #Only use for development. Debug should be False to prevent server restart at each change of .py files
+    app.run() #Only use for development. Debug should be False to prevent server restart at each change of any underlying .py file 
