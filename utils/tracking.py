@@ -1,0 +1,112 @@
+from collections import defaultdict
+import logging
+from tqdm import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
+from ultralytics import YOLO
+import cv2
+import numpy as np
+from utils import DESC_WIDTH, DETECTION_MODEL_CONST
+
+class Counter:
+    def __init__(self, data_manager, progress_callback=None):
+        self.progress_callback = progress_callback
+        self.triplines = data_manager.triplines  # Access multiple triplines
+        self.directions = data_manager.directions
+
+    def count(self, data_manager):
+        obj_count = 0
+        total_objs = len(data_manager.TRACK_DATA)
+        console_progress = tqdm(total=total_objs, desc=f'{"Counting crossings":<{DESC_WIDTH}}', unit="tracks", dynamic_ncols=True)
+        with logging_redirect_tqdm():
+            for track_id, data in data_manager.TRACK_DATA.items():
+                for idx, tripline in enumerate(self.triplines):
+                    for i in range(1, len(data)):
+                        point_A = {'x': data[i - 1][1][0], 'y': data[i - 1][1][1]}
+                        point_B = {'x': data[i][1][0], 'y': data[i][1][1]}
+                        if self.intersect_tripline(tripline['start'], tripline['end'], point_A, point_B):
+                            frame = data[i][0]
+                            cls = data[i][3]
+                            if len(self.triplines) == 1 : direction = self.directions[0] if self.CP(tripline['start'], tripline['end'], point_A, point_B) > 0 else self.directions[1]
+                            else : direction = self.directions[idx]
+                            # Store the tripline index
+                            data_manager.CROSSED[track_id].append((frame, cls, direction, idx))
+                            break 
+                console_progress.update(1)
+                obj_count += 1 
+        console_progress.close()
+
+    def CP(self, START, END, A, B): #Cross Product (Positive means B is on left side of S-E, negative B is on the right and 0 is S-E and A-B colinear)
+        # Visualise right-hand rule : index is Start-End(tripline), middle finger is A-B and thumb is CP. 
+        return (B['x'] - A['x']) * (END['y'] - START['y']) - (B['y'] - A['y']) * (END['x'] - START['x'])
+
+    def intersect_tripline(self, START, END, A, B):
+        def ccw_point(P, Q, R): #Counter Clock wise order of points
+            return (R['y'] - P['y']) * (Q['x'] - P['x']) > (Q['y'] - P['y']) * (R['x'] - P['x'])
+        
+        return ccw_point(START, A, B) != ccw_point(END, A, B) and ccw_point(START, END, A) != ccw_point(START, END, B)
+
+class Tracker:
+    def __init__(self, data_manager, progress_callback=None, verbose=False):
+        self.progress_callback = progress_callback
+        self.video_path = data_manager.video_path
+        self.selected_model = data_manager.selected_model
+        self.inference_tracker = data_manager.inference_tracker
+        self.device_name = data_manager.device_name
+        self.verbose = verbose
+        if DETECTION_MODEL_CONST.ALLOW_RESIZE and data_manager.model_type ==".pt": #Only pt models support resizing
+            self.image_size = [32 * (data_manager.width//32) + 32 * min (1,data_manager.width%32), 32 * (data_manager.height//32) + 32 * min (1,data_manager.height%32)] # Input size must be a multiple of max stride 32
+        else : self.image_size = [640, 640]
+        # Load YOLO model
+        self.model = YOLO(self.selected_model, task='detect')
+
+        self.current_frame = None
+        self.current_frame_nb = 0
+
+    def read_next_frame(self):
+        self.success, self.current_frame = self.cap.read()
+
+    def process_frame(self, data_manager):
+        results = self.model.track(self.current_frame, imgsz=self.image_size, persist=True, verbose=self.verbose, tracker=self.inference_tracker, device=self.device_name, save=False, conf=DETECTION_MODEL_CONST.CONF_THRESHOLD, iou=DETECTION_MODEL_CONST.IOU_THRESHOLD, agnostic_nms=DETECTION_MODEL_CONST.AGNOSTIC_NMS)
+        boxes = results[0].boxes.xywh.cpu()
+        track_ids = results[0].boxes.id
+        classes = results[0].boxes.cls
+        confidences = results[0].boxes.conf
+
+        track_inf = []
+        if track_ids is not None:
+            track_ids = results[0].boxes.id.int().cpu().tolist() 
+            for box, track_id, clss, confidence in zip(boxes, track_ids, classes, confidences):
+                track_dat = data_manager.TRACK_DATA[track_id] #track_data is indexed by track_id : for a given object, see which frames it's been tracked on, where it is and what it is
+                clss = int(clss)
+                track_dat.append((int(self.current_frame_nb), box, confidence, clss))
+                track_inf.append((track_id, len(track_dat)))
+
+        data_manager.TRACK_INFO.append(track_inf) #TRACK_INFO is indexed by frame : for a given frame, see which objects are where, and how long they've been tracked
+
+    def process_video(self, data_manager): 
+        # Open video to process
+        self.cap = cv2.VideoCapture(self.video_path)
+        self.frame_count = data_manager.frame_count
+
+        self.console_progress = tqdm(total=self.frame_count, desc=f"{'YOLO is working':<{DESC_WIDTH}}", unit="frames", dynamic_ncols=True)
+        # Run inference and tracking
+        total_frames = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        current_frame = 0
+        with logging_redirect_tqdm():
+            while self.cap.isOpened():
+                self.read_next_frame()
+                if self.success:
+                    self.process_frame(data_manager)
+                    self.current_frame_nb += 1
+                    self.console_progress.update(1)
+                    current_frame += 1
+                    # Update progress
+                    if self.progress_callback:
+                        progress_percentage = int((current_frame / total_frames) * 100)
+                        self.progress_callback(progress_percentage)
+                else:
+                    break
+
+        self.console_progress.close()
+        self.cap.release()
+        pass
