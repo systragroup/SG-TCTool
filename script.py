@@ -183,17 +183,6 @@ def log_setup(data_manager, paths):
     "start_datetime": data_manager.start_datetime.isoformat()
 }
 
-<<<<<<< HEAD
-def main():
-    video_path = r"/Users/amaurydufour/Documents/Studenting/Césure/systra/data/good-cut-shortest.mp4"
-    model_path = r"/Users/amaurydufour/Documents/Studenting/Césure/systra/data/traffic_camera_us_v11n2.onnx"
-    site_location = "Test Junction"
-    inference_tracker = "bytetrack.yaml" # 2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)
-    export_video = True
-    start_date = "2025-01-20" # 'YYYY-MM-DD'
-    start_time = "08:07" # 'HH:MM'
-    ffmpeg_executable_path = r"ffmpeg" # Path to the ffmpeg executable
-=======
     setup_file_path = os.path.join(paths['content_dir'], 'setup_data.json')
     with open(setup_file_path, 'w') as f:
         json.dump(setup_data, f, indent=4)
@@ -209,9 +198,7 @@ def run(params):
     start_date = params['start_date'] # 'YYYY-MM-DD'
     start_time = params['start_time'] # 'HH:MM'
     ffmpeg_executable_path = params['ffmpeg_executable_path']
-    
 
->>>>>>> f425e25e581552576696f62187d6e9b9a5392893
     global logger
     logger = setup_logging()
     paths = {}
