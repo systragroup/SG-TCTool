@@ -20,22 +20,52 @@ class xlsxWriter:
         self.write_data = []
 
         for obj_id, crossings in data_manager.CROSSED.items():
-            for (frame, cls, direction, _) in crossings : 
+            track_analysis = data_manager.TRACK_ANALYSIS.get(obj_id, {})
+            
+            for (frame, cls, direction, _, final_conf, stats) in crossings:
                 timestamp = frame / data_manager.fps
                 crossing_time = data_manager.start_datetime + datetime.timedelta(seconds=timestamp)
-                date = crossing_time.date()
-                first_day_of_week = date - datetime.timedelta(days=date.weekday())
-                actual_week_day = crossing_time.strftime("%A")
-                time_of_crossing = crossing_time.time()
-                interval_15_min = f"{crossing_time.hour}:{(crossing_time.minute // 15) * 15:02d}"
-                interval_hr = f"{crossing_time.hour}:00"
-                self.write_data.append([data_manager.site_location, date, first_day_of_week, actual_week_day, time_of_crossing, interval_15_min, interval_hr, direction, data_manager.names[cls], obj_id])
+                
+                # Basic data
+                row_data = [
+                    data_manager.site_location,
+                    crossing_time.date(),
+                    crossing_time.date() - datetime.timedelta(days=crossing_time.date().weekday()),
+                    crossing_time.strftime("%A"),
+                    crossing_time.time(),
+                    f"{crossing_time.hour}:{(crossing_time.minute // 15) * 15:02d}",
+                    f"{crossing_time.hour}:00",
+                    direction,
+                    data_manager.names[cls],
+                    obj_id,
+                    f"{final_conf:.3f}"  # Overall confidence
+                ]
 
-    def write_to_excel(self, export_path_excel, data_manager, progress_var = None):
+                # Add class statistics
+                if stats:
+                    cls_stats = stats[cls]
+                    row_data.extend([
+                        cls_stats['count'],  # Number of frames as this class
+                        f"{cls_stats['total_conf']/cls_stats['count']:.3f}",  # Avg confidence
+                        cls_stats['max_consecutive']  # Longest consecutive detection
+                    ])
+                else:
+                    row_data.extend([0, "0.000", 0])
+
+                self.write_data.append(row_data)
+
+    def write_to_excel(self, export_path_excel, data_manager, progress_var=None):
         self.progress = progress_var
         self.__prepare_data(data_manager)
-        # Write the headers
-        self.sheet.append(["Site", "Date", "First day of Week", "Week day ", "Time of crossing", "15 Min Interval", "Hour Interval", "Direction", "Class", "ID"])
+        # Write the headers into the columns
+        headers = [
+            "Site", "Date", "First day of Week", "Week day",
+            "Time of crossing", "15 Min Interval", "Hour Interval",
+            "Direction", "Class", "ID", "Track Confidence",
+            "Frame Count", "Average Confidence", "Max Consecutive Frames"
+        ]
+        
+        self.sheet.append(headers)
 
         # Write the data
         length, prog_count = len(self.write_data), 0

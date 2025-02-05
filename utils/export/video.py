@@ -28,13 +28,24 @@ class Annotator:
         cv2.circle(self.frame, (points[-1][0], points[-1][1]), 5, traj_color, -1)
     
     def draw_box_on_frame(self, id : int, color : tuple[int,int,int], bbox : tuple[int,int,int,int], score : float, class_name : str):
-        label = f"{class_name}|{id}: {score:0.2f}" # bbox label
+        # Get analyzed data
+        track_analysis = self.data_manager.TRACK_ANALYSIS.get(id, None)
+        if track_analysis:
+            final_class = self.data_manager.names[track_analysis['class']]
+            avg_conf = track_analysis['confidence']
+            if final_class==class_name : 
+                label = f"ID{id}-{final_class} ({avg_conf:.2f}/{score:.2f})"
+            else : 
+                label = f"ID{id}-{final_class}/{class_name} ({avg_conf:.2f}/{score:.2f})"
+        else:
+            label = f"ID{id}-{class_name} ({score:.2f})"
+
         lbl_margin = 3 #label margin
         bbox = [int(value) for value in bbox]
         self.frame = cv2.rectangle(self.frame, (bbox[0]-bbox[2]//2,bbox[1]-bbox[3]//2),(bbox[0]+bbox[2]//2,bbox[1]+bbox[3]//2), color=color,thickness = 2) #Draw bbox
         label_size = cv2.getTextSize(label, # labelsize in pixels
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                    fontScale=1, thickness=2)
+                                    fontScale=0.7, thickness=2)
         lbl_w, lbl_h = label_size[0] # label w and h
         lbl_w += 2* lbl_margin # add margins on both sides
         lbl_h += 2*lbl_margin
@@ -44,7 +55,7 @@ class Annotator:
                             thickness=-1) # thickness=-1 means filled
         cv2.putText(self.frame, label, (bbox[0]-bbox[2]//2+lbl_margin,bbox[1]-bbox[3]//2-lbl_margin),
                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                    fontScale=1.0, color=(255, 255, 255 ),
+                    fontScale=0.7, color=(255, 255, 255 ),
                     thickness=2)
 
     def write_annotated_video(self, export_path_mp4):
@@ -82,17 +93,21 @@ class Annotator:
                 success, self.frame = self.cap.read()
                 if success:
                     for track_id, track_length_at_frame in self.data_manager.TRACK_INFO[self.frame_nb]: # Get each object present on current frame
+                        # Get analyzed class for color
+                        if track_id in self.data_manager.TRACK_ANALYSIS:
+                            cls = self.data_manager.TRACK_ANALYSIS[track_id]['class']
+                        else:
+                            cls = self.data_manager.TRACK_DATA[track_id][track_length_at_frame-1][3]
+                            
+                        class_color = CLASS_COLORS.get(cls%len(CLASS_COLORS))
+
                         # Check if object crosses a tripline 
                         tripline_indexes = []
                         if track_id in self.data_manager.CROSSED.keys() :
-                            tripline_indexes = [crossing[3] for crossing in self.data_manager.CROSSED[track_id]]
+                            tripline_indexes = [x[3] for x in self.data_manager.CROSSED[track_id]]
                             if self.data_manager.CROSSED[track_id][-1][0] == self.frame_nb:
                                 # Store the clss for the object if it is it's last crossing (for class_lines)
-                                counted[track_id] = self.data_manager.CROSSED[track_id][-1][1] 
-                        # In all cases, get the class of the object
-                        cls = self.data_manager.TRACK_DATA[track_id][track_length_at_frame-1][3] 
-                        # Get corresponding class color for bounding box
-                        class_color = CLASS_COLORS.get(cls%len(CLASS_COLORS))  # Dflt 2 white
+                                counted[track_id] = cls
 
                         # Draw trajectories
                         points = np.array([[self.data_manager.TRACK_DATA[track_id][i][1][0], self.data_manager.TRACK_DATA[track_id][i][1][1]]
