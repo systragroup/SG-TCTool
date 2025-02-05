@@ -6,8 +6,6 @@ from shutil import copy2, copytree
 import subprocess
 import onnxruntime as ort
 
-
-
 import json
 from cv2 import VideoCapture, imread, imwrite
 
@@ -240,8 +238,8 @@ def run(params):
 if __name__ == '__main__':
     params = {}
 
-    params['video_path'] = input("\path\to\your\vid>").strip().strip("'").strip('"')
-    params['model_path'] = input("\path\to\your\model>").strip().strip("'").strip('"')
+    params['video_path'] = input(r"\path\to\your\vid>").strip().strip("'").strip('"')
+    params['model_path'] = input(r"\path\to\your\model>").strip().strip("'").strip('"')
     params['site_location'] = input("Name of Location >").strip().strip("'").strip('"')
     params['inference_tracker'] = input("Tracker (2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)) >").strip().strip("'").strip('"')
     params['export_video'] = input("Do video export (True/False) >").strip().strip("'").strip('"') == "True"
