@@ -383,7 +383,7 @@ let session_id = '';
                                             clearInterval(progressInterval);
                                             document.getElementById('result').innerText = 'An unexpected error occurred.';
                                         });
-                                }, 500); // Poll every half second
+                                }, 1000); // Poll every second
                             } else {
                                 document.getElementById('result').innerText = data.error || 'An unexpected error occurred';
                             }

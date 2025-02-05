@@ -19,7 +19,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [L
 logger = logging.getLogger(__name__)
 
 # App configuration
-app = Flask(__name__)
+app = Flask(__name__,
+           static_folder='static',
+           template_folder='templates')
 
 # Initialize session manager
 session_manager = SessionManager()
