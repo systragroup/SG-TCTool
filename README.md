@@ -142,7 +142,7 @@ Development/testing only. Use a production server for actual deployment *(refer 
 - All the graphical interactions (tripline drawing, form inputs, etc.) are handled by the web app.
 - **[`script.py`](script.py)** can be used in two ways :
 
-  - Imported and used as such :
+  - Imported and used as such (all params are required):
 
     ```python
         >>>from script import *
