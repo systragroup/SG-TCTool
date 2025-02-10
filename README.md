@@ -91,7 +91,7 @@ The utils directory contains several key modules:
     git clone https://github.com/AmauryDufour/TrafficCounting.git 
     ```
 
-2. Create and activate a Python virtual environment.
+2. Create and activate a Python virtual environment (runs on Python 3.12).
 
     ```bash
     python -m venv .venv
