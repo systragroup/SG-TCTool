@@ -35,7 +35,7 @@ class DETECTION_MODEL_CONST():
         # Lower confidence threshold = more detections but more false positives
         # 0.2 is a good balance for traffic counting where missing objects is worse
         # than occasional false positives
-        self.CONF_THRESHOLD = 0.2
+        self.CONF_THRESHOLD = 0.3
         
         # Higher IOU threshold = fewer boxes are merged into one single box
         # 0.6 works well for traffic as vehicles often partially overlap
@@ -47,8 +47,8 @@ class DETECTION_MODEL_CONST():
 
         # Track analysis score coefficients
         self.TRACK_SCORE_COEFFICIENTS = {
-            'avg_conf' : 1,
-            'freq_score' : 1,
+            'avg_conf' : 5,
+            'freq_score' : 2,
             'consec_score' : 1,
         }
 

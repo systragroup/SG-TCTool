@@ -229,14 +229,24 @@ def run(params):
 if __name__ == '__main__':
     params = {}
 
-    params['video_path'] = input(r"\path\to\your\vid>").strip().strip("'").strip('"')
-    params['model_path'] = input(r"\path\to\your\model>").strip().strip("'").strip('"')
-    params['site_location'] = input("Name of Location >").strip().strip("'").strip('"')
-    params['inference_tracker'] = input("Tracker (2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)) >").strip().strip("'").strip('"')
-    params['export_video'] = input("Do video export (True/False) >").strip().strip("'").strip('"') == "True"
-    params['start_date'] = input("Date # 'YYYY-MM-DD' >") .strip().strip("'").strip('"')
-    params['start_time'] = input("Time # 'HH:MM' >").strip().strip("'").strip('"')
-    params['ffmpeg_executable_path'] = input("FFmpeg executable path >").strip().strip("'").strip('"')
+    if False :
+        params['video_path'] = input(r"\path\to\your\vid>").strip().strip("'").strip('"')
+        params['model_path'] = input(r"\path\to\your\model>").strip().strip("'").strip('"')
+        params['site_location'] = input("Name of Location >").strip().strip("'").strip('"')
+        params['inference_tracker'] = input("Tracker (2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)) >").strip().strip("'").strip('"')
+        params['export_video'] = input("Do video export (True/False) >").strip().strip("'").strip('"').lower() == "true"
+        params['start_date'] = input("Date # 'YYYY-MM-DD' >") .strip().strip("'").strip('"')
+        params['start_time'] = input("Time # 'HH:MM' >").strip().strip("'").strip('"')
+        params['ffmpeg_executable_path'] = input("FFmpeg executable path >").strip().strip("'").strip('"')
+    else :
+        params['video_path'] = r"C:\Users\adufour\SystraGroup\SIN Chee Keong - AI Training Video Set\Malaysia\MY1-short.mp4"
+        params['model_path'] = r"C:\Users\adufour\Downloads\models-20250210T083112Z-001\models\trained_model_n_nounknown\weights\best.onnx"
+        params['site_location'] = "MY1_n_nounknown"
+        params['inference_tracker'] = "bytetrack.yaml"
+        params['export_video'] = True
+        params['start_date'] = "2025-02-12"
+        params['start_time'] = "15:02"
+        params['ffmpeg_executable_path'] = r"C:\ffmpeg\bin\ffmpeg.exe"
 
     run(params)
     
