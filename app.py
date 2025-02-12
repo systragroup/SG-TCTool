@@ -42,9 +42,7 @@ os.makedirs(os.path.join(app.root_path, app.config['RESULTS_FOLDER']), exist_ok=
 os.makedirs(os.path.join(app.root_path, os.path.join(app.config['RESULTS_FOLDER'], 'compiler')), exist_ok=True)
 os.makedirs(os.path.join(app.root_path, app.config['LOGS_FOLDER']), exist_ok=True)
 
-logging.info(f"--> logs in {os.path.join(app.root_path,app.config['LOGS_FOLDER'])}")
-
-app.secret_key = "192b9bdd45ab9ed4d12e236c78afzb9a393ec15f71bbf5dc987d54727823bcbf"  #not used
+app.secret_key = "SystraMVASingapore"  #not used
 app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024  # 1000 MB
 
 #Processing
@@ -172,7 +170,7 @@ def start_processing(session_id):
     if annotated_video_path:
         paths['annotated_video_path'] = annotated_video_path
         # Check for local ffmpeg path in environment variables
-        paths['ffmpeg_path'] = os.getenv('ffmpeg', 'ffmpeg')
+        paths['ffmpeg_path'] = os.getenv('ffmpeg', r'C:\ffmpeg\bin\ffmpeg.exe')
     
     # Start processing thread
     processing_thread = threading.Thread(target=process_video_task, 

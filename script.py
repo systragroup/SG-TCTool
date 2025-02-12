@@ -62,21 +62,8 @@ def pre_process(paths, video_path, model_path):
     frame_path = os.path.join(paths['content_dir'], 'first_frame.jpg')
     extract_first_frame(video_path, frame_path)
 
-    # 
     report_path = os.path.join(paths['content_dir'], 'report.xlsx')
     
-    # Create shortcuts in content_dir
-    video_shortcut = os.path.join(paths['content_dir'], 'source_video_sc.mp4')
-    model_shortcut = os.path.join(paths['content_dir'], 'inference_model_sc'+ os.path.splitext(model_path)[1])
-
-    try:
-        os.symlink(video_path, video_shortcut)
-        os.symlink(model_path, model_shortcut)
-        logger.info("Shortcuts created successfully.")
-    except AttributeError:
-        logger.error("Symbolic links are not supported on this system.")
-    except OSError as e:
-        logger.error(f"Failed to create symbolic links: {e}")
     return video_path, model_path, report_path, frame_path
 
 def process_video_task(data_manager, paths):
