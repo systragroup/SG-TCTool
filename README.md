@@ -91,7 +91,7 @@ The utils directory contains several key modules:
     git clone https://github.com/AmauryDufour/TrafficCounting.git 
     ```
 
-2. Create and activate a Python virtual environment (runs on Python 3.12).
+2. Create and activate a Python virtual environment.
 
     ```bash
     python -m venv .venv
@@ -142,7 +142,7 @@ Development/testing only. Use a production server for actual deployment *(refer 
 - All the graphical interactions (tripline drawing, form inputs, etc.) are handled by the web app.
 - **[`script.py`](script.py)** can be used in two ways :
 
-  - Imported and used as such (all params are required):
+  - Imported and used as such :
 
     ```python
         >>>from script import *
