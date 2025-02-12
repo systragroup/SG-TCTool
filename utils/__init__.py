@@ -45,6 +45,13 @@ class DETECTION_MODEL_CONST():
         # (e.g., car detected as both car and truck)
         self.AGNOSTIC_NMS = True
 
+        # Track analysis score coefficients
+        self.TRACK_SCORE_COEFFICIENTS = {
+            'avg_conf' : 1,
+            'freq_score' : 1,
+            'consec_score' : 1,
+        }
+
 # Initialize detection constants
 DETECTION_MODEL_CONST = DETECTION_MODEL_CONST()
 

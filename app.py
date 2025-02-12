@@ -13,11 +13,11 @@ from cv2 import VideoCapture, imread, imwrite
 from utils import SessionManager, DataManager, Counter, Tracker, xlsxWriter, xlsxCompiler, StreetCountCompiler, Annotator
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [Line %(lineno)d] - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # App configuration
-app = Flask(__name__,
+app = Flask('Traffic Counting',
            static_folder='static',
            template_folder='templates')
 

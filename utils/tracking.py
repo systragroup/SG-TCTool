@@ -23,39 +23,41 @@ class Counter:
         self.progress_callback = progress_callback
         self.triplines = data_manager.triplines  # Access multiple triplines
         self.directions = data_manager.directions
+        self.score_coeffs = DETECTION_MODEL_CONST.TRACK_SCORE_COEFFICIENTS
 
     def analyze_track(self, track_data):
         """Analyzes track history to determine most likely class"""
-        # We use defaultdict to avoid explicitly initializing stats for new classes
-        # This makes the code more concise and handles first appearances automatically
         class_stats = defaultdict(lambda: {
             'count': 0,
             'total_conf': 0.0,
             'max_consecutive': 0,
             'current_consecutive': 0,
-            'last_class': None
         })
         
-        # Track consecutive detections because stable classifications
-        # are more reliable than sporadic ones
+        # Track consecutive detections because stable classifications are more reliable than sporadic ones
+        last_seen_class = None
         for frame, _, conf, cls in track_data:
             stats = class_stats[cls]
             stats['count'] += 1
             stats['total_conf'] += conf
             
             # Track consecutive detections
-            if stats['last_class'] == cls:
+            if last_seen_class == cls:
                 stats['current_consecutive'] += 1
             else:
+                # Reset consecutive counter for all classes when sequence breaks
+                for cls_stats in class_stats.values():
+                    cls_stats['current_consecutive'] = 0
                 stats['current_consecutive'] = 1
+                
             stats['max_consecutive'] = max(stats['max_consecutive'], 
                                          stats['current_consecutive'])
-            stats['last_class'] = cls
+            last_seen_class = cls
 
         # Combine different metrics for final class selection:
-        # - Average confidence: How sure the model is
-        # - Frequency: How often this class appears
-        # - Consecutive detections: Stability of classification
+        # Average confidence: How sure the model is
+        # Frequency: How often 
+        # Consecutive detections: Stability of classification?
         class_scores = {}
         for cls, stats in class_stats.items():
             avg_conf = stats['total_conf'] / stats['count']
@@ -63,7 +65,9 @@ class Counter:
             consec_score = stats['max_consecutive'] / len(track_data)
             
             # Combine scores (can be weighted differently)
-            class_scores[cls] = (avg_conf + freq_score + consec_score) / 3
+            class_scores[cls] = (self.score_coeffs['avg_conf'] * avg_conf 
+                                 + self.score_coeffs['freq_score'] * freq_score 
+                                 + self.score_coeffs['consec_score'] * consec_score) / sum(self.score_coeffs.values())
 
         # Get class with highest score
         final_class = max(class_scores.items(), key=lambda x: x[1])
