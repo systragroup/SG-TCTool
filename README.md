@@ -88,7 +88,7 @@ The utils directory contains several key modules:
 1. Clone the repository.  
 
     ```bash
-    git clone https://github.com/AmauryDufour/TrafficCounting.git 
+    git clone https://github.com/systragroup/SG-TCTool.git 
     ```
 
 2. Create and activate a Python virtual environment.
