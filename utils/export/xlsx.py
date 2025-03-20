@@ -170,7 +170,7 @@ class xlsxCompiler:
             site_location = data['Site']
             date = data['Date'].strftime('%Y-%m-%d')
             vehicle_type = data['Vehicle Type']
-            directions = " - ".join(sorted(data['Directions']))
+            directions = " - ".join(sorted(str(data['Directions'])))
             interval_15_min = data['15 Min Interval']
             interval_hr = data['Hour Interval']
             time = data['Time of last Crossing']

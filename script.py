@@ -1,3 +1,7 @@
+'''
+This file is independant of the project, it is a version of app.py without GUI
+'''
+
 import os
 import threading
 import datetime
