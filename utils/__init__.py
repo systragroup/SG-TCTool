@@ -25,7 +25,7 @@ TRIPLINE_COLORS = {
 }
 
 class DETECTION_MODEL_CONST():
-    """Configuration constants for object detection models."""
+    '''Configuration constants for object detection models.'''
     
     def __init__(self):
         # Only YOLO .pt models support input resizing through their predictor

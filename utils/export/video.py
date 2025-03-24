@@ -10,7 +10,7 @@ from utils import CLASS_COLORS, TRIPLINE_COLORS, DESC_WIDTH
 
 
 class Annotator:
-    """
+    '''
     Handles video annotation and export with tracking visualization.
     
     Features:
@@ -18,14 +18,14 @@ class Annotator:
     - Display bounding boxes with class labels
     - Show triplines and crossing points
     - Display real-time counting statistics
-    """
+    '''
 
     def __init__(self, data_manager, progress_callback=None):
-        """
+        '''
         Args:
             data_manager: DataManager instance containing tracking results
             progress_callback: Optional callback for progress reporting
-        """
+        '''
         self.progress_callback = progress_callback
         self.data_manager = data_manager
         self.START = data_manager.START
@@ -39,19 +39,19 @@ class Annotator:
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
 
     def draw_trajectory(self, points, traj_color, traj_thickness=2):
-        """
+        '''
         Draws smooth trajectory lines for tracked objects.
         
         Args:
             points: List of trajectory points
             traj_color: RGB color tuple for the trajectory
             traj_thickness: Line thickness in pixels
-        """
+        '''
         cv2.polylines(self.frame, [points], isClosed=False, color=traj_color, thickness=traj_thickness)
         cv2.circle(self.frame, (points[-1][0], points[-1][1]), 5, traj_color, -1)
     
     def draw_box_on_frame(self, id : int, color : tuple[int,int,int], bbox : tuple[int,int,int,int], score : float, class_name : str):
-        """
+        '''
         Draws a bounding box with label on the current frame.
         
         Args:
@@ -60,18 +60,18 @@ class Annotator:
             bbox: Bounding box coordinates (x,y,w,h)
             score: Detection confidence score
             class_name: Detected class name
-        """
+        '''
         # Get analyzed data
         track_analysis = self.data_manager.TRACK_ANALYSIS.get(id, None)
         if track_analysis:
             final_class = self.data_manager.names[track_analysis['class']]
             avg_conf = track_analysis['confidence']
             if final_class==class_name : 
-                label = f"ID{id}-{final_class} ({avg_conf:.2f}/{score:.2f})"
+                label = f'ID{id}-{final_class} ({avg_conf:.2f}/{score:.2f})'
             else : 
-                label = f"ID{id}-{final_class}/{class_name} ({avg_conf:.2f}/{score:.2f})"
+                label = f'ID{id}-{final_class}/{class_name} ({avg_conf:.2f}/{score:.2f})'
         else:
-            label = f"ID{id}-{class_name} ({score:.2f})"
+            label = f'ID{id}-{class_name} ({score:.2f})'
 
         lbl_margin = 3 #label margin
         bbox = [int(value) for value in bbox]
@@ -92,7 +92,7 @@ class Annotator:
                     thickness=2)
 
     def write_annotated_video(self, export_path_mp4):
-        """
+        '''
         Creates an annotated video file with visualization overlays.
         
         Features:
@@ -106,10 +106,10 @@ class Annotator:
             
         Returns:
             str: Path to the exported video file
-        """
+        '''
         self.frame_count = self.data_manager.frame_count
-        self.console_progress = tqdm(total=self.frame_count, desc=f'{"Writing annotated video":<{DESC_WIDTH}}', unit="frames", dynamic_ncols=True)
-        model_name_text = f"Model: {os.path.basename(self.data_manager.selected_model)}"
+        self.console_progress = tqdm(total=self.frame_count, desc=f'{'Writing annotated video':<{DESC_WIDTH}}', unit='frames', dynamic_ncols=True)
+        model_name_text = f'Model: {os.path.basename(self.data_manager.selected_model)}'
 
         # Check if same file exists and enumerate names if it does
         base, extension = os.path.splitext(export_path_mp4)
@@ -117,7 +117,7 @@ class Annotator:
         new_export_path_mp4 = export_path_mp4
 
         while os.path.exists(new_export_path_mp4):
-            new_export_path_mp4 = f"{base}_{counter}{extension}"
+            new_export_path_mp4 = f'{base}_{counter}{extension}'
             counter += 1
 
         self.export_path = new_export_path_mp4
@@ -202,7 +202,7 @@ class Annotator:
                         # Optionally, label the tripline
                         cv2.putText(
                             self.frame,
-                            f"{idx+1}",
+                            f'{idx+1}',
                             (int(tripline['start']['x']), int(tripline['start']['y']) - 10),
                             cv2.FONT_HERSHEY_SIMPLEX,
                             1,
@@ -211,7 +211,7 @@ class Annotator:
                         )
 
                     # Write the count of objects on each frame
-                    count_text_1 = f"{len(counted)}/{len(self.data_manager.CROSSED)} objects :"
+                    count_text_1 = f'{len(counted)}/{len(self.data_manager.CROSSED)} objects :'
                     cv2.putText(self.frame, count_text_1, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
                     # Add and display text lines for each of the detected classes
@@ -221,7 +221,7 @@ class Annotator:
 
                     line_y = 70
                     for clss, count in class_lines.items():
-                        class_text = f"{self.data_manager.names[int(clss)]}: {count}"
+                        class_text = f'{self.data_manager.names[int(clss)]}: {count}'
                         cv2.putText(self.frame, class_text, (10, line_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (40, 35, 210), 2)
                         line_y += 30
 
@@ -249,7 +249,7 @@ class Annotator:
         return self.export_path
     
     def reformat_video(self, input_path : str, ffmpeg_path='ffmpeg', cleanup=True):
-        """
+        '''
         Reencodes video using FFmpeg for better compatibility.
         
         Args:
@@ -259,7 +259,7 @@ class Annotator:
             
         Returns:
             str: Path to the reformatted video file
-        """
+        '''
         output_path = str(input_path).replace('.mp4', '_reformatted.mp4')
 
         command = [
@@ -274,22 +274,22 @@ class Annotator:
         ]
 
         try:
-            logging.info(f"Reformatting video output")
+            logging.info(f'Reformatting video output')
             subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             if cleanup:
                 try:
                     os.remove(input_path)
                     os.rename(output_path, input_path)
                 except Exception as e:
-                    logging.warning(f"Could not delete or rename video: {str(e)}")
+                    logging.warning(f'Could not delete or rename video: {str(e)}')
             else :
                 try:
                     os.rename(input_path, input_path.replace('.mp4', '_old.mp4'))
                     os.rename(output_path, input_path)
                 except Exception as e:
-                    logging.warning(f"Could not rename temp video: {str(e)}")
-            logging.info("Video reformatting completed successfully.")
+                    logging.warning(f'Could not rename temp video: {str(e)}')
+            logging.info('Video reformatting completed successfully.')
             return output_path
         except subprocess.CalledProcessError as e:
-            logging.error(f"FFmpeg error: {e.stderr.decode()}")
+            logging.error(f'FFmpeg error: {e.stderr.decode()}')
             return None

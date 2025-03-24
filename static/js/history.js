@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', function () {
     {% if selected_type == 'Counting' and selected_session_id and first_frame_path and triplines %}
-    const frameUrl = "{{ first_frame_path }}";
-    const triplines = {{ triplines | tojson }};
-    console.log(triplines)
-    loadCanvasImage(frameUrl, triplines);
+        const frameUrl = '{{ first_frame_path }}';
+        const triplines = {{ triplines | tojson }};
+        console.log(triplines)
+        loadCanvasImage(frameUrl, triplines);
     {% endif %}
     });
 

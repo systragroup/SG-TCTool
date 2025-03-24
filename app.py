@@ -42,7 +42,7 @@ os.makedirs(os.path.join(app.root_path, app.config['RESULTS_FOLDER']), exist_ok=
 os.makedirs(os.path.join(app.root_path, os.path.join(app.config['RESULTS_FOLDER'], 'compiler')), exist_ok=True)
 os.makedirs(os.path.join(app.root_path, app.config['LOGS_FOLDER']), exist_ok=True)
 
-app.secret_key = "SystraMVASingapore"  #not used
+app.secret_key = 'SystraMVASingapore'  #not used
 app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024  # 1000 MB
 
 #Processing
@@ -95,7 +95,7 @@ def process_video_task(data_manager, session_id, paths):
                 annotator = Annotator(data_manager, progress_callback=lambda p: update_progress(session_id, 'Annotation', p))
                 annotator.write_annotated_video(annotated_video_path)
                 if not os.path.exists(paths['ffmpeg_path']):
-                    logger.warning(f"ffmpeg executable not found at {paths['ffmpeg_path']}")
+                    logger.warning(f'ffmpeg executable not found at {paths['ffmpeg_path']}')
                 else :
                     paths['annotated_video_path'] = annotator.reformat_video(annotated_video_path, ffmpeg_path=paths['ffmpeg_path'], cleanup=True)
                 update_progress(session_id, 'Annotation', 100)
@@ -107,8 +107,8 @@ def process_video_task(data_manager, session_id, paths):
             update_progress(session_id, 'Counting', -1)
             update_progress(session_id, 'Excel', -1)
             update_progress(session_id, 'Annotation', -1)
-            session_manager.sessions[session_id]['results'][session_id] = {'error': f"Error processing video: {str(e)}"}
-            logging.error(f"Error processing video: {str(e)}", exc_info=True)
+            session_manager.sessions[session_id]['results'][session_id] = {'error': f'Error processing video: {str(e)}'}
+            logging.error(f'Error processing video: {str(e)}', exc_info=True)
 
 @app.route('/')
 def index():
@@ -137,7 +137,7 @@ def pre_process_video(session_id):
         model_file.save(model_path)
         session_manager.sessions[session_id]['model_path'] = model_path
         log_session(session_id)
-        return jsonify({"status": "success"})
+        return jsonify({'status': 'success'})
     
     return jsonify({'error': 'Missing files'}), 400
 
@@ -179,7 +179,7 @@ def start_processing(session_id):
 
     response_paths = {key : os.path.basename(path) for key, path in paths.items()}
 
-    return jsonify({"status": "Processing started", "session_id": session_id, "paths": response_paths})
+    return jsonify({'status': 'Processing started', 'session_id': session_id, 'paths': response_paths})
 
 def log_session(session_id):
     PROCESS_LOG_FILE = os.path.join(os.path.join(app.root_path, app.config['LOGS_FOLDER']), 'process_session_log.json')
@@ -214,7 +214,7 @@ def initialize(session_id = None):
         video_filename = secure_filename(video_file.filename)
         video_path = os.path.join(os.path.join(app.root_path, app.config['UPLOADS_FOLDER']), video_filename)
         video_file.save(video_path)
-        first_frame_filename = f"{os.path.splitext(os.path.basename(video_path))[0]}_first_frame.jpg"
+        first_frame_filename = f'{os.path.splitext(os.path.basename(video_path))[0]}_first_frame.jpg'
         frame_path = os.path.join(app.root_path, app.config['RESULTS_FOLDER'], session_id, first_frame_filename)
         success = extract_first_frame(video_path, frame_path)
         if success:
@@ -284,7 +284,7 @@ def compile_reports():
         
         try:
             if not files:
-                raise ValueError("No files selected for compilation.")
+                raise ValueError('No files selected for compilation.')
             file_paths = []
             for file in files:
                 filename = secure_filename(file.filename)
@@ -320,13 +320,13 @@ def compile_reports():
     return render_template('compile.html')
 
 def log_compile_session(session_id, data):
-    """
+    '''
     Logs compile session details to compile_session_log.json.
     
     Args:
         session_id (str): Unique identifier for the compile session.
         data (dict): Dictionary containing compile session details.
-    """
+    '''
     COMPILE_LOG_FILE = os.path.join(os.path.join(app.root_path, app.config['LOGS_FOLDER']), 'compile_session_log.json')
     
     # Load existing log data
@@ -409,7 +409,7 @@ def download_history_file(session_type, session_id, filename):
     elif session_type == 'Compiling':
         directory = os.path.join(app.root_path, app.config['RESULTS_FOLDER'], 'compiler')
     else:
-        return "Invalid session type", 400
+        return 'Invalid session type', 400
     return send_from_directory(directory, filename, as_attachment=True)
 
 @app.route('/streetcount', methods=['GET', 'POST'])
@@ -475,5 +475,5 @@ def compile_streetcount():
     return render_template('streetcount.html')
 
 # Run the app
-if __name__ == "__main__" :
+if __name__ == '__main__' :
     app.run() #Only use for development. Debug should be False to prevent server restart at each change of any underlying .py file 

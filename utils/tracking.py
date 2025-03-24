@@ -8,25 +8,25 @@ import numpy as np
 from utils import DESC_WIDTH, DETECTION_MODEL_CONST
 
 class Counter:
-    """
+    '''
     Handles counting objects crossing predefined triplines in video analysis.
     
     Analyzes tracks of detected objects and determines when they cross triplines,
     recording their class, direction, and confidence scores.
-    """
+    '''
     def __init__(self, data_manager, progress_callback=None):
-        """
+        '''
         Args:
             data_manager: DataManager instance containing video and tracking data
             progress_callback: Optional callback function to report progress
-        """
+        '''
         self.progress_callback = progress_callback
         self.triplines = data_manager.triplines  # Access multiple triplines
         self.directions = data_manager.directions
         self.score_coeffs = DETECTION_MODEL_CONST.TRACK_SCORE_COEFFICIENTS
 
     def analyze_track(self, track_data):
-        """Analyzes track history to determine most likely class"""
+        '''Analyzes track history to determine most likely class'''
         class_stats = defaultdict(lambda: {
             'count': 0,
             'total_conf': 0.0,
@@ -78,7 +78,7 @@ class Counter:
         }
 
     def count(self, data_manager):
-        """
+        '''
         Processes all tracks to count objects crossing triplines.
         
         For each track, determines if and where it crosses triplines and records:
@@ -89,12 +89,12 @@ class Counter:
         
         Args:
             data_manager: DataManager instance containing tracking data
-        """
+        '''
         obj_count = 0
         total_objs = len(data_manager.TRACK_DATA)
         console_progress = tqdm(total=total_objs, 
-                              desc=f'{"Counting crossings":<{DESC_WIDTH}}', 
-                              unit="tracks", 
+                              desc=f'{'Counting crossings':<{DESC_WIDTH}}', 
+                              unit='tracks', 
                               dynamic_ncols=True)
         
         with logging_redirect_tqdm():
@@ -147,26 +147,26 @@ class Counter:
         return ccw_point(START, A, B) != ccw_point(END, A, B) and ccw_point(START, END, A) != ccw_point(START, END, B)
 
 class Tracker:
-    """
+    '''
     Handles object detection and tracking in video frames using YOLO.
     
     Processes video frames to detect and track objects, maintaining their
     position and class information throughout the video.
-    """
+    '''
     def __init__(self, data_manager, progress_callback=None, verbose=False):
-        """
+        '''
         Args:
             data_manager: DataManager instance containing video and model settings
             progress_callback: Optional callback function to report progress (for flask client calls)
             verbose: Boolean to control logging verbosity
-        """
+        '''
         self.progress_callback = progress_callback
         self.video_path = data_manager.video_path
         self.selected_model = data_manager.selected_model
         self.inference_tracker = data_manager.inference_tracker
         self.device_name = data_manager.device_name
         self.verbose = verbose
-        if DETECTION_MODEL_CONST.ALLOW_RESIZE and data_manager.model_type ==".pt": #Only pt models support resizing
+        if DETECTION_MODEL_CONST.ALLOW_RESIZE and data_manager.model_type =='.pt': #Only pt models support resizing
             self.image_size = [32 * (data_manager.width//32) + 32 * min (1,data_manager.width%32), 32 * (data_manager.height//32) + 32 * min (1,data_manager.height%32)] # Input size must be a multiple of max stride 32
         else : self.image_size = [640, 640]
         # Load YOLO model
@@ -201,7 +201,7 @@ class Tracker:
         self.cap = cv2.VideoCapture(self.video_path)
         self.frame_count = data_manager.frame_count
 
-        self.console_progress = tqdm(total=self.frame_count, desc=f"{'YOLO is working':<{DESC_WIDTH}}", unit="frames", dynamic_ncols=True)
+        self.console_progress = tqdm(total=self.frame_count, desc=f'{'YOLO is working':<{DESC_WIDTH}}', unit='frames', dynamic_ncols=True)
         # Run inference and tracking
         total_frames = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
         current_frame = 0

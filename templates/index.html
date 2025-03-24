@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset='UTF-8'>
     <title>Traffic Counting App</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}" />
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet'>
+    <link rel='shortcut icon' href='{{ url_for('static', filename='images/favicon.ico') }}' />
     <style>
         /* Custom Colors */
         .progress-bar-red {
@@ -20,12 +20,12 @@
 
         .progress-bar-good {
             background-color: #1e8f1e;
-            /* Red */
+            /* Green */
         }
 
         .progress-bar-bad {
             background-color: #610808;
-            /* Red */
+            /* DarkRed */
         }
 
         /* Compact Directions and Tripline */
@@ -85,78 +85,80 @@
 <body>
     { padding-top: 70px; }
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">Traffic Counting App</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+    <nav class='navbar navbar-expand-lg navbar-light bg-light fixed-top'>
+        <div class='container-fluid'>
+            <a class='navbar-brand' href='/'>Traffic Counting App</a>
+            <!--
+            <button class='navbar-toggler' type='button' data-bs-toggle='collapse' data-bs-target='#navbarNav'
+                aria-controls='navbarNav' aria-expanded='false' aria-label='Toggle navigation'>
+                <span class='navbar-toggler-icon'></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/compile">Compiler</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/streetcount">Street Count</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/history">History</a></li>
+            -->
+            <div class='collapse navbar-collapse' id='navbarNav'>
+                <ul class='navbar-nav ms-auto'>
+                    <li class='nav-item'><a class='nav-link active' href='/'>Home</a></li>
+                    <li class='nav-item'><a class='nav-link' href='/compile'>Compiler</a></li>
+                    <li class='nav-item'><a class='nav-link' href='/streetcount'>Street Count</a></li>
+                    <li class='nav-item'><a class='nav-link' href='/history'>History</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container my-4">
-        <h1 class="mb-4">Home</h1>
+    <div class='container my-4'>
+        <h1 class='mb-4'>Home</h1>
 
         <!-- Input Form -->
-        <div class="card mb-4">
-            <div class="card-header">Input Files</div>
-            <div class="card-body">
-                <form id="inputForm" enctype="multipart/form-data">
-                    <div class="row mb-3">
+        <div class='card mb-4'>
+            <div class='card-header'>Input Files</div>
+            <div class='card-body'>
+                <form id='inputForm' enctype='multipart/form-data'>
+                    <div class='row mb-3'>
                         <!-- Video File Selector -->
-                        <div class="col-md-6">
-                            <label for="videoFile" class="form-label">Video File</label>
-                            <input class="form-control" type="file" id="videoFile" name="videoFile" accept=".mp4,.avi"
+                        <div class='col-md-6'>
+                            <label for='videoFile' class='form-label'>Video File</label>
+                            <input class='form-control' type='file' id='videoFile' name='videoFile' accept='.mp4,.avi'
                                 required>
                         </div>
                         <!-- Model File Selector -->
-                        <div class="col-md-6">
-                            <label for="modelFile" class="form-label">Model File</label>
-                            <input class="form-control" type="file" id="modelFile" name="modelFile" accept=".pt,.onnx"
+                        <div class='col-md-6'>
+                            <label for='modelFile' class='form-label'>Model File</label>
+                            <input class='form-control' type='file' id='modelFile' name='modelFile' accept='.pt,.onnx'
                                 required>
                         </div>
                     </div>
 
                     <!-- Inference Tracker Selector -->
-                    <div class="mb-3">
-                        <label for="inferenceTracker" class="form-label">Inference Tracker</label>
-                        <select class="form-select" id="inferenceTracker" name="inferenceTracker" required>
-                            <option value="bytetrack.yaml">ByteTrack</option>
-                            <option value="botsort.yaml">BoT-SORT</option>
+                    <div class='mb-3'>
+                        <label for='inferenceTracker' class='form-label'>Inference Tracker</label>
+                        <select class='form-select' id='inferenceTracker' name='inferenceTracker' required>
+                            <option value='bytetrack.yaml'>ByteTrack</option>
+                            <option value='botsort.yaml'>BoT-SORT</option>
                         </select>
                     </div>
 
                     <!-- Site Location -->
-                    <div class="mb-3">
-                        <label for="siteLocation" class="form-label">Site Location</label>
-                        <input type="text" class="form-control" id="siteLocation" name="siteLocation" required>
+                    <div class='mb-3'>
+                        <label for='siteLocation' class='form-label'>Site Location</label>
+                        <input type='text' class='form-control' id='siteLocation' name='siteLocation' required>
                     </div>
 
                     <!-- Start Date and Time Inputs -->
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="startDate" class="form-label">Start Date</label>
-                            <input type="date" class="form-control" id="startDate" name="startDate" required>
+                    <div class='row mb-3'>
+                        <div class='col-md-6'>
+                            <label for='startDate' class='form-label'>Start Date</label>
+                            <input type='date' class='form-control' id='startDate' name='startDate' required>
                         </div>
-                        <div class="col-md-6">
-                            <label for="startTime" class="form-label">Start Time</label>
-                            <input type="time" class="form-control" id="startTime" name="startTime" required>
+                        <div class='col-md-6'>
+                            <label for='startTime' class='form-label'>Start Time</label>
+                            <input type='time' class='form-control' id='startTime' name='startTime' required>
                         </div>
                     </div>
 
                     <!-- Export Annotated Video Checkbox -->
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="exportVideo" name="exportVideo">
-                        <label class="form-check-label" for="exportVideo">
+                    <div class='form-check mb-3'>
+                        <input class='form-check-input' type='checkbox' id='exportVideo' name='exportVideo'>
+                        <label class='form-check-label' for='exportVideo'>
                             Export Annotated Video
                         </label>
                     </div>
@@ -165,65 +167,65 @@
         </div>
 
         <!-- Tripline Drawing -->
-        <div class="card mb-4" id="triplineSection" style="display: none;">
-            <div class="card-header">Draw Triplines</div>
-            <div class="card-body">
+        <div class='card mb-4' id='triplineSection' style='display: none;'>
+            <div class='card-header'>Draw Triplines</div>
+            <div class='card-body'>
                 <!-- Interactive Canvas -->
-                <div id="canvas-container">
-                    <canvas id="drawCanvas"></canvas>
+                <div id='canvas-container'>
+                    <canvas id='drawCanvas'></canvas>
                 </div>
-                <p class="text-muted">Click and drag on the image above to draw a tripline.</p>
+                <p class='text-muted'>Click and drag on the image above to draw a tripline.</p>
 
                 <!-- Tripline Counter -->
-                <div id="triplineCounter" class="mb-3">
-                    Triplines: <span id="triplineCount">0</span>
+                <div id='triplineCounter' class='mb-3'>
+                    Triplines: <span id='triplineCount'>0</span>
                 </div>
 
                 <!-- Tripline Reset Button -->
-                <button type="button" id="resetTriplinesBtn" class="btn btn-danger">Reset Triplines</button>
+                <button type='button' id='resetTriplinesBtn' class='btn btn-danger'>Reset Triplines</button>
             </div>
         </div>
 
         <!-- Directions Definition  -->
-        <div class="card mb-4" id="directionsCard" style="display: none;">
-            <div class="card-header">Define Directions</div>
-            <div class="card-body">
-                <form id="directionsForm">
+        <div class='card mb-4' id='directionsCard' style='display: none;'>
+            <div class='card-header'>Define Directions</div>
+            <div class='card-body'>
+                <form id='directionsForm'>
                 </form>
                 <!-- Save and Processing button -->
-                <button type="button" id="saveAndSubmitBtn" class="btn btn-primary">Save & Submit for
+                <button type='button' id='saveAndSubmitBtn' class='btn btn-primary'>Save & Submit for
                     Processing</button>
             </div>
         </div>
 
         <!-- Progress Bars Layout -->
-        <div class="card mb-4">
-            <div class="card-header">Processing</div>
-            <div class="progress-container">
+        <div class='card mb-4' id='processingCard' style='display: none;'>
+            <div class='card-header'>Processing</div>
+            <div class='progress-container'>
                 <!-- YOLO Progress Bar -->
-                <div class="progress-row">
-                    <div class="progress" style="height: 20px; flex: 1;">
-                        <div id="progressBarYOLO"
-                            class="progress-bar progress-bar-striped progress-bar-animated progress-bar-red"
-                            role="progressbar" style="width: 0%; ">YOLO: 0%</div>
+                <div class='progress-row'>
+                    <div class='progress' style='height: 20px; flex: 1;'>
+                        <div id='progressBarYOLO'
+                            class='progress-bar progress-bar-striped progress-bar-animated progress-bar-red'
+                            role='progressbar' style='width: 0%; '>YOLO: 0%</div>
                     </div>
                 </div>
                 <!-- Counting, Excel, Annotation Progress Bars -->
-                <div class="progress-row three-columns">
-                    <div class="progress" style="height: 20px;">
-                        <div id="progressBarCounting"
-                            class="progress-bar progress-bar-striped progress-bar-animated progress-bar-gray"
-                            role="progressbar" style="width: 0%; ">Counting: 0%</div>
+                <div class='progress-row three-columns'>
+                    <div class='progress' style='height: 20px;'>
+                        <div id='progressBarCounting'
+                            class='progress-bar progress-bar-striped progress-bar-animated progress-bar-gray'
+                            role='progressbar' style='width: 0%; '>Counting: 0%</div>
                     </div>
-                    <div class="progress" style="height: 20px;">
-                        <div id="progressBarExcel"
-                            class="progress-bar progress-bar-striped progress-bar-animated progress-bar-red"
-                            role="progressbar" style="width: 0%; ">Report: 0%</div>
+                    <div class='progress' style='height: 20px;'>
+                        <div id='progressBarExcel'
+                            class='progress-bar progress-bar-striped progress-bar-animated progress-bar-red'
+                            role='progressbar' style='width: 0%; '>Report: 0%</div>
                     </div>
-                    <div class="progress" style="height: 20px;">
-                        <div id="progressBarAnnotation"
-                            class="progress-bar progress-bar-striped progress-bar-animated progress-bar-gray"
-                            role="progressbar" style="width: 0%;">Annotation: 0%</div>
+                    <div class='progress' style='height: 20px;'>
+                        <div id='progressBarAnnotation'
+                            class='progress-bar progress-bar-striped progress-bar-animated progress-bar-gray'
+                            role='progressbar' style='width: 0%;'>Annotation: 0%</div>
                     </div>
                 </div>
             </div>
@@ -232,19 +234,19 @@
 
 
         <!-- Result and Download Links -->
-        <div class="card mb-4">
-            <div class="card-header">Results</div>
-            <div class="card-body">
-                <p id="result" class="text-muted"> Waiting for input submission</p>
+        <div class='card mb-4' id='resultsCard' style='display: none;'>
+            <div class='card-header'>Results</div>
+            <div class='card-body'>
+                <p id='result' class='text-muted'> Waiting for input submission</p>
 
-                <div id="downloadLinks" class="mt-4">
+                <div id='downloadLinks' class='mt-4'>
                 </div>
 
             </div>
         </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='js/main_script.js') }}"></script>
+    <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js'></script>
+    <script src='{{ url_for('static', filename='js/main_script.js') }}'></script>
 
 
 </body>

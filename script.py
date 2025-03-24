@@ -93,13 +93,13 @@ def process_video_task(data_manager, paths):
             annotator = Annotator(data_manager)
             annotator.write_annotated_video(paths['annotated_video_path'])
             if not os.path.exists(paths['ffmpeg_path']):
-                logger.warning(f"ffmpeg executable not found at {paths['ffmpeg_path']}")
+                logger.warning(f'ffmpeg executable not found at {paths['ffmpeg_path']}')
                 return
             else :
                 paths['output_vid'] = annotator.reformat_video(paths['annotated_video_path'], ffmpeg_path=paths['ffmpeg_path'])
 
     except Exception as e:
-        logger.error(f"Error processing video: {str(e)}", exc_info=True)
+        logger.error(f'Error processing video: {str(e)}', exc_info=True)
 
 def draw_triplines(first_frame_path):
     triplines = []
@@ -108,7 +108,7 @@ def draw_triplines(first_frame_path):
     img = cv2.imread(first_frame_path)
 
     if img is None:
-        logging.error(f"Failed to load image from {first_frame_path}")
+        logging.error(f'Failed to load image from {first_frame_path}')
         return triplines
 
     def draw_line(event, x, y, flags, param):
@@ -116,7 +116,7 @@ def draw_triplines(first_frame_path):
         if event == cv2.EVENT_LBUTTONDOWN:
             drawing = True
             start_point = (x, y)
-            logging.info(f"Tripline start point: {start_point}")
+            logging.info(f'Tripline start point: {start_point}')
         elif event == cv2.EVENT_MOUSEMOVE:
             if drawing:
                 temp_img = img.copy()
@@ -126,13 +126,13 @@ def draw_triplines(first_frame_path):
             drawing = False
             end_point = (x, y)
             triplines.append({
-                "start": {"x": start_point[0], "y": start_point[1]},
-                "end": {"x": end_point[0], "y": end_point[1]}
+                'start': {'x': start_point[0], 'y': start_point[1]},
+                'end': {'x': end_point[0], 'y': end_point[1]}
             })
             cv2.line(img, start_point, end_point, (0, 255, 0), 2)
             cv2.imshow('Draw Triplines', img)
-            logger.info(f"Tripline end point: {end_point}")
-            logger.info(f"Total triplines: {len(triplines)}")
+            logger.info(f'Tripline end point: {end_point}')
+            logger.info(f'Total triplines: {len(triplines)}')
 
     cv2.namedWindow('Draw Triplines')
     cv2.setMouseCallback('Draw Triplines', draw_line)
@@ -146,16 +146,16 @@ def draw_triplines(first_frame_path):
         key = cv2.waitKey(1) & 0xFF
         if key == 13:  # Enter key
             if len(triplines) == 0:
-                logger.warning("No triplines drawn.")
+                logger.warning('No triplines drawn.')
             else:
-                logger.info("Finished drawing triplines.")
+                logger.info('Finished drawing triplines.')
             break
         elif key == ord('r'):
             triplines = []
             img = cv2.imread(first_frame_path)  # Reload image
-            logger.info("Restarting tripline drawing.")
+            logger.info('Restarting tripline drawing.')
         elif key == 27:  # Esc key
-            logger.info("Escape key pressed. Exiting process.")
+            logger.info('Escape key pressed. Exiting process.')
             cv2.destroyAllWindows()
             exit()
 
@@ -164,21 +164,21 @@ def draw_triplines(first_frame_path):
 
 def log_setup(data_manager, paths):
     setup_data = {
-    "video_path": data_manager.video_path,
-    "model_path": data_manager.selected_model,
-    "triplines": data_manager.triplines,
-    "directions": data_manager.directions,
-    "site_location": data_manager.site_location,
-    "inference_tracker": data_manager.inference_tracker,
-    "do_video_export": data_manager.do_video_export,
-    "start_datetime": data_manager.start_datetime.isoformat()
+    'video_path': data_manager.video_path,
+    'model_path': data_manager.selected_model,
+    'triplines': data_manager.triplines,
+    'directions': data_manager.directions,
+    'site_location': data_manager.site_location,
+    'inference_tracker': data_manager.inference_tracker,
+    'do_video_export': data_manager.do_video_export,
+    'start_datetime': data_manager.start_datetime.isoformat()
 }
 
     setup_file_path = os.path.join(paths['content_dir'], 'setup_data.json')
     with open(setup_file_path, 'w') as f:
         json.dump(setup_data, f, indent=4)
 
-    logger.info(f"Setup data logged to {setup_file_path}")
+    logger.info(f'Setup data logged to {setup_file_path}')
 
 def run(params):
     video_path = params['video_path']
@@ -202,13 +202,13 @@ def run(params):
     directions = []
     
     if len(triplines) == 1:
-        prompt = "Enter direction 1 : >"
+        prompt = 'Enter direction 1 : >'
         directions.append(input(prompt))
-        prompt = "Enter direction 2 : >"
+        prompt = 'Enter direction 2 : >'
         directions.append(input(prompt))
     else :
         for count, tripline in enumerate(triplines):
-            prompt = f"Enter the direction for tripline {count} : {tripline} >"
+            prompt = f'Enter the direction for tripline {count} : {tripline} >'
             directions.append(input(prompt))
     
     data_manager = DataManager()
@@ -234,23 +234,23 @@ if __name__ == '__main__':
     params = {}
 
     if False :
-        params['video_path'] = input(r"\path\to\your\vid>").strip().strip("'").strip('"')
-        params['model_path'] = input(r"\path\to\your\model>").strip().strip("'").strip('"')
-        params['site_location'] = input("Name of Location >").strip().strip("'").strip('"')
-        params['inference_tracker'] = input("Tracker (2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)) >").strip().strip("'").strip('"')
-        params['export_video'] = input("Do video export (True/False) >").strip().strip("'").strip('"').lower() == "true"
+        params['video_path'] = input(r'\path\to\your\vid>').strip().strip("'").strip('"')
+        params['model_path'] = input(r'\path\to\your\model>').strip().strip("'").strip('"')
+        params['site_location'] = input('Name of Location >').strip().strip("'").strip('"')
+        params['inference_tracker'] = input('Tracker (2 are supported : `bytetrack.yaml` & `botsort.yaml` (BoT-SORT is slower)) >').strip().strip("'").strip('"')
+        params['export_video'] = input('Do video export (True/False) >').strip().strip("'").strip('"').lower() == 'true'
         params['start_date'] = input("Date # 'YYYY-MM-DD' >") .strip().strip("'").strip('"')
         params['start_time'] = input("Time # 'HH:MM' >").strip().strip("'").strip('"')
-        params['ffmpeg_executable_path'] = input("FFmpeg executable path >").strip().strip("'").strip('"')
+        params['ffmpeg_executable_path'] = input('FFmpeg executable path >').strip().strip("'").strip('"')
     else :
-        params['video_path'] = r"C:\Users\adufour\SystraGroup\SIN Chee Keong - AI Training Video Set\Malaysia\MY1-short.mp4"
-        params['model_path'] = r"C:\Users\adufour\Downloads\models-20250210T083112Z-001\models\trained_model_n_nounknown\weights\best.onnx"
-        params['site_location'] = "MY1_n_nounknown"
-        params['inference_tracker'] = "bytetrack.yaml"
+        params['video_path'] = r'C:\Users\adufour\SystraGroup\SIN Chee Keong - AI Training Video Set\Malaysia\MY1-short.mp4'
+        params['model_path'] = r'C:\Users\adufour\Downloads\models-20250210T083112Z-001\models\trained_model_n_nounknown\weights\best.onnx'
+        params['site_location'] = 'MY1_n_nounknown'
+        params['inference_tracker'] = 'bytetrack.yaml'
         params['export_video'] = True
-        params['start_date'] = "2025-02-12"
-        params['start_time'] = "15:02"
-        params['ffmpeg_executable_path'] = r"C:\ffmpeg\bin\ffmpeg.exe"
+        params['start_date'] = '2025-02-12'
+        params['start_time'] = '15:02'
+        params['ffmpeg_executable_path'] = r'C:\ffmpeg\bin\ffmpeg.exe'
 
     run(params)
     
