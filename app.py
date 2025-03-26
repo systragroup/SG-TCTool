@@ -251,8 +251,8 @@ def get_results():
 
 @app.route('/download/<session_id>/<filename>')
 def download_file(session_id, filename):
-    directory = os.path.join(os.path.join(app.config['RESULTS_FOLDER']), session_id)
-    return send_from_directory(directory, filename)
+    directory = os.path.join(os.path.join(app.root_path, app.config['RESULTS_FOLDER']), session_id)
+    return send_from_directory(directory, filename, as_attachment=True)
 
 @app.route('/compile', methods=['GET', 'POST'])
 def compile_reports():

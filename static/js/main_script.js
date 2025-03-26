@@ -10,7 +10,7 @@ document.getElementById('videoFile').addEventListener('change', function () {
         const formData = new FormData();
         formData.append('videoFile', videoFile);
 
-
+        // Create the session, extract first frame
         fetch('/initialize', {
             method: 'POST',
             body: formData,
@@ -18,6 +18,8 @@ document.getElementById('videoFile').addEventListener('change', function () {
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
+                    // Reset the page, stock the current image in case of there was multiple videos launched
+                    document.getElementById('resetTriplinesBtn').click();
                     session_id = data.session_id;
                     currentImageUrl = data.frame_url;
                     loadCanvasImage(data.frame_url);
@@ -64,6 +66,7 @@ function initCanvasEvents(img) {
     }
 
     canvas.addEventListener('mousedown', (e) => {
+        // Test if it's the current video
         const cropImgSrc = img.src.toString().substring(img.src.length - currentImageUrl.length, img.src.length);
         if (currentImageUrl == cropImgSrc) {
             currentTripline.start = getScaledCoordinates(e);
@@ -73,6 +76,7 @@ function initCanvasEvents(img) {
 
     canvas.addEventListener('mousemove', (e) => {
         if (!isDrawing) return;
+        // Test if it's the current video
         const cropImgSrc = img.src.toString().substring(img.src.length - currentImageUrl.length, img.src.length);
         if (currentImageUrl == cropImgSrc) {
             currentTripline.end = getScaledCoordinates(e);
@@ -89,6 +93,7 @@ function initCanvasEvents(img) {
 
     canvas.addEventListener('mouseup', () => {
         isDrawing = false;
+        // Test if it's the current video
         const cropImgSrc = img.src.toString().substring(img.src.length - currentImageUrl.length, img.src.length);
         if (currentImageUrl == cropImgSrc) {
             if (currentTripline.start && currentTripline.end) {
@@ -108,6 +113,7 @@ function initCanvasEvents(img) {
 
     window.addEventListener('resize', () => {
         // Redraw frame and all triplines on window resize
+        // Test if it's the current video
         const cropImgSrc = img.src.toString().substring(img.src.length - currentImageUrl.length, img.src.length);
         if (currentImageUrl == cropImgSrc) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -120,23 +126,20 @@ function initCanvasEvents(img) {
     });
 
     document.getElementById('resetTriplinesBtn').addEventListener('click', () => {
-        const cropImgSrc = img.src.toString().substring(img.src.length - currentImageUrl.length, img.src.length);
-        if (currentImageUrl == cropImgSrc) {
-            triplines = [];
-            currentTripline = {};
+        triplines = [];
+        currentTripline = {};
 
-            // Update the tripline counter
-            updateTriplineCounter();
+        // Update the tripline counter
+        updateTriplineCounter();
 
-            // Clear canvas  redraw  original image
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0);
+        // Clear canvas  redraw  original image
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
 
-            document.getElementById('directionsCard').style.display = 'none';
-            document.getElementById('resetTriplinesBtn').style.display = 'none';
-            document.getElementById('processingCard').style.display = 'none';
-            document.getElementById('resultsCard').style.display = 'none';
-        };
+        document.getElementById('directionsCard').style.display = 'none';
+        document.getElementById('resetTriplinesBtn').style.display = 'none';
+        document.getElementById('processingCard').style.display = 'none';
+        document.getElementById('resultsCard').style.display = 'none';
     });
 }
 
@@ -188,8 +191,6 @@ function adjustDirectionsInputs() {
         addDirectionInput(directionsForm, `direction${index + 1}`, `Direction for Tripline ${index + 1}`);
     });
 }
-
-
 
 function addDirectionInput(form, id, label) {
     const div = document.createElement('div');
